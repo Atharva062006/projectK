@@ -1,16 +1,22 @@
-import mysql from "mysql2/promise";
-import dotenv from "dotenv";
+// Add your postgreSQL credentials in the .env file and then use them here to connect to the database
 
+import pkg from 'pg';
+import dotenv from 'dotenv';
+
+const { Pool } = pkg;
 dotenv.config();
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "inventory",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+
+const pool = new Pool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DBNAME,
+    port: process.env.DB_DBPORT
+});
+
+pool.on("connect", () => {
+    console.log("Connection pool established with database");
 });
 
 export default pool;
