@@ -1,9 +1,13 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/authController.js";
+import { registerUser, loginUser } from "../controllers/authController.js"; // Import auth controllers
 
 const authRouter = Router();
 
-// All the routes
-authRouter.post("/register", registerUser);
+// Auth routes registration
+authRouter.post("/register", registerUser); // Route for new user registration
+
+// POST /login route
+// Binds the loginUser controller to handle user credential validation and session token generation.
+authRouter.post("/login", loginUser);
 
 export default authRouter;
