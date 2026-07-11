@@ -2,9 +2,19 @@
 import jwt from "jsonwebtoken";
 // # Import bcrypt for secure password hashing and comparison
 import bcrypt from "bcrypt";
+// # Import crypto for secure reset token generation
+import crypto from "crypto";
 // # Import user and profile repositories
-import { createUser, findUserByEmail, updateLastLogin } from "../repositories/userRepository.js";
+import { 
+    createUser, 
+    findUserByEmail, 
+    updateLastLogin,
+    setResetToken,
+    findUserByResetToken,
+    updatePassword
+} from "../repositories/userRepository.js";
 import { createProfile } from "../repositories/profileRepository.js";
+import { createApprovalRequest } from "../repositories/approvalRepository.js";
 
 // # Register user service
 export const registerUserService = async ({ name, user_name, email, password, role = "member" }) => {
@@ -20,14 +30,22 @@ export const registerUserService = async ({ name, user_name, email, password, ro
 
     const username = name || user_name;
     
-    // # 3. Save the new user record with the hashed password into the database
-    const user = await createUser(username, email, passwordHash, role);
+    // # 3. Guest, recruiter and admin roles are active immediately; members and alumni require admin approval.
+    const isApproved = role === "guest" || role === "recruiter" || role === "admin";
 
-    // # 4. Automatically initialize an empty profile record linked to this user
-    await createProfile({ 
-        user_id: user.user_id,
-        full_name: username
-    });
+    // # 4. Save the new user record with the hashed password into the database
+    const user = await createUser(username, email, passwordHash, role, isApproved);
+
+    // # 5. Automatically initialize an empty profile record linked to this user for members and alumni
+    if (role === "member" || role === "alumni") {
+        const profile = await createProfile({ 
+            user_id: user.user_id,
+            full_name: username,
+            role_category: role === "alumni" ? "Alumni" : "Other Members"
+        });
+        // Create matching approval request
+        await createApprovalRequest(profile.profile_id);
+    }
 
     return user;
 };
@@ -46,17 +64,22 @@ export const loginUserService = async ({ email, password }) => {
         throw new Error("Invalid credentials");
     }
 
-    // # 3. Update last_login timestamp in database for audit/security tracking
+    // # 3. Ensure the account is approved by admin
+    if (!user.is_approved) {
+        throw new Error("Account pending admin approval");
+    }
+
+    // # 4. Update last_login timestamp in database for audit/security tracking
     await updateLastLogin(user.user_id);
 
-    // # 4. Generate JWT payload including user_id, email, and user role for RBAC
+    // # 5. Generate JWT payload including user_id, email, and user role for RBAC
     const payload = {
         user_id: user.user_id,
         email: user.email,
         role: user.role
     };
 
-    // # 5. Sign the token using secret key and set 1 day expiry duration
+    // # 6. Sign the token using secret key and set 1 day expiry duration
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
         console.warn("WARNING: JWT_SECRET environment variable is missing. Using insecure fallback.");
@@ -69,4 +92,39 @@ export const loginUserService = async ({ email, password }) => {
     );
 
     return { user, token };
+};
+
+// # Request password reset service
+export const requestPasswordResetService = async (email) => {
+    const user = await findUserByEmail(email);
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    // Generate secure token and expiry time (15 mins from now)
+    const token = crypto.randomUUID();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    await setResetToken(email, token, expiry);
+
+    // Log the reset link in the console (mocking mail sending)
+    console.log(`\n========================================\n[MAIL MOCK] Password Reset Requested for ${email}\nReset Token: ${token}\nReset Link: http://localhost:5000/api/v1/auth/reset-password?token=${token}\n========================================\n`);
+
+    return { message: "Password reset link generated. Check console logs for link.", token };
+};
+
+// # Reset password using token service
+export const resetPasswordService = async (token, newPassword) => {
+    const user = await findUserByResetToken(token);
+    if (!user) {
+        throw new Error("Invalid or expired password reset token");
+    }
+
+    // Hash the new password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    await updatePassword(user.user_id, passwordHash);
+
+    return { message: "Password reset successful" };
 };

@@ -3,11 +3,11 @@ import pool from "../config/db.js";
 
 // # Creates a new user record in the database using hashed password.
 // # The database automatically generates a UUID for user_id.
-export const createUser = async (username, email, passwordHash, role = "member") => {
+export const createUser = async (username, email, passwordHash, role = "member", isApproved = false) => {
     // # Execute insertion and return the created user row
     const result = await pool.query(
-        "INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *",
-        [username, email, passwordHash, role]
+        "INSERT INTO users (username, email, password_hash, role, is_approved) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [username, email, passwordHash, role, isApproved]
     );
     return result.rows[0];
 };
@@ -28,9 +28,67 @@ export const findUserById = async (userId) => {
 
 // # Updates the last_login timestamp for a user.
 export const updateLastLogin = async (userId) => {
-    // # Set last_login column to current timestamp
+    // # Set last_login column column to current timestamp
     await pool.query(
         "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = $1",
         [userId]
     );
+};
+
+// # Gets all users with pending approval (is_approved = false) who are members or alumni.
+export const getPendingUsers = async () => {
+    const result = await pool.query(
+        "SELECT user_id, username, email, role, created_at FROM users WHERE is_approved = false AND role IN ('member', 'alumni') ORDER BY created_at DESC"
+    );
+    return result.rows;
+};
+
+// # Updates a user's approval status (approve or disable).
+export const updateApprovalStatus = async (userId, isApproved) => {
+    const result = await pool.query(
+        "UPDATE users SET is_approved = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2 RETURNING *",
+        [isApproved, userId]
+    );
+    return result.rows[0];
+};
+
+// # Retrieves all users for admin reporting.
+export const getAllUsers = async () => {
+    const result = await pool.query(
+        "SELECT user_id, username, email, role, is_approved, last_login, created_at FROM users ORDER BY created_at DESC"
+    );
+    return result.rows;
+};
+
+// # Sets reset token and expiry for a user by email.
+export const setResetToken = async (email, token, expiry) => {
+    const result = await pool.query(
+        "UPDATE users SET reset_token = $1, reset_token_expiry = $2, updated_at = CURRENT_TIMESTAMP WHERE email = $3 RETURNING *",
+        [token, expiry, email]
+    );
+    return result.rows[0];
+};
+
+// # Finds a user by reset token that is not expired.
+export const findUserByResetToken = async (token) => {
+    const result = await pool.query(
+        "SELECT * FROM users WHERE reset_token = $1 AND reset_token_expiry > CURRENT_TIMESTAMP",
+        [token]
+    );
+    return result.rows[0];
+};
+
+// # Updates a user's password and clears reset token.
+export const updatePassword = async (userId, passwordHash) => {
+    const result = await pool.query(
+        `UPDATE users 
+         SET password_hash = $1, 
+             reset_token = NULL, 
+             reset_token_expiry = NULL, 
+             updated_at = CURRENT_TIMESTAMP 
+         WHERE user_id = $2 
+         RETURNING *`,
+        [passwordHash, userId]
+    );
+    return result.rows[0];
 };

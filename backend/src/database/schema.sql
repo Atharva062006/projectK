@@ -1,4 +1,7 @@
 -- Drop tables in reverse order of dependency
+DROP TABLE IF EXISTS outbound_clicks CASCADE;
+DROP TABLE IF EXISTS pitch_members CASCADE;
+DROP TABLE IF EXISTS pitches CASCADE;
 DROP TABLE IF EXISTS audit_logs CASCADE;
 DROP TABLE IF EXISTS approval_requests CASCADE;
 DROP TABLE IF EXISTS resume_downloads CASCADE;
@@ -20,6 +23,8 @@ CREATE TABLE users (
     role VARCHAR(100) NOT NULL DEFAULT 'member',
     is_approved BOOLEAN DEFAULT FALSE,
     last_login TIMESTAMP,
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -37,6 +42,7 @@ CREATE TABLE profiles (
     department VARCHAR(255),
     college VARCHAR(255),
     location VARCHAR(255),
+    role_category VARCHAR(100) DEFAULT 'Other Members',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -90,7 +96,7 @@ CREATE TABLE resumes (
 CREATE TABLE profile_views (
     view_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     viewed_profile_id UUID NOT NULL REFERENCES profiles(profile_id) ON DELETE CASCADE,
-    viewer_profile_id UUID REFERENCES profiles(profile_id) ON DELETE SET NULL,
+    viewer_user_id UUID REFERENCES users(user_id) ON DELETE SET NULL,
     viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -98,7 +104,7 @@ CREATE TABLE profile_views (
 CREATE TABLE resume_downloads (
     download_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     profile_id UUID NOT NULL REFERENCES profiles(profile_id) ON DELETE CASCADE,
-    downloader_profile_id UUID REFERENCES profiles(profile_id) ON DELETE SET NULL,
+    downloader_user_id UUID REFERENCES users(user_id) ON DELETE SET NULL,
     downloaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -118,6 +124,34 @@ CREATE TABLE audit_logs (
     action VARCHAR(255) NOT NULL,
     ip_address VARCHAR(45),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 12. Pitches Table
+CREATE TABLE pitches (
+    pitch_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 13. Pitch Members Table (Junction)
+CREATE TABLE pitch_members (
+    pitch_id UUID NOT NULL REFERENCES pitches(pitch_id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES profiles(profile_id) ON DELETE CASCADE,
+    PRIMARY KEY (pitch_id, profile_id)
+);
+
+-- 14. Outbound Clicks Table
+CREATE TABLE outbound_clicks (
+    click_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id UUID NOT NULL REFERENCES profiles(profile_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    link_type VARCHAR(100) NOT NULL, -- e.g. github, linkedin, portfolio, leetcode
+    clicked_url VARCHAR(255) NOT NULL,
+    clicked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Predefined Engineering-Only Skills Seed Data

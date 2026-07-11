@@ -1,157 +1,376 @@
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Search, User, Filter, LayoutGrid, CheckSquare, Square, RefreshCw } from "lucide-react";
+import { api } from "@/lib/api";
 
-export default function Home() {
+interface ProfileCard {
+  profile_id: string;
+  full_name: string;
+  tagline: string;
+  availability: string;
+  department: string;
+  role_category: string;
+  role: string;
+  skills: { name: string; level: string }[];
+}
+
+interface DirectoryGroups {
+  "Core Team": ProfileCard[];
+  "Technical Team": ProfileCard[];
+  "Other Members": ProfileCard[];
+  "Alumni": ProfileCard[];
+}
+
+// Gorgeous fallback data for high-fidelity demo
+const MOCK_PROFILES: ProfileCard[] = [
+  {
+    profile_id: "demo-1",
+    full_name: "Atharva Kulkarni",
+    tagline: "Full Stack Engineer & AI Enthusiast",
+    availability: "Available",
+    department: "Core Team",
+    role_category: "Core Team",
+    role: "member",
+    skills: [{ name: "TypeScript", level: "Expert" }, { name: "Next.js", level: "Expert" }, { name: "PostgreSQL", level: "Intermediate" }]
+  },
+  {
+    profile_id: "demo-2",
+    full_name: "Sneha Sharma",
+    tagline: "UI/UX Designer & Frontend Developer",
+    availability: "Open to work",
+    department: "Technical Team",
+    role_category: "Technical Team",
+    role: "member",
+    skills: [{ name: "Figma", level: "Expert" }, { name: "React.js", level: "Expert" }, { name: "HTML5/CSS3", level: "Expert" }]
+  },
+  {
+    profile_id: "demo-3",
+    full_name: "Vikram Malhotra",
+    tagline: "DevOps & Cloud Architect",
+    availability: "Busy",
+    department: "Technical Team",
+    role_category: "Technical Team",
+    role: "member",
+    skills: [{ name: "Docker", level: "Expert" }, { name: "Kubernetes", level: "Intermediate" }, { name: "AWS", level: "Expert" }]
+  },
+  {
+    profile_id: "demo-4",
+    full_name: "Rohan Das",
+    tagline: "ML Engineer | Embedded Systems Dev",
+    availability: "Available",
+    department: "Technical Team",
+    role_category: "Technical Team",
+    role: "member",
+    skills: [{ name: "Python", level: "Expert" }, { name: "C++", level: "Expert" }, { name: "Embedded Systems", level: "Expert" }]
+  },
+  {
+    profile_id: "demo-5",
+    full_name: "Ananya Iyer",
+    tagline: "Systems Engineer & VLSI Designer",
+    availability: "Available",
+    department: "Alumni",
+    role_category: "Alumni",
+    role: "alumni",
+    skills: [{ name: "Verilog", level: "Expert" }, { name: "C (Programming Language)", level: "Expert" }, { name: "VLSI Design", level: "Intermediate" }]
+  },
+  {
+    profile_id: "demo-6",
+    full_name: "Rahul Verma",
+    tagline: "Backend Developer & Database Admin",
+    availability: "Open to work",
+    department: "Other Members",
+    role_category: "Other Members",
+    role: "member",
+    skills: [{ name: "Node.js", level: "Expert" }, { name: "Express.js", level: "Expert" }, { name: "PostgreSQL", level: "Expert" }]
+  }
+];
+
+export default function DirectoryPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+
+  const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [useMock, setUseMock] = useState(false);
+
+  const fetchProfiles = async () => {
+    setIsLoading(true);
+    try {
+      const res = await api.directory.search({});
+      if (res.ok && res.data) {
+        // Flatten the grouped object into a single array
+        const grouped = res.data as DirectoryGroups;
+        const flattened: ProfileCard[] = [];
+        Object.values(grouped).forEach(list => {
+          if (Array.isArray(list)) {
+            flattened.push(...list);
+          }
+        });
+        setDbProfiles(flattened);
+        setUseMock(flattened.length === 0);
+      } else {
+        setUseMock(true);
+      }
+    } catch {
+      setUseMock(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
+
+  const activeProfiles = useMock ? MOCK_PROFILES : dbProfiles;
+
+  // Filter Categories
+  const categoriesList = ["Core Team", "Technical Team", "Other Members", "Alumni"];
+  // Filter Availabilities
+  const availabilityOptions = ["Available", "Busy", "Open to work"];
+  // Filter Skills
+  const commonSkills = ["TypeScript", "Next.js", "Python", "Docker", "Figma", "C++"];
+
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const toggleAvailability = (av: string) => {
+    setSelectedAvailability(prev =>
+      prev.includes(av) ? prev.filter(a => a !== av) : [...prev, av]
+    );
+  };
+
+  const toggleSkill = (skill: string) => {
+    setSelectedSkills(prev =>
+      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+    );
+  };
+
+  // Filter profiles on frontend dynamically for smooth responsive search
+  const filteredProfiles = activeProfiles.filter(p => {
+    // Search query matches name, tagline or skills
+    if (searchQuery.trim() !== "") {
+      const s = searchQuery.toLowerCase();
+      const matchesName = p.full_name?.toLowerCase().includes(s);
+      const matchesTagline = p.tagline?.toLowerCase().includes(s);
+      const matchesSkills = p.skills?.some(sk => sk.name.toLowerCase().includes(s));
+      if (!matchesName && !matchesTagline && !matchesSkills) return false;
+    }
+    // Categories filter
+    if (selectedCategories.length > 0 && !selectedCategories.includes(p.role_category)) {
+      return false;
+    }
+    // Availability filter
+    if (selectedAvailability.length > 0 && !selectedAvailability.includes(p.availability)) {
+      return false;
+    }
+    // Skills filter
+    if (selectedSkills.length > 0) {
+      const hasAllSkills = selectedSkills.every(sKey =>
+        p.skills?.some(sk => sk.name.toLowerCase() === sKey.toLowerCase())
+      );
+      if (!hasAllSkills) return false;
+    }
+    return true;
+  });
+
   return (
-    <main>
-      {/* System Status Bar */}
-      <div className="bg-secondary-container border-b-[3px] border-black w-full px-6 py-1 flex justify-between items-center">
-        <span className="font-label text-[0.75rem] font-bold uppercase tracking-[0.05em]">PORTAL_REF: 004-X</span>
-        <span className="font-label text-[0.75rem] font-bold uppercase tracking-[0.05em]">SYSTEM_STATUS: ONLINE // UTC-0</span>
+    <div className="min-h-screen bg-[#090a0f] text-gray-200">
+      
+      {/* Outer Border Wireframe wrapper */}
+      <div className="border border-gray-800 rounded-xl overflow-hidden bg-[#0d0e15] shadow-2xl">
+
+        {/* Layout Grid: Sidebar + Main Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 min-h-[750px]">
+          
+          {/* LEFT SIDEBAR - FILTERS */}
+          <div className="border-r border-gray-800 p-6 bg-[#0c0d13] space-y-6">
+            <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
+              <Filter size={14} className="text-blue-400" />
+              <h2 className="text-xs font-mono font-bold tracking-wider uppercase text-gray-400">Filters</h2>
+              <button 
+                onClick={fetchProfiles} 
+                className="ml-auto text-xs text-gray-500 hover:text-blue-400 p-1 transition-colors"
+                title="Sync database data"
+              >
+                <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
+              </button>
+            </div>
+
+            {/* Role Categories */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-mono text-gray-400 font-semibold mb-2">Role Category</h3>
+              {categoriesList.map(cat => {
+                const checked = selectedCategories.includes(cat);
+                return (
+                  <div 
+                    key={cat} 
+                    onClick={() => toggleCategory(cat)}
+                    className="flex items-center gap-2.5 text-xs text-gray-400 hover:text-white cursor-pointer select-none py-1"
+                  >
+                    {checked ? (
+                      <CheckSquare size={14} className="text-blue-500 fill-blue-950" />
+                    ) : (
+                      <Square size={14} className="text-gray-600" />
+                    )}
+                    <span className="font-mono">{cat}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Availability */}
+            <div className="space-y-2 pt-2 border-t border-gray-800">
+              <h3 className="text-xs font-mono text-gray-400 font-semibold mb-2">Availability</h3>
+              {availabilityOptions.map(av => {
+                const checked = selectedAvailability.includes(av);
+                return (
+                  <div 
+                    key={av} 
+                    onClick={() => toggleAvailability(av)}
+                    className="flex items-center gap-2.5 text-xs text-gray-400 hover:text-white cursor-pointer select-none py-1"
+                  >
+                    {checked ? (
+                      <CheckSquare size={14} className="text-blue-500 fill-blue-950" />
+                    ) : (
+                      <Square size={14} className="text-gray-600" />
+                    )}
+                    <span className="font-mono">{av}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Core Tech Stack */}
+            <div className="space-y-2 pt-2 border-t border-gray-800">
+              <h3 className="text-xs font-mono text-gray-400 font-semibold mb-2">Skills</h3>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {commonSkills.map(sk => {
+                  const active = selectedSkills.includes(sk);
+                  return (
+                    <button
+                      key={sk}
+                      onClick={() => toggleSkill(sk)}
+                      className={`text-[10px] font-mono px-2.5 py-1 rounded-full border transition-all ${
+                        active 
+                          ? "bg-blue-950 text-blue-300 border-blue-600" 
+                          : "bg-[#14151f] text-gray-400 border-gray-800 hover:border-gray-700"
+                      }`}
+                    >
+                      {sk}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Data Mode Tag */}
+            <div className="pt-8 border-t border-gray-800">
+              <div className="rounded-lg bg-[#11131c] border border-gray-800 p-3 text-[11px] font-mono text-gray-500 space-y-1">
+                <div>Data Source: {useMock ? <span className="text-yellow-500">Demo Fallback</span> : <span className="text-green-500">Live Backend API</span>}</div>
+                <div>Loaded: {activeProfiles.length} cards</div>
+              </div>
+            </div>
+          </div>
+
+          {/* MAIN AREA - SEARCH & CARDS GRID */}
+          <div className="col-span-3 p-6 bg-[#0a0b10] flex flex-col">
+            
+            {/* Search Input Box */}
+            <div className="flex items-center gap-3 bg-[#0d0e15] border border-gray-800 rounded-xl px-4 py-3 mb-6 shadow-inner focus-within:border-gray-700 transition-colors">
+              <Search size={16} className="text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search profiles by name, availability, or tech stack keywords..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none text-sm text-gray-200 w-full placeholder-gray-500 font-mono"
+              />
+            </div>
+
+            {/* Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+              {filteredProfiles.length === 0 ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-20 text-center space-y-2">
+                  <LayoutGrid size={32} className="text-gray-700" />
+                  <p className="text-sm font-mono text-gray-500">No member profiles match the current filter selection</p>
+                </div>
+              ) : (
+                filteredProfiles.map((p) => {
+                  // Make dynamic gradient colors based on name initials to look modern
+                  const initials = p.full_name ? p.full_name.split(" ").map(n => n[0]).join("").toUpperCase() : "?";
+                  
+                  return (
+                    <Link
+                      href={`/profiles/${p.profile_id}`}
+                      key={p.profile_id}
+                      className="group block bg-[#0e1017] border border-gray-800 hover:border-blue-600 rounded-xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between h-[210px]"
+                    >
+                      {/* Card Top: Photo & Name / Availability */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          {/* Circular Photo Box */}
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600/35 to-indigo-950/70 border border-blue-500/20 flex items-center justify-center text-sm font-mono font-bold text-blue-300">
+                            {initials}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-sm text-white group-hover:text-blue-400 transition-colors font-mono">{p.full_name}</h3>
+                            <p className="text-[10px] text-gray-500 font-mono mt-0.5 line-clamp-1">{p.tagline}</p>
+                          </div>
+                        </div>
+
+                        {/* Middle info */}
+                        <div className="text-[11px] font-mono text-gray-400 space-y-0.5">
+                          <div>Dept: {p.department || "Technical Team"}</div>
+                        </div>
+                      </div>
+
+                      {/* Card Bottom: Skills & Availability tag */}
+                      <div className="space-y-3 border-t border-gray-800/60 pt-3">
+                        <div className="flex flex-wrap gap-1">
+                          {p.skills?.slice(0, 3).map(sk => (
+                            <span 
+                              key={sk.name} 
+                              className="text-[9px] font-mono bg-[#141620] text-gray-300 px-2 py-0.5 rounded border border-gray-800"
+                            >
+                              {sk.name}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full ${
+                            p.availability === "Available" 
+                              ? "bg-green-950/80 text-green-300 border border-green-900" 
+                              : p.availability === "Busy" 
+                                ? "bg-red-950/80 text-red-300 border border-red-900"
+                                : "bg-blue-950/80 text-blue-300 border border-blue-900"
+                          }`}>
+                            {p.availability}
+                          </span>
+                          <span className="text-[10px] font-mono text-blue-500 group-hover:translate-x-0.5 transition-transform">
+                            View Profile &rarr;
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+            
+          </div>
+
+        </div>
+
       </div>
 
-      {/* Hero Section */}
-      <section className="px-6 py-16 md:py-24 max-w-7xl mx-auto flex flex-col md:flex-row gap-12 items-center">
-        <div className="flex-1 text-left">
-          <h1 className="text-[3.5rem] md:text-[5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase">
-            Project K<br /><span className="text-primary">Portal</span> System
-          </h1>
-          <p className="text-xl font-medium border-l-[6px] border-primary pl-6 mb-10 max-w-xl">
-            The Digital Showcase of Our Talent. A high-performance collective of developers, designers, and engineers pushing the boundaries of Precision Brutalism.
-          </p>
-          <div className="flex flex-wrap gap-6">
-            <Link href="/members">
-              <button className="bg-primary text-on-primary border-[3px] border-black px-8 py-4 font-bold uppercase tracking-widest neo-shadow-lg active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all">
-                Browse Members
-              </button>
-            </Link>
-            <button className="bg-white text-black border-[3px] border-black px-8 py-4 font-bold uppercase tracking-widest neo-shadow-lg active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all">
-              Join the Club
-            </button>
-          </div>
-        </div>
-        <div className="flex-1 w-full relative">
-          <div className="bg-white border-[3px] border-black p-4 neo-shadow-lg rotate-2 select-none pointer-events-none">
-            <img 
-              className="w-full h-[400px] object-cover grayscale contrast-125 border-[2px] border-black" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi19uvgc0Cytkz5g09zYEGevL2p0heLuYJtqqmacLHs667yGzLqImHOzU35R3DaK5Ja3RgqP3mJ5K3bBiYCWB7J_k0__-ZB-dfoxStcbnmpq4Zgfhl54ZecG0j3ufiK0yB1AXAEi-ep2xqJCFSpE81coVINR04XIrV4YYnoSe6HwYjIQTClkMFgD-sr24_u5f7ZpbhrGY2PfZ16EgTUXoOS2U1Gpe-p5Hs5CDJz36HLz9h4vqxhpFe3vfpf_wIMzHRBk115P9O8K9Z" 
-              alt="Futuristic cyber security matrix interface"
-            />
-            <div className="mt-4 flex justify-between items-center font-black uppercase italic">
-              <span>LIVE_FEED_01</span>
-              <span className="text-primary">AUTH_REQUIRED</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Club Metrics */}
-      <section className="bg-white border-y-[3px] border-black">
-        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-surface-container-lowest border-[3px] border-black p-8 neo-shadow flex flex-col items-start cursor-default hover:bg-secondary-container transition-colors duration-300">
-            <span className="text-5xl font-black text-primary mb-2">100+</span>
-            <span className="font-label text-sm font-bold uppercase tracking-widest">Active Members</span>
-          </div>
-          <div className="bg-surface-container-lowest border-[3px] border-black p-8 neo-shadow flex flex-col items-start cursor-default hover:bg-secondary-container transition-colors duration-300">
-            <span className="text-5xl font-black text-primary mb-2">50+</span>
-            <span className="font-label text-sm font-bold uppercase tracking-widest">Global Alumni</span>
-          </div>
-          <div className="bg-surface-container-lowest border-[3px] border-black p-8 neo-shadow flex flex-col items-start cursor-default hover:bg-secondary-container transition-colors duration-300">
-            <span className="text-5xl font-black text-primary mb-2">200+</span>
-            <span className="font-label text-sm font-bold uppercase tracking-widest">Live Projects</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Members */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="flex items-end justify-between mb-12 border-b-[3px] border-black pb-4">
-          <h2 className="text-4xl font-black uppercase tracking-tighter">Featured_Talent</h2>
-          <Link href="/members" className="text-primary font-bold uppercase text-sm tracking-widest hover:underline">
-            View All Registry →
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {[
-            {
-              id: "c1",
-              name: "Alex Volkov",
-              title: "Lead Architect",
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCSklKvnNOaOMD9C1HduZ4Gf0B_br3mffxkrulFdMTS2o2YY1MfInclopPkTFVBhIKw5GPF4D7Fv1bw5ioBuxuDKhIeLAZU-a5U1AjQwx62zTw5WDJ2AD0QjScZcG4Cj1D9kMP5ptD1pCc7581o9Zphf-kwV7tz9NBBXarJaZiUe1ONC2hgK418LAglTB4rG5f4Y07ajHpyRVaJoVZUkRzPnjTBm8KYPMOgkA_UwD63AQdrdfBnNIcyCaxlta1v0ZseuzIFP0JLbuiv",
-              skills: ["React", "Python", "ML"]
-            },
-            {
-              id: "c4",
-              name: "Sarah Chen",
-              title: "Project Lead",
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAmfH8gFDmwTXyNHw-MGHIV_biZVYTMs1QCUeRgV7wLZYUYIO7a-SBhzWL28_N0Y42IA6WkkxeQodRvtKaeQiVI9vh1Ty7i9gvtR7j2twzgxq9pj0Gj1HjGlKj-o52kfAziVw9GAiZjOCi0pzdumhgS_JOxp6EZC4fTiE8Xeze-ZMEy7R7INkBV4pwFVaxTfg_L0zUPdjxsiJcD-4QaT3pW0zpfUc_YvYtaFUc5YAB_8wHIGCwUWdqSgcvevPpq0ZSBWd59GVFL-Iux",
-              skills: ["Agile", "Delivery", "Gov"]
-            },
-            {
-              id: "c3",
-              name: "Marcus Thorne",
-              title: "Protocol Officer",
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD1zG6b-N00PiwkYx7lVOvJCPEwUOLg0UPOasIHyb00xSg2YrsntbGmMV6XXFs5mtLKXDKSCfUGt_s5OKSSXRna0rr9TkIdBVZMHOYju5LG0yYKlykclfpb2WG6d8pvDykUWCskZQHmh-Fo3OJI70BZSNWNr55A2GRkNG_6Zo9lTvJkHTrTmNMqtbfkJissIaRxrt8ZTsyt8cgvG9yQCgFvdoikSTBCFh2vW2aNxJFsP2I-fctOaoRXahbFg_gR6Np9oocU0l3SJacA",
-              skills: ["Cybersec", "Audit", "Nodes"]
-            }
-          ].map((member, i) => (
-            <Link href={`/profile/${member.id}`} key={i} className="group relative block cursor-pointer">
-              <div className="bg-white border-[3px] border-black neo-shadow overflow-hidden group-hover:-translate-y-2 transition-transform">
-                <img 
-                  className="w-full h-64 object-cover grayscale group-hover:grayscale-0 transition-all border-b-[3px] border-black" 
-                  src={member.img} 
-                  alt={member.name}
-                />
-                <div className="p-6">
-                  <h3 className="text-2xl font-black uppercase mb-1">{member.name}</h3>
-                  <p className="text-primary font-bold text-xs uppercase tracking-widest mb-4">{member.title}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {member.skills.map((skill, j) => (
-                      <span key={j} className="bg-secondary-container border-[2px] border-black px-3 py-1 text-[0.65rem] font-black uppercase">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Domain Distribution (Asymmetric Bento Grid) */}
-      <section className="bg-black text-white py-20 px-6 mt-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-16">
-            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-secondary-container">Domains_of_Excellence</h2>
-            <p className="text-zinc-400 font-bold uppercase tracking-widest mt-4">Critical Technical Focus Areas</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[600px]">
-            {/* Web Dev */}
-            <div className="md:col-span-2 md:row-span-2 bg-primary border-[3px] border-white p-8 flex flex-col justify-end neo-shadow group cursor-pointer hover:bg-white hover:text-black transition-colors">
-              <span className="material-symbols-outlined text-6xl mb-6">desktop_windows</span>
-              <h3 className="text-4xl font-black uppercase leading-tight">Web<br />Development</h3>
-              <p className="mt-4 font-bold uppercase text-sm opacity-80">Full-stack solutions & performant architectures</p>
-            </div>
-            {/* Cybersecurity */}
-            <div className="md:col-span-2 bg-secondary-container text-black border-[3px] border-white p-8 flex items-center justify-between neo-shadow group cursor-pointer hover:bg-black hover:text-white transition-colors">
-              <div>
-                <h3 className="text-3xl font-black uppercase">Cybersecurity</h3>
-                <p className="font-bold uppercase text-xs mt-2">Zero-trust engineering</p>
-              </div>
-              <span className="material-symbols-outlined text-5xl">encrypted</span>
-            </div>
-            {/* AI */}
-            <div className="md:col-span-1 bg-zinc-800 border-[3px] border-white p-6 flex flex-col justify-between neo-shadow group cursor-pointer hover:bg-primary transition-colors">
-              <span className="material-symbols-outlined text-4xl">psychology</span>
-              <h3 className="text-xl font-black uppercase">Artificial Intelligence</h3>
-            </div>
-            {/* Data */}
-            <div className="md:col-span-1 bg-zinc-800 border-[3px] border-white p-6 flex flex-col justify-between neo-shadow group cursor-pointer hover:bg-secondary-container hover:text-black transition-colors">
-              <span className="material-symbols-outlined text-4xl">database</span>
-              <h3 className="text-xl font-black uppercase">Data Engineering</h3>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+    </div>
   );
 }

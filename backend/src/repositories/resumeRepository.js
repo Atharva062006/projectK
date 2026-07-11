@@ -31,3 +31,11 @@ export const deleteResume = async (resumeId) => {
     const result = await pool.query("DELETE FROM resumes WHERE resume_id = $1 RETURNING *", [resumeId]);
     return result.rows[0];
 };
+
+// # Logs a resume download event.
+export const logResumeDownload = async (profileId, downloaderUserId) => {
+    await pool.query(
+        "INSERT INTO resume_downloads (profile_id, downloader_user_id) VALUES ($1, $2)",
+        [profileId, downloaderUserId]
+    );
+};
