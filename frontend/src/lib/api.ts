@@ -67,6 +67,7 @@ export const api = {
     approveUser: (profileId: string) => request(`/admin/approve-user/${profileId}`, { method: "POST" }),
     disableUser: (userId: string) => request(`/admin/disable-user/${userId}`, { method: "POST" }),
     getAnalytics: () => request("/admin/analytics", { method: "GET" }),
+    getPitches: () => request("/admin/pitches", { method: "GET" }),
   },
   pitches: {
     create: (body: object) => request("/pitches", { method: "POST", body: JSON.stringify(body) }),

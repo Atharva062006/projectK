@@ -217,5 +217,83 @@ INSERT INTO skills (name, category) VALUES
 ('RTOS (Real-Time OS)', 'Hardware & Systems'),
 ('VLSI Design', 'Hardware & Systems'),
 ('CAD Design (SolidWorks/AutoCAD)', 'Hardware & Systems')
-
 ON CONFLICT (name) DO NOTHING;
+
+-- ==========================================
+-- SEED DATA: MOCK USERS & PROFILES
+-- ==========================================
+
+-- 1. Insert Users (Password is 'password123' for all mock users)
+INSERT INTO users (user_id, username, email, password_hash, role, is_approved) VALUES
+('11111111-1111-1111-1111-111111111111', 'atharva', 'atharva@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'member', true),
+('22222222-2222-2222-2222-111111111111', 'sneha', 'sneha.s@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'member', true),
+('33333333-3333-3333-3333-111111111111', 'vikram', 'vikram@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'member', true),
+('44444444-4444-4444-4444-111111111111', 'rohan', 'rohan@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'member', true),
+('55555555-5555-5555-5555-111111111111', 'ananya', 'ananya@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'alumni', true),
+('66666666-6666-6666-6666-111111111111', 'rahul', 'rahul@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'member', true),
+('99999999-9999-9999-9999-111111111111', 'admin', 'admin@oysterkode.club', '$2b$10$uA6w8r9j0/rWJ2m21D4N.e1zJ72z6U.4L5gYp29m6N8/c8vO01.f2', 'admin', true)
+ON CONFLICT (email) DO NOTHING;
+
+-- 2. Insert Profiles
+INSERT INTO profiles (profile_id, user_id, full_name, yr_of_graduation, bio, tagline, availability, department, college, location, role_category) VALUES
+('11111111-1111-1111-1111-222222222222', '11111111-1111-1111-1111-111111111111', 'Atharva Kulkarni', 2026, 'Passionate software engineer specializing in building high-performance web applications and embedding machine learning models. Active open-source contributor and technical team lead at Oyster Kode Club. Exploring low-latency systems and distributed backend pipelines.', 'Full Stack Engineer & AI Enthusiast', 'Available', 'Core Team', 'Oyster Institute of Technology', 'Mumbai, India', 'Core Team'),
+('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-111111111111', 'Sneha Sharma', 2025, 'Focusing on crafting gorgeous, modern, and user-centric interfaces. Bridge the gap between engineering complexity and intuitive interaction designs. Experienced in React, Tailwind, Figma prototyping, and design systems.', 'UI/UX Designer & Frontend Developer', 'Open to work', 'Technical Team', 'School of Design Studies', 'Bangalore, India', 'Technical Team'),
+('33333333-3333-3333-3333-222222222222', '33333333-3333-3333-3333-111111111111', 'Vikram Malhotra', 2026, 'Cloud enthusiast and system orchestrator. Interested in container networks, cluster automation, and scalable cluster monitoring systems.', 'DevOps & Cloud Architect', 'Busy', 'Technical Team', 'Tech State College', 'Pune, India', 'Technical Team'),
+('44444444-4444-4444-4444-222222222222', '44444444-4444-4444-4444-111111111111', 'Rohan Das', 2025, 'Focused on deep learning pipelines, computer vision systems, and hardware acceleration for edge computing deployments.', 'ML Engineer | Embedded Systems Dev', 'Available', 'Technical Team', 'Institute of Engineering', 'Delhi, India', 'Technical Team'),
+('55555555-5555-5555-5555-222222222222', '55555555-5555-5555-5555-111111111111', 'Ananya Iyer', 2023, 'Systems architect specializing in hardware design description, gate arrays, and embedded platform layouts.', 'Systems Engineer & VLSI Designer', 'Available', 'Alumni', 'National Tech Academy', 'Chennai, India', 'Alumni'),
+('66666666-6666-6666-6666-222222222222', '66666666-6666-6666-6666-111111111111', 'Rahul Verma', 2026, 'Exploring multi-threaded database engines, performance optimizations, and cloud database integrations.', 'Backend Developer & Database Admin', 'Open to work', 'Other Members', 'City Engineering College', 'Hyderabad, India', 'Other Members')
+ON CONFLICT (profile_id) DO NOTHING;
+
+-- 3. Insert Contact Details
+INSERT INTO contact_info (profile_id, phone, linkedin, github, portfolio_url) VALUES
+('11111111-1111-1111-1111-222222222222', '+91 98765 43210', 'https://linkedin.com/in/atharva', 'https://github.com/atharva', 'https://atharvak.dev'),
+('22222222-2222-2222-2222-222222222222', '+91 87654 32109', 'https://linkedin.com/in/sneha', 'https://github.com/sneha', 'https://sneha.design'),
+('33333333-3333-3333-3333-222222222222', '+91 76543 21098', 'https://linkedin.com/in/vikram', 'https://github.com/vikram', 'https://vikram.io'),
+('44444444-4444-4444-4444-222222222222', '+91 65432 10987', 'https://linkedin.com/in/rohan', 'https://github.com/rohan', 'https://rohan.ai'),
+('55555555-5555-5555-5555-222222222222', '+91 54321 09876', 'https://linkedin.com/in/ananya', 'https://github.com/ananya', 'https://ananya.systems'),
+('66666666-6666-6666-6666-222222222222', '+91 43210 98765', 'https://linkedin.com/in/rahul', 'https://github.com/rahul', 'https://rahulverma.dev');
+
+-- 4. Link Predefined Skills to Profiles
+INSERT INTO member_skills (profile_id, skill_id, level)
+SELECT '11111111-1111-1111-1111-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'TypeScript'
+UNION ALL
+SELECT '11111111-1111-1111-1111-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Next.js'
+UNION ALL
+SELECT '11111111-1111-1111-1111-222222222222', skill_id, 'Intermediate' FROM skills WHERE name = 'PostgreSQL'
+UNION ALL
+SELECT '22222222-2222-2222-2222-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'HTML5/CSS3'
+UNION ALL
+SELECT '22222222-2222-2222-2222-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'React.js'
+UNION ALL
+SELECT '33333333-3333-3333-3333-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Docker'
+UNION ALL
+SELECT '33333333-3333-3333-3333-222222222222', skill_id, 'Intermediate' FROM skills WHERE name = 'Kubernetes'
+UNION ALL
+SELECT '33333333-3333-3333-3333-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Amazon Web Services (AWS)'
+UNION ALL
+SELECT '44444444-4444-4444-4444-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Python'
+UNION ALL
+SELECT '44444444-4444-4444-4444-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'C++'
+UNION ALL
+SELECT '44444444-4444-4444-4444-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Embedded Systems'
+UNION ALL
+SELECT '55555555-5555-5555-5555-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'VHDL / Verilog'
+UNION ALL
+SELECT '55555555-5555-5555-5555-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'C (Programming Language)'
+UNION ALL
+SELECT '55555555-5555-5555-5555-222222222222', skill_id, 'Intermediate' FROM skills WHERE name = 'VLSI Design'
+UNION ALL
+SELECT '66666666-6666-6666-6666-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Node.js'
+UNION ALL
+SELECT '66666666-6666-6666-6666-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Express.js'
+UNION ALL
+SELECT '66666666-6666-6666-6666-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'PostgreSQL'
+ON CONFLICT (profile_id, skill_id) DO NOTHING;
+
+-- 5. Insert Projects
+INSERT INTO projects (project_id, profile_id, title, description, github_link, tech_stack, demo_link) VALUES
+('11111111-2222-3333-4444-555555555555', '11111111-1111-1111-1111-222222222222', 'Distributed Task Scheduler', 'A high-performance cluster job queue built with Go and gRPC, capable of scheduling 10k jobs per second.', 'https://github.com/atharva/scheduler', 'Go, gRPC, Redis, Docker', 'https://scheduler.atharvak.dev'),
+('22222222-3333-4444-5555-666666666666', '11111111-1111-1111-1111-222222222222', 'Bento Portfolio Portal', 'A visual portfolio workspace designed with a modular bento grid layout to showcase member capabilities.', 'https://github.com/atharva/bento-portal', 'React, Next.js, Tailwind CSS', 'https://k.oysterkode.club'),
+('33333333-4444-5555-6666-777777777777', '22222222-2222-2222-2222-222222222222', 'Oyster Design System', 'A comprehensive UI kit built on Tailwind for rapid frontend prototyping across all club tools.', 'https://github.com/sneha/oyster-ds', 'Figma, React, Tailwind', 'https://design.oysterkode.club')
+ON CONFLICT (project_id) DO NOTHING;
+

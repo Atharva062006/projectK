@@ -31,7 +31,7 @@ export default function Navbar() {
 
       {/* Center: Navigation Links */}
       <div className="flex items-center gap-6">
-        <Link href="/" className="text-xs font-mono text-gray-400 hover:text-white transition-colors">
+        <Link href="/directory" className="text-xs font-mono text-gray-400 hover:text-white transition-colors">
           Members
         </Link>
         <Link href="/pitches" className="text-xs font-mono text-gray-400 hover:text-white transition-colors">

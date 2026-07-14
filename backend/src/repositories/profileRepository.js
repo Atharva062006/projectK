@@ -224,3 +224,18 @@ export const searchDirectory = async (queryParams) => {
     const result = await pool.query(query, values);
     return result.rows;
 };
+
+// # Retrieves analytics count for a specific profile (views, downloads, link clicks)
+export const getProfileAnalytics = async (profileId) => {
+    const viewsQuery = pool.query("SELECT count(*)::int as count FROM profile_views WHERE viewed_profile_id = $1", [profileId]);
+    const downloadsQuery = pool.query("SELECT count(*)::int as count FROM resume_downloads WHERE profile_id = $1", [profileId]);
+    const clicksQuery = pool.query("SELECT count(*)::int as count FROM outbound_clicks WHERE profile_id = $1", [profileId]);
+    
+    const [viewsRes, downloadsRes, clicksRes] = await Promise.all([viewsQuery, downloadsQuery, clicksQuery]);
+    return {
+        views_count: viewsRes.rows[0].count,
+        downloads_count: downloadsRes.rows[0].count,
+        clicks_count: clicksRes.rows[0].count
+    };
+};
+

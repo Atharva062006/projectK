@@ -32,6 +32,7 @@ interface ProfileData {
   contact?: { phone?: string; linkedin?: string; github?: string; portfolio_url?: string; };
   skills?: Skill[]; projects?: Project[];
   resumes?: { resume_id: string; file_path: string; uploaded_at: string }[];
+  analytics?: { views_count: number; downloads_count: number; clicks_count: number };
 }
 
 export default function PortfolioPage() {
@@ -203,6 +204,33 @@ export default function PortfolioPage() {
       </div>
 
       <ResponseBox result={result} />
+
+      {/* Analytics Statistics Row */}
+      {profile?.analytics && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono">
+          <div className="bg-[#0e1017] border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] text-gray-500 uppercase font-semibold">Profile Views</div>
+              <div className="text-[10px] text-gray-400 mt-1">Detailed portfolio views logged</div>
+            </div>
+            <div className="text-xl font-bold text-blue-400">{profile.analytics.views_count || 0}</div>
+          </div>
+          <div className="bg-[#0e1017] border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] text-gray-500 uppercase font-semibold">Resume Downloads</div>
+              <div className="text-[10px] text-gray-400 mt-1">Times CV was downloaded</div>
+            </div>
+            <div className="text-xl font-bold text-purple-400">{profile.analytics.downloads_count || 0}</div>
+          </div>
+          <div className="bg-[#0e1017] border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] text-gray-500 uppercase font-semibold">Link Clicks</div>
+              <div className="text-[10px] text-gray-400 mt-1">Social link redirects tracked</div>
+            </div>
+            <div className="text-xl font-bold text-green-400">{profile.analytics.clicks_count || 0}</div>
+          </div>
+        </div>
+      )}
 
       {/* Bento Editor Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
