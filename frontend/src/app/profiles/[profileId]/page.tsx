@@ -160,6 +160,154 @@ const MOCK_PROFILES_DETAIL: Record<string, ProfileData> = {
         github_link: "https://github.com/sneha/oyster-ds"
       }
     ]
+  },
+  "demo-3": {
+    profile_id: "demo-3",
+    full_name: "Vikram Malhotra",
+    email: "vikram@oysterkode.club",
+    college: "Tech State College",
+    tagline: "DevOps & Cloud Architect",
+    bio: "Cloud enthusiast and system orchestrator. Interested in container networks, cluster automation, and scalable cluster monitoring systems. Built robust CI/CD deployment setups for several open source projects.",
+    availability: "Busy",
+    department: "Technical Team",
+    role_category: "Technical Team",
+    location: "Pune, India",
+    yr_of_graduation: 2026,
+    completion_percentage: 85,
+    contact: {
+      phone: "+91 76543 21098",
+      linkedin: "https://linkedin.com/in/vikram",
+      github: "https://github.com/vikram",
+      portfolio_url: "https://vikram.io"
+    },
+    skills: [
+      { skill_id: "s8", name: "Docker", category: "DevOps & Cloud", level: "Expert" },
+      { skill_id: "s9", name: "Kubernetes", category: "DevOps & Cloud", level: "Intermediate" },
+      { skill_id: "s10", name: "Amazon Web Services (AWS)", category: "DevOps & Cloud", level: "Expert" }
+    ],
+    achievements: [
+      "Designed high-availability infrastructure serving 5k daily active users",
+      "Reduced cloud computing costs by 35% using Kubernetes auto-scaling"
+    ],
+    projects: [
+      {
+        project_id: "p4",
+        title: "K8s Auto-scaler Tool",
+        description: "Custom auto-scaling daemon listening to system telemetry and adjusting cluster nodes metrics.",
+        tech_stack: "Go, Kubernetes API, Prometheus",
+        github_link: "https://github.com/vikram/autoscaler"
+      }
+    ]
+  },
+  "demo-4": {
+    profile_id: "demo-4",
+    full_name: "Rohan Das",
+    email: "rohan@oysterkode.club",
+    college: "Institute of Engineering",
+    tagline: "ML Engineer | Embedded Systems Dev",
+    bio: "Focused on deep learning pipelines, computer vision systems, and hardware acceleration for edge computing deployments. Bridging the gap between neural network complexity and resource-constrained edge platforms.",
+    availability: "Available",
+    department: "Technical Team",
+    role_category: "Technical Team",
+    location: "Delhi, India",
+    yr_of_graduation: 2025,
+    completion_percentage: 88,
+    contact: {
+      phone: "+91 65432 10987",
+      linkedin: "https://linkedin.com/in/rohan",
+      github: "https://github.com/rohan",
+      portfolio_url: "https://rohan.ai"
+    },
+    skills: [
+      { skill_id: "s11", name: "Python", category: "Languages", level: "Expert" },
+      { skill_id: "s12", name: "C++", category: "Languages", level: "Expert" },
+      { skill_id: "s13", name: "Embedded Systems", category: "Hardware & Systems", level: "Expert" }
+    ],
+    achievements: [
+      "Optimized CNN models to achieve 40fps on edge Raspberry Pi devices",
+      "Designed custom micro-controller shields for agricultural sensor arrays"
+    ],
+    projects: [
+      {
+        project_id: "p5",
+        title: "EdgeVision Shield",
+        description: "Custom firmware and model quantization pipeline for edge target inference processing.",
+        tech_stack: "Python, C++, PyTorch, RTOS",
+        github_link: "https://github.com/rohan/edgevision"
+      }
+    ]
+  },
+  "demo-5": {
+    profile_id: "demo-5",
+    full_name: "Ananya Iyer",
+    email: "ananya@oysterkode.club",
+    college: "National Tech Academy",
+    tagline: "Systems Engineer & VLSI Designer",
+    bio: "Systems architect specializing in hardware design description, gate arrays, and embedded platform layouts. Active alumni working in VLSI chip design tooling.",
+    availability: "Available",
+    department: "Alumni",
+    role_category: "Alumni",
+    location: "Chennai, India",
+    yr_of_graduation: 2023,
+    completion_percentage: 92,
+    contact: {
+      phone: "+91 54321 09876",
+      linkedin: "https://linkedin.com/in/ananya",
+      github: "https://github.com/ananya",
+      portfolio_url: "https://ananya.systems"
+    },
+    skills: [
+      { skill_id: "s14", name: "VHDL / Verilog", category: "Hardware & Systems", level: "Expert" },
+      { skill_id: "s15", name: "C (Programming Language)", category: "Hardware & Systems", level: "Expert" },
+      { skill_id: "s16", name: "VLSI Design", category: "Hardware & Systems", level: "Intermediate" }
+    ],
+    achievements: [
+      "Successfully taped-out 8-bit educational processor core",
+      "Authored research paper on FPGA hardware accelerators for neural nets"
+    ],
+    projects: [
+      {
+        project_id: "p6",
+        title: "Oyster Core-8",
+        description: "An open-source RISC-like 8-bit microprocessor soft-core designed in SystemVerilog.",
+        tech_stack: "SystemVerilog, ModelSim, Quartus",
+        github_link: "https://github.com/ananya/oyster-core8"
+      }
+    ]
+  },
+  "demo-6": {
+    profile_id: "demo-6",
+    full_name: "Rahul Verma",
+    email: "rahul@oysterkode.club",
+    college: "City Engineering College",
+    tagline: "Backend Developer & Database Admin",
+    bio: "Exploring multi-threaded database engines, performance optimizations, and cloud database integrations. Database administrator and backend query tuner.",
+    availability: "Open to work",
+    department: "Other Members",
+    role_category: "Other Members",
+    location: "Hyderabad, India",
+    yr_of_graduation: 2026,
+    completion_percentage: 80,
+    contact: {
+      phone: "+91 43210 98765",
+      linkedin: "https://linkedin.com/in/rahul",
+      github: "https://github.com/rahul",
+      portfolio_url: "https://rahulverma.dev"
+    },
+    skills: [
+      { skill_id: "s17", name: "Node.js", category: "Languages", level: "Expert" },
+      { skill_id: "s18", name: "Express.js", category: "Frameworks", level: "Expert" },
+      { skill_id: "s19", name: "PostgreSQL", category: "Databases", level: "Expert" }
+    ],
+    projects: [
+      {
+        project_id: "p7",
+        title: "Multi-tenant DB Driver",
+        description: "Custom pooling wrapper for PostgreSQL to optimize multi-tenant connection lifetimes.",
+        tech_stack: "Node.js, PostgreSQL, Redis",
+        github_link: "https://github.com/rahul/db-pool-wrapper"
+      }
+    ]
   }
 };
 

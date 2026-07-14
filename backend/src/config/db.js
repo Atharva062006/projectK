@@ -12,7 +12,7 @@ const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DBNAME,
-    port: process.env.DB_DBPORT
+    port: process.env.DB_PORT || process.env.DB_DBPORT || 5432
 });
 
 pool.on("connect", () => {

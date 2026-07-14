@@ -3,7 +3,8 @@ import {
     addProfileToPitch, 
     findPitchById, 
     findPitchMembersDetails, 
-    deactivatePitch 
+    deactivatePitch,
+    getAllPitches
 } from "../repositories/pitchRepository.js";
 
 // # Creates a curated talent pitch page
@@ -52,3 +53,9 @@ export const deactivatePitchService = async (pitchId) => {
 
     return await deactivatePitch(pitchId);
 };
+
+// # Retrieves all pitches for admin overview
+export const getPitchesAdminService = async () => {
+    return await getAllPitches();
+};
+

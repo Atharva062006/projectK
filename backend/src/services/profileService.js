@@ -4,7 +4,8 @@ import {
     updateProfile, 
     getContactInfo, 
     updateOrCreateContactInfo,
-    logProfileView
+    logProfileView,
+    getProfileAnalytics
 } from "../repositories/profileRepository.js";
 import { getProfileSkills } from "../repositories/skillsRepository.js";
 import { findProjectsByProfileId } from "../repositories/projectsRepository.js";
@@ -58,11 +59,12 @@ export const getOwnProfileService = async (userId) => {
         throw new Error("Profile not found");
     }
 
-    const [contact, skills, projects, resumes] = await Promise.all([
+    const [contact, skills, projects, resumes, analytics] = await Promise.all([
         getContactInfo(profile.profile_id),
         getProfileSkills(profile.profile_id),
         findProjectsByProfileId(profile.profile_id),
-        findResumesByProfileId(profile.profile_id)
+        findResumesByProfileId(profile.profile_id),
+        getProfileAnalytics(profile.profile_id)
     ]);
 
     const completion = calculateProfileCompletion(profile, contact, skills, projects, resumes);
@@ -73,7 +75,8 @@ export const getOwnProfileService = async (userId) => {
         skills,
         projects,
         resumes,
-        completion_percentage: completion
+        completion_percentage: completion,
+        analytics
     };
 };
 
@@ -107,10 +110,11 @@ export const updateOwnProfileService = async (userId, updateFields) => {
         updatedContact = await getContactInfo(profile.profile_id);
     }
 
-    const [skills, projects, resumes] = await Promise.all([
+    const [skills, projects, resumes, analytics] = await Promise.all([
         getProfileSkills(profile.profile_id),
         findProjectsByProfileId(profile.profile_id),
-        findResumesByProfileId(profile.profile_id)
+        findResumesByProfileId(profile.profile_id),
+        getProfileAnalytics(profile.profile_id)
     ]);
 
     const completion = calculateProfileCompletion(updatedProfile, updatedContact, skills, projects, resumes);
@@ -121,7 +125,8 @@ export const updateOwnProfileService = async (userId, updateFields) => {
         skills,
         projects,
         resumes,
-        completion_percentage: completion
+        completion_percentage: completion,
+        analytics
     };
 };
 

@@ -1,5 +1,6 @@
 import handleResponse from "../util/handleResponse.js";
 import { listPendingUsersService, approveUserService, disableUserService } from "../services/adminService.js";
+import { getPitchesAdminService } from "../services/pitchService.js";
 
 // # Get list of pending users
 export const getPendingUsers = async (req, res) => {
@@ -42,3 +43,14 @@ export const disableUser = async (req, res) => {
         return handleResponse(res, statusCode, error.message);
     }
 };
+
+// # Get all pitches overview (admin only)
+export const getPitchesAdmin = async (req, res) => {
+    try {
+        const pitches = await getPitchesAdminService();
+        return handleResponse(res, 200, "Pitches retrieved successfully", pitches);
+    } catch (error) {
+        return handleResponse(res, 500, error.message);
+    }
+};
+

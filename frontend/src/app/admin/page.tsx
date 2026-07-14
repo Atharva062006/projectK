@@ -29,11 +29,21 @@ interface Analytics {
   resumeDownloadStats: { profile_id: string; full_name: string; download_count: number }[];
 }
 
+interface AdminPitch {
+  pitch_id: string;
+  title: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  member_count: number;
+}
+
 export default function AdminPage() {
   const { user, token } = useAuth();
   const [tab, setTab] = useState<Tab>("pending");
   const [pending, setPending] = useState<PendingUser[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [pitches, setPitches] = useState<AdminPitch[]>([]);
   const [result, setResult] = useState<{ ok: boolean; message: string; data?: unknown } | null>(null);
   
   // Disable user form
@@ -71,10 +81,24 @@ export default function AdminPage() {
     }
   };
 
+  const loadPitches = async () => {
+    try {
+      const res = await api.admin.getPitches();
+      if (res.ok) {
+        setPitches((res.data as AdminPitch[]) || []);
+      } else {
+        setResult(res);
+      }
+    } catch {
+      setResult({ ok: false, message: "Failed to fetch active pitches overview" });
+    }
+  };
+
   useEffect(() => {
     if (token && user?.role === "admin") {
       if (tab === "pending") loadPending();
       else if (tab === "analytics") loadAnalytics();
+      else if (tab === "pitches") loadPitches();
     }
   }, [token, user, tab]);
 
@@ -133,6 +157,16 @@ export default function AdminPage() {
       setPitchTitle("");
       setPitchDesc("");
       setPitchProfileIds("");
+      loadPitches();
+    }
+  };
+
+  const handleDeactivatePitch = async (pitchId: string) => {
+    setResult(null);
+    const res = await api.pitches.deactivate(pitchId);
+    setResult(res);
+    if (res.ok) {
+      loadPitches();
     }
   };
 
@@ -381,6 +415,58 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          {/* Pitches list overview */}
+          <div className="bg-[#0e1017] border border-gray-800 rounded-2xl p-6 space-y-4 mt-6">
+            <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
+              <Radio size={14} className="text-blue-400" />
+              <h2 className="text-xs font-mono font-bold tracking-wider uppercase text-gray-400">Curated Pitches Overview ({pitches.length})</h2>
+            </div>
+
+            <div className="space-y-3 font-mono text-xs">
+              {pitches.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No pitches have been created yet.</p>
+              ) : (
+                pitches.map((p) => (
+                  <div key={p.pitch_id} className="bg-[#11131c] border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs">{p.title}</span>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full ${
+                          p.is_active 
+                            ? "bg-green-950/80 text-green-300 border border-green-900" 
+                            : "bg-red-950/80 text-red-300 border border-red-900"
+                        }`}>
+                          {p.is_active ? "Active" : "Deactivated"}
+                        </span>
+                      </div>
+                      {p.description && <p className="text-[10px] text-gray-500 line-clamp-1">{p.description}</p>}
+                      <p className="text-[9px] text-gray-600">Created: {new Date(p.created_at).toLocaleDateString()} &bull; Members: {p.member_count}</p>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <a
+                        href={`/pitches?id=${p.pitch_id}`}
+                        target="_blank"
+                        className="text-blue-400 hover:text-blue-300 hover:underline"
+                      >
+                        View
+                      </a>
+                      {p.is_active && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeactivatePitch(p.pitch_id)}
+                          className="text-red-400 hover:text-red-300 hover:underline cursor-pointer"
+                        >
+                          Deactivate
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
 

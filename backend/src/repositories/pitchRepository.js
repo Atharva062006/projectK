@@ -64,3 +64,16 @@ export const deactivatePitch = async (pitchId) => {
     );
     return result.rows[0];
 };
+
+// # Retrieves all pitches for admin overview
+export const getAllPitches = async () => {
+    const result = await pool.query(
+        `SELECT p.*, count(pm.profile_id)::int as member_count 
+         FROM pitches p 
+         LEFT JOIN pitch_members pm ON p.pitch_id = pm.pitch_id 
+         GROUP BY p.pitch_id 
+         ORDER BY p.created_at DESC`
+    );
+    return result.rows;
+};
+
