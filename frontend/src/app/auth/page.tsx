@@ -1,10 +1,12 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import ResponseBox from "@/components/ResponseBox";
-import { ShieldAlert, UserPlus, KeyRound, Mail, User as UserIcon } from "lucide-react";
+import { ShieldAlert, UserPlus, KeyRound, Mail, User as UserIcon, LogIn, UserCog } from "lucide-react";
 
 type AuthMode = "login" | "register" | "forgot";
 
@@ -15,7 +17,6 @@ export default function AuthPage() {
   const [result, setResult] = useState<{ ok: boolean; message: string; data?: unknown } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Form Fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,16 +33,10 @@ export default function AuthPage() {
       if (res.ok && res.data) {
         const payload = res.data as { token: string; user: Parameters<typeof login>[1] };
         login(payload.token, payload.user);
-        
-        // Wait briefly for local storage write
         setTimeout(() => {
-          if (payload.user.role === "admin") {
-            router.push("/admin");
-          } else if (payload.user.role === "member" || payload.user.role === "alumni") {
-            router.push("/portfolio");
-          } else {
-            router.push("/");
-          }
+          if (payload.user.role === "admin") router.push("/admin");
+          else if (payload.user.role === "member" || payload.user.role === "alumni") router.push("/portfolio");
+          else router.push("/");
         }, 100);
       }
     } catch {
@@ -58,12 +53,7 @@ export default function AuthPage() {
     try {
       const res = await api.auth.register({ name, email, password, role });
       setResult(res);
-      if (res.ok) {
-        // Automatically switch to login state with prefilled email
-        setName("");
-        setPassword("");
-        setMode("login");
-      }
+      if (res.ok) { setName(""); setPassword(""); setMode("login"); }
     } catch {
       setResult({ ok: false, message: "Registration service failed" });
     } finally {
@@ -85,29 +75,39 @@ export default function AuthPage() {
     }
   };
 
+  /* ── Already Logged In ── */
   if (user) {
     return (
-      <div className="max-w-md mx-auto py-12">
-        <div className="bg-[#0e1017] border border-gray-800 rounded-2xl p-6 text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center mx-auto text-blue-400">
-            <UserIcon size={20} />
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div
+          className="glass-card rounded-2xl p-8 text-center space-y-5 w-full max-w-sm anim-scaleIn"
+        >
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
+            style={{ background: "linear-gradient(135deg, rgba(240,165,0,0.2), rgba(240,24,112,0.15))", border: "1px solid rgba(240,165,0,0.3)" }}
+          >
+            <UserIcon size={22} style={{ color: "#f0a500" }} />
           </div>
           <div>
-            <h2 className="text-lg font-mono font-semibold text-white">Active Session Detected</h2>
-            <p className="text-xs text-gray-500 font-mono mt-1">Logged in as {user.username} ({user.role})</p>
+            <h2 className="text-lg font-semibold text-white">Active Session</h2>
+            <p className="text-sm text-gray-500 mt-1">Signed in as <span className="text-gray-300 font-medium">{user.username}</span></p>
+            <span className="text-xs px-2 py-0.5 rounded-full mt-2 inline-block uppercase font-semibold"
+              style={{ background: "rgba(240,165,0,0.1)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" }}>
+              {user.role}
+            </span>
           </div>
-          <div className="flex gap-2">
-            <button 
+          <div className="flex gap-3">
+            <button
               onClick={() => router.push(user.role === "admin" ? "/admin" : "/portfolio")}
-              className="flex-1 bg-blue-700 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-mono transition-colors cursor-pointer"
+              className="btn-brand flex-1 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
             >
               Go to Workspace
             </button>
-            <button 
+            <button
               onClick={logout}
-              className="flex-1 bg-red-950 text-red-400 border border-red-900 hover:bg-red-900 hover:text-white py-2 rounded-lg text-xs font-mono transition-colors cursor-pointer"
+              className="btn-danger flex-1 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
             >
-              Logout
+              Sign Out
             </button>
           </div>
         </div>
@@ -116,186 +116,180 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto py-12">
-      <div className="bg-[#0e1017] border border-gray-800 rounded-2xl shadow-xl overflow-hidden p-6 space-y-6">
-        
-        {/* Tab Headers */}
-        <div className="flex border-b border-gray-850 pb-4">
-          <button 
-            onClick={() => { setMode("login"); setResult(null); }}
-            className={`flex-1 text-center text-xs font-mono font-bold tracking-wider uppercase pb-2 transition-all ${
-              mode === "login" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-300"
-            }`}
-          >
-            Sign In
-          </button>
-          <button 
-            onClick={() => { setMode("register"); setResult(null); }}
-            className={`flex-1 text-center text-xs font-mono font-bold tracking-wider uppercase pb-2 transition-all ${
-              mode === "register" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-300"
-            }`}
-          >
-            Create Account
-          </button>
+    <div className="min-h-[80vh] flex flex-col items-center justify-center py-8">
+      {/* Brand header above card */}
+      <div className="text-center mb-8 anim-floatDown">
+        <div className="flex justify-center mb-4">
+          <div className="relative">
+            <Image src="/okc_main_logo.png" alt="OKC" width={68} height={68} className="object-contain relative z-10" />
+            <div className="absolute inset-0 rounded-full blur-xl opacity-40"
+              style={{ background: "radial-gradient(circle, rgba(240,165,0,0.4), transparent 70%)" }} />
+          </div>
         </div>
+        <h1 className="text-2xl font-bold text-white">Project K Portal</h1>
+        <p className="text-sm text-gray-500 mt-1">Oyster Kode Club Member Ecosystem</p>
+      </div>
 
-        {/* MODE: LOGIN */}
+      {/* Main auth card */}
+      <div className="glass-card w-full max-w-md rounded-2xl p-7 space-y-6 anim-scaleIn">
+        {/* Tab switcher — only for login/register */}
+        {mode !== "forgot" && (
+          <div className="glass-panel flex rounded-xl p-1">
+            {[
+              { id: "login" as AuthMode, label: "Sign In", icon: LogIn },
+              { id: "register" as AuthMode, label: "Create Account", icon: UserCog },
+            ].map((tab) => {
+              const isActive = mode === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => { setMode(tab.id); setResult(null); }}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    isActive ? "btn-brand shadow-sm" : "btn-ghost border-transparent"
+                  }`}
+                >
+                  <tab.icon size={14} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── LOGIN FORM ── */}
         {mode === "login" && (
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4 anim-fadeInUp">
             <div className="space-y-3">
               <div className="relative">
-                <input 
-                  type="email" 
-                  placeholder="Email Address" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 pl-10 text-xs text-gray-200 placeholder-gray-500 font-mono focus:border-gray-700 outline-none"
-                  required 
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <input
+                  type="email" placeholder="Email Address" value={email}
+                  onChange={(e) => setEmail(e.target.value)} required
+                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
                 />
-                <Mail size={14} className="text-gray-600 absolute left-3.5 top-3.5" />
               </div>
               <div className="relative">
-                <input 
-                  type="password" 
-                  placeholder="Password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 pl-10 text-xs text-gray-200 placeholder-gray-500 font-mono focus:border-gray-700 outline-none"
-                  required 
+                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <input
+                  type="password" placeholder="Password" value={password}
+                  onChange={(e) => setPassword(e.target.value)} required
+                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
                 />
-                <KeyRound size={14} className="text-gray-600 absolute left-3.5 top-3.5" />
               </div>
             </div>
 
-            <div className="flex justify-between items-center text-[10px] font-mono">
-              <button 
-                type="button" 
-                onClick={() => setMode("forgot")}
-                className="text-gray-500 hover:text-gray-300 underline"
+            <div className="flex justify-end">
+              <button type="button" onClick={() => setMode("forgot")}
+                className="text-sm transition-colors cursor-pointer"
+                style={{ color: "#f0a500" }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
                 Forgot Password?
               </button>
             </div>
 
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white py-2.5 rounded-xl text-xs font-mono font-semibold transition-colors cursor-pointer"
-            >
+            <button type="submit" disabled={loading}
+              className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer">
               {loading ? "Authenticating..." : "Sign In"}
             </button>
           </form>
         )}
 
-        {/* MODE: REGISTER */}
+        {/* ── REGISTER FORM ── */}
         {mode === "register" && (
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4 anim-fadeInUp">
             <div className="space-y-3">
               <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Full Name" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 pl-10 text-xs text-gray-200 placeholder-gray-500 font-mono focus:border-gray-700 outline-none"
-                  required 
+                <UserIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <input
+                  type="text" placeholder="Full Name" value={name}
+                  onChange={(e) => setName(e.target.value)} required
+                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
                 />
-                <UserIcon size={14} className="text-gray-600 absolute left-3.5 top-3.5" />
               </div>
               <div className="relative">
-                <input 
-                  type="email" 
-                  placeholder="Email Address" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 pl-10 text-xs text-gray-200 placeholder-gray-500 font-mono focus:border-gray-700 outline-none"
-                  required 
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <input
+                  type="email" placeholder="Email Address" value={email}
+                  onChange={(e) => setEmail(e.target.value)} required
+                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
                 />
-                <Mail size={14} className="text-gray-600 absolute left-3.5 top-3.5" />
               </div>
               <div className="relative">
-                <input 
-                  type="password" 
-                  placeholder="Choose Password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 pl-10 text-xs text-gray-200 placeholder-gray-500 font-mono focus:border-gray-700 outline-none"
-                  required 
+                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <input
+                  type="password" placeholder="Choose Password" value={password}
+                  onChange={(e) => setPassword(e.target.value)} required
+                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
                 />
-                <KeyRound size={14} className="text-gray-600 absolute left-3.5 top-3.5" />
               </div>
-              <div className="relative">
-                <select 
-                  value={role} 
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 text-xs text-gray-400 font-mono focus:border-gray-700 outline-none"
-                >
-                  <option value="member">Club Member</option>
-                  <option value="alumni">Club Alumni</option>
-                  <option value="recruiter">Recruiter</option>
-                  <option value="guest">Guest / Visitor</option>
-                  <option value="admin">Administrator</option>
-                </select>
-              </div>
+              <select
+                value={role} onChange={(e) => setRole(e.target.value)}
+                className="glass-select glass-input w-full rounded-xl px-4 py-3 text-sm"
+              >
+                <option value="member">Club Member</option>
+                <option value="alumni">Club Alumni</option>
+                <option value="recruiter">Recruiter</option>
+                <option value="guest">Guest / Visitor</option>
+                <option value="admin">Administrator</option>
+              </select>
             </div>
 
             {(role === "member" || role === "alumni") && (
-              <div className="p-3 bg-blue-950/40 border border-blue-900/50 rounded-xl flex gap-2.5 text-[10px] font-mono text-blue-400">
-                <UserPlus size={16} className="flex-shrink-0" />
-                <span>Notice: Member and Alumni profiles are created in "Pending" status and require Admin activation.</span>
+              <div className="flex gap-2.5 p-3 rounded-xl text-sm anim-fadeInUp"
+                style={{ background: "rgba(240,165,0,0.07)", border: "1px solid rgba(240,165,0,0.2)", color: "#d4900a" }}>
+                <UserPlus size={15} className="flex-shrink-0 mt-0.5" />
+                <span>Member and Alumni accounts require Admin approval before activation.</span>
               </div>
             )}
 
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white py-2.5 rounded-xl text-xs font-mono font-semibold transition-colors cursor-pointer"
-            >
+            <button type="submit" disabled={loading}
+              className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer">
               {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
         )}
 
-        {/* MODE: FORGOT */}
+        {/* ── FORGOT PASSWORD ── */}
         {mode === "forgot" && (
-          <form onSubmit={handleRequestReset} className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-xs font-mono font-bold text-white uppercase">Reset Password</h3>
-              <p className="text-[10px] font-mono text-gray-500 leading-normal">
-                Submit your registration email. The reset link and token will be printed directly to the backend node terminal.
+          <form onSubmit={handleRequestReset} className="space-y-5 anim-fadeInUp">
+            <div>
+              <h3 className="text-base font-semibold text-white">Reset Password</h3>
+              <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                Submit your registered email. The reset link and token will be printed to the backend terminal.
               </p>
             </div>
             <div className="relative">
-              <input 
-                type="email" 
-                placeholder="Email Address" 
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                className="w-full bg-[#11131c] border border-gray-800 rounded-xl px-4 py-2.5 pl-10 text-xs text-gray-200 placeholder-gray-500 font-mono focus:border-gray-700 outline-none"
-                required 
+              <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <input
+                type="email" placeholder="Email Address" value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)} required
+                className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
               />
-              <Mail size={14} className="text-gray-600 absolute left-3.5 top-3.5" />
             </div>
-            <div className="flex gap-2">
-              <button 
-                type="button" 
-                onClick={() => setMode("login")}
-                className="flex-1 bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-400 py-2.5 rounded-xl text-xs font-mono transition-colors cursor-pointer"
-              >
-                Back to Login
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setMode("login")}
+                className="btn-ghost flex-1 py-3 rounded-xl text-sm cursor-pointer">
+                ← Back
               </button>
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="flex-1 bg-yellow-700 hover:bg-yellow-600 disabled:opacity-50 text-white py-2.5 rounded-xl text-xs font-mono font-semibold transition-colors cursor-pointer"
-              >
-                Send Request
+              <button type="submit" disabled={loading}
+                className="btn-brand flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer">
+                {loading ? "Sending..." : "Send Reset Link"}
               </button>
             </div>
           </form>
         )}
 
         <ResponseBox result={result} />
+
+        {/* Footer note */}
+        <p className="text-xs text-gray-600 text-center">
+          Member accounts are provisioned by Club Administration.{" "}
+          <Link href="/directory" className="hover:text-gray-400 transition-colors underline">
+            Browse public directory
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -18,30 +18,15 @@ function ResetPasswordFormContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
-      setResult({ ok: false, message: "Invalid or missing recovery token." });
-      return;
-    }
-    if (password.length < 6) {
-      setResult({ ok: false, message: "Password must be at least 6 characters long." });
-      return;
-    }
-    if (password !== confirmPassword) {
-      setResult({ ok: false, message: "Passwords do not match." });
-      return;
-    }
-
+    if (!token) { setResult({ ok: false, message: "Invalid or missing recovery token." }); return; }
+    if (password.length < 6) { setResult({ ok: false, message: "Password must be at least 6 characters long." }); return; }
+    if (password !== confirmPassword) { setResult({ ok: false, message: "Passwords do not match." }); return; }
     setLoading(true);
     setResult(null);
-
     try {
       const res = await api.auth.resetPassword(token, password);
       setResult(res);
-      if (res.ok) {
-        setTimeout(() => {
-          router.push("/auth");
-        }, 2000);
-      }
+      if (res.ok) setTimeout(() => router.push("/auth"), 2000);
     } catch {
       setResult({ ok: false, message: "Server connection failed. Try again later." });
     } finally {
@@ -51,15 +36,17 @@ function ResetPasswordFormContent() {
 
   if (!token) {
     return (
-      <div className="bg-[#0e1017] border border-gray-800 rounded-2xl p-6 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-red-950/40 border border-red-950 flex items-center justify-center mx-auto text-red-400">
+      <div className="glass-card rounded-2xl p-8 text-center space-y-5">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto btn-danger">
           <Lock size={20} />
         </div>
-        <h2 className="text-sm font-mono font-semibold text-white">Invalid Reset Link</h2>
-        <p className="text-xs text-gray-500 font-mono">No recovery token was found in the URL. Please verify your email link or request a new one.</p>
-        <button 
+        <div>
+          <h2 className="text-base font-semibold text-white">Invalid Reset Link</h2>
+          <p className="text-sm text-gray-500 mt-1">No recovery token found in URL. Please verify your email link or request a new one.</p>
+        </div>
+        <button
           onClick={() => router.push("/auth")}
-          className="text-xs bg-[#1b1e2c] border border-gray-700 hover:bg-[#25293c] px-4 py-2 rounded-lg text-white font-mono transition-all w-full cursor-pointer"
+          className="btn-ghost w-full py-2.5 rounded-xl text-sm cursor-pointer"
         >
           Back to Login
         </button>
@@ -68,32 +55,35 @@ function ResetPasswordFormContent() {
   }
 
   return (
-    <div className="bg-[#0e1017] border border-gray-800 rounded-2xl p-6 space-y-6">
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center mx-auto text-blue-400">
+    <div className="glass-card rounded-2xl p-8 space-y-6 anim-scaleIn">
+      <div className="text-center space-y-3">
+        <div
+          className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto"
+          style={{ background: "rgba(240,165,0,0.12)", border: "1px solid rgba(240,165,0,0.28)", color: "#f0a500" }}
+        >
           <KeyRound size={20} />
         </div>
-        <h2 className="text-sm font-mono font-semibold text-white">Reset Your Password</h2>
-        <p className="text-xs text-gray-500 font-mono">Enter a new secure password for your account.</p>
+        <h2 className="text-base font-semibold text-white">Reset Your Password</h2>
+        <p className="text-sm text-gray-500">Enter a new secure password for your account.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-gray-400 font-semibold block">New Password</label>
-          <div className="flex items-center gap-2 bg-[#0c0d13] border border-gray-800 rounded-lg px-3 py-2.5 relative">
-            <Lock size={14} className="text-gray-500" />
+          <label className="text-xs text-gray-500 font-medium block">New Password</label>
+          <div className="relative">
+            <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Min. 6 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-transparent border-none outline-none text-white w-full placeholder-gray-600"
+              className="glass-input w-full rounded-xl pl-10 pr-10 py-3 text-sm"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 text-gray-500 hover:text-gray-400"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
             >
               {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
@@ -101,16 +91,16 @@ function ResetPasswordFormContent() {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-gray-400 font-semibold block">Confirm New Password</label>
-          <div className="flex items-center gap-2 bg-[#0c0d13] border border-gray-800 rounded-lg px-3 py-2.5">
-            <Lock size={14} className="text-gray-500" />
+          <label className="text-xs text-gray-500 font-medium block">Confirm New Password</label>
+          <div className="relative">
+            <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Re-enter password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="bg-transparent border-none outline-none text-white w-full placeholder-gray-600"
+              className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
             />
           </div>
         </div>
@@ -120,9 +110,17 @@ function ResetPasswordFormContent() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-500 font-semibold py-2.5 rounded-lg text-white transition-all disabled:opacity-50 cursor-pointer text-center"
+          className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer"
         >
-          {loading ? "Updating Password..." : "Update Password"}
+          {loading ? "Updating..." : "Update Password"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => router.push("/auth")}
+          className="btn-ghost w-full py-2.5 rounded-xl text-sm cursor-pointer"
+        >
+          Back to Login
         </button>
       </form>
     </div>
@@ -131,10 +129,16 @@ function ResetPasswordFormContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="max-w-md mx-auto py-12">
-      <Suspense fallback={<div className="text-center font-mono text-xs text-gray-500">Initializing password recovery form...</div>}>
-        <ResetPasswordFormContent />
-      </Suspense>
+    <div className="min-h-[75vh] flex items-center justify-center py-8">
+      <div className="w-full max-w-md">
+        <Suspense fallback={
+          <div className="glass-card rounded-2xl p-8 text-center text-sm text-gray-500">
+            Initializing password recovery form...
+          </div>
+        }>
+          <ResetPasswordFormContent />
+        </Suspense>
+      </div>
     </div>
   );
 }
