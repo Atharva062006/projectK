@@ -1,19 +1,27 @@
 "use client";
 
 interface ResponseBoxProps {
-  result: { ok: boolean; message: string; data?: unknown } | null;
+  result?: { ok: boolean; message: string; data?: unknown } | null;
+  ok?: boolean;
+  message?: string;
 }
 
-export default function ResponseBox({ result }: ResponseBoxProps) {
-  if (!result) return null;
+export default function ResponseBox({ result, ok, message }: ResponseBoxProps) {
+  const isOk = result !== undefined ? result?.ok : ok;
+  const msg = result !== undefined ? result?.message : message;
+
+  if (!msg) return null;
+
   return (
-    <div className={`mt-3 p-3 rounded text-sm font-mono border ${result.ok ? "bg-green-950 border-green-700 text-green-300" : "bg-red-950 border-red-700 text-red-300"}`}>
-      <div className="font-bold mb-1">{result.ok ? "✅ Success" : "❌ Error"}: {result.message}</div>
-      {result.data !== null && result.data !== undefined && (
-        <pre className="whitespace-pre-wrap break-all text-xs mt-2 opacity-80">
-          {JSON.stringify(result.data, null, 2)}
-        </pre>
-      )}
+    <div
+      className="p-3 rounded-xl text-sm border anim-fadeInUp"
+      style={
+        isOk
+          ? { background: "rgba(34,197,94,0.07)", borderColor: "rgba(34,197,94,0.2)", color: "#86efac" }
+          : { background: "rgba(239,68,68,0.07)", borderColor: "rgba(239,68,68,0.2)", color: "#fca5a5" }
+      }
+    >
+      <div className="font-semibold">{isOk ? "✅" : "❌"} {msg}</div>
     </div>
   );
 }
