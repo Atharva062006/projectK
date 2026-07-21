@@ -5,10 +5,22 @@
 }
 
 body {
-  background-color: #030712;
+  background-color: #090a0f;
   color: #f9fafb;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Brand gradient utility */
+.brand-gradient {
+  background: linear-gradient(135deg, #f0a500, #f01870);
+}
+
+.brand-text {
+  background: linear-gradient(135deg, #f0a500, #f01870);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 ::-webkit-scrollbar {

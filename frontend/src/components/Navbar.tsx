@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { User as UserIcon, ChevronDown, LogOut, LayoutDashboard, FileEdit } from "lucide-react";
 
@@ -22,19 +23,34 @@ export default function Navbar() {
   const initials = user?.username ? user.username.split(" ").map(n => n[0]).join("").toUpperCase() : "?";
 
   return (
-    <nav className="bg-[#0e1017] border-b border-gray-800 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+    <nav className="bg-[#0e1017] border-b border-gray-800/60 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
       {/* Left side: Logo */}
-      <Link href="/" className="flex items-center gap-3 select-none cursor-pointer">
-        <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-xs text-white">K</div>
-        <span className="font-semibold text-white tracking-wide text-sm font-mono uppercase">Oyster Kode Club</span>
+      <Link href="/" className="flex items-center gap-2 select-none cursor-pointer">
+        <Image
+          src="/okc_main_logo.png"
+          alt="OKC Logo"
+          width={22}
+          height={22}
+          className="object-contain"
+        />
+        <Image
+          src="/name_logo.png"
+          alt="Oyster Kode Club"
+          width={110}
+          height={18}
+          style={{ height: "auto" }}
+          loading="eager"
+          className="object-contain hidden sm:block"
+        />
       </Link>
 
       {/* Center: Navigation Links */}
       <div className="flex items-center gap-6">
-        <Link href="/directory" className="text-xs font-mono text-gray-400 hover:text-white transition-colors">
+        <Link href="/directory" className="text-sm text-gray-400 hover:text-white transition-colors">
           Members
         </Link>
-        <Link href="/pitches" className="text-xs font-mono text-gray-400 hover:text-white transition-colors">
+        <Link href="/pitches" className="text-sm text-gray-400 hover:text-white transition-colors">
           Pitches
         </Link>
       </div>
@@ -44,9 +60,12 @@ export default function Navbar() {
         {user ? (
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 bg-[#1b1e2c] border border-gray-700 hover:bg-[#25293c] px-3 py-1.5 rounded-lg text-white font-mono text-xs transition-all cursor-pointer"
+            className="flex items-center gap-2 bg-[#1b1e2c] border border-gray-700 hover:bg-[#25293c] px-3 py-1 rounded-lg text-white text-sm transition-all cursor-pointer"
           >
-            <div className="w-5 h-5 rounded-full bg-blue-700 text-[10px] font-bold flex items-center justify-center text-white">
+            <div
+              className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+              style={{ background: "linear-gradient(135deg, #f0a500, #f01870)" }}
+            >
               {initials}
             </div>
             <span className="max-w-[100px] truncate">{user.username}</span>
@@ -55,7 +74,7 @@ export default function Navbar() {
         ) : (
           <Link
             href="/auth"
-            className="text-xs bg-[#1b1e2c] border border-gray-700 hover:bg-[#25293c] px-3.5 py-1.5 rounded-lg text-white font-mono transition-all"
+            className="text-sm bg-[#1b1e2c] border border-gray-700 hover:bg-[#25293c] px-3 py-1 rounded-lg text-white transition-all"
           >
             Login/Signup
           </Link>
@@ -64,7 +83,7 @@ export default function Navbar() {
         {/* Dropdown Menu */}
         {dropdownOpen && user && (
           <div className="absolute right-0 mt-2 w-48 bg-[#0e1017] border border-gray-800 rounded-xl shadow-xl py-1 z-50">
-            <div className="px-3 py-2 border-b border-gray-800 text-[10px] font-mono text-gray-500">
+            <div className="px-3 py-2 border-b border-gray-800 text-xs text-gray-500">
               Role: <span className="text-gray-300 font-bold uppercase">{user.role}</span>
             </div>
 
@@ -75,18 +94,18 @@ export default function Navbar() {
                   <Link
                     href={`/profiles/${profileId}`}
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-mono text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
                   >
-                    <UserIcon size={12} />
+                    <UserIcon size={13} />
                     <span>View Showcase</span>
                   </Link>
                 )}
                 <Link
                   href="/portfolio"
                   onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs font-mono text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
                 >
-                  <FileEdit size={12} />
+                  <FileEdit size={13} />
                   <span>Edit Portfolio</span>
                 </Link>
               </>
@@ -97,9 +116,9 @@ export default function Navbar() {
               <Link
                 href="/admin"
                 onClick={() => setDropdownOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-xs font-mono text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
               >
-                <LayoutDashboard size={12} />
+                <LayoutDashboard size={13} />
                 <span>Admin Dashboard</span>
               </Link>
             )}
@@ -109,13 +128,14 @@ export default function Navbar() {
                 logout();
                 setDropdownOpen(false);
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors border-t border-gray-850 mt-1"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors border-t border-gray-800 mt-1"
             >
-              <LogOut size={12} />
+              <LogOut size={13} />
               <span>Logout</span>
             </button>
           </div>
         )}
+      </div>
       </div>
     </nav>
   );
