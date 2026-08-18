@@ -12,11 +12,19 @@ const app = express();
 // Middleware
 const allowedOrigins = [
     "http://localhost:3000",
-    process.env.FRONTEND_URL   // Set this to your Vercel URL in production
-].filter(Boolean);
+    process.env.FRONTEND_URL
+].filter(Boolean).map(url => url.replace(/\/+$/, "")); // strip trailing slashes
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+        // Allow requests with no origin (curl, health checks, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin.replace(/\/+$/, ""))) {
+            return callback(null, true);
+        }
+        console.log(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins}`);
+        return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true
 }));
 
