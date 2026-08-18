@@ -255,39 +255,39 @@ INSERT INTO contact_info (profile_id, phone, linkedin, github, portfolio_url) VA
 
 -- 4. Link Predefined Skills to Profiles
 INSERT INTO member_skills (profile_id, skill_id, level)
-SELECT '11111111-1111-1111-1111-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'TypeScript'
+SELECT '11111111-1111-1111-1111-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'TypeScript'
 UNION ALL
-SELECT '11111111-1111-1111-1111-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Next.js'
+SELECT '11111111-1111-1111-1111-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Next.js'
 UNION ALL
-SELECT '11111111-1111-1111-1111-222222222222', skill_id, 'Intermediate' FROM skills WHERE name = 'PostgreSQL'
+SELECT '11111111-1111-1111-1111-222222222222'::uuid, skill_id, 'Intermediate' FROM skills WHERE name = 'PostgreSQL'
 UNION ALL
-SELECT '22222222-2222-2222-2222-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'HTML5/CSS3'
+SELECT '22222222-2222-2222-2222-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'HTML5/CSS3'
 UNION ALL
-SELECT '22222222-2222-2222-2222-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'React.js'
+SELECT '22222222-2222-2222-2222-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'React.js'
 UNION ALL
-SELECT '33333333-3333-3333-3333-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Docker'
+SELECT '33333333-3333-3333-3333-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Docker'
 UNION ALL
-SELECT '33333333-3333-3333-3333-222222222222', skill_id, 'Intermediate' FROM skills WHERE name = 'Kubernetes'
+SELECT '33333333-3333-3333-3333-222222222222'::uuid, skill_id, 'Intermediate' FROM skills WHERE name = 'Kubernetes'
 UNION ALL
-SELECT '33333333-3333-3333-3333-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Amazon Web Services (AWS)'
+SELECT '33333333-3333-3333-3333-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Amazon Web Services (AWS)'
 UNION ALL
-SELECT '44444444-4444-4444-4444-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Python'
+SELECT '44444444-4444-4444-4444-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Python'
 UNION ALL
-SELECT '44444444-4444-4444-4444-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'C++'
+SELECT '44444444-4444-4444-4444-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'C++'
 UNION ALL
-SELECT '44444444-4444-4444-4444-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Embedded Systems'
+SELECT '44444444-4444-4444-4444-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Embedded Systems'
 UNION ALL
-SELECT '55555555-5555-5555-5555-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'VHDL / Verilog'
+SELECT '55555555-5555-5555-5555-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'VHDL / Verilog'
 UNION ALL
-SELECT '55555555-5555-5555-5555-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'C (Programming Language)'
+SELECT '55555555-5555-5555-5555-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'C (Programming Language)'
 UNION ALL
-SELECT '55555555-5555-5555-5555-222222222222', skill_id, 'Intermediate' FROM skills WHERE name = 'VLSI Design'
+SELECT '55555555-5555-5555-5555-222222222222'::uuid, skill_id, 'Intermediate' FROM skills WHERE name = 'VLSI Design'
 UNION ALL
-SELECT '66666666-6666-6666-6666-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Node.js'
+SELECT '66666666-6666-6666-6666-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Node.js'
 UNION ALL
-SELECT '66666666-6666-6666-6666-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'Express.js'
+SELECT '66666666-6666-6666-6666-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'Express.js'
 UNION ALL
-SELECT '66666666-6666-6666-6666-222222222222', skill_id, 'Expert' FROM skills WHERE name = 'PostgreSQL'
+SELECT '66666666-6666-6666-6666-222222222222'::uuid, skill_id, 'Expert' FROM skills WHERE name = 'PostgreSQL'
 ON CONFLICT (profile_id, skill_id) DO NOTHING;
 
 -- 5. Insert Projects
