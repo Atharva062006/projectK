@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { PageWrapper } from "@/components/PageWrapper";
 import Navbar from "@/components/Navbar";
 
-const roboto = Roboto({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  variable: "--font-roboto",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -20,8 +26,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={roboto.variable} data-theme="dark" suppressHydrationWarning>
-      <body className="min-h-screen font-[family-name:var(--font-roboto)] relative overflow-x-hidden okc-body">
+    <html
+      lang="en"
+      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
+      data-theme="dark"
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen font-sans relative overflow-x-hidden okc-body">
         {/* Ambient background orbs — fixed, decorative */}
         <div className="ambient-orbs fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
           <div

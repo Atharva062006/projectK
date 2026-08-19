@@ -2,7 +2,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, Filter, LayoutGrid, CheckSquare, Square, RefreshCw } from "lucide-react";
+import { Search, Filter, LayoutGrid, CheckSquare, Square, RefreshCw, Terminal, ArrowUpRight, UserCheck } from "lucide-react";
 import { api } from "@/lib/api";
 
 interface ProfileCard {
@@ -65,7 +65,11 @@ function DirectoryContent() {
 
   useEffect(() => { fetchProfiles(); }, []);
 
-  const activeProfiles = useMock ? MOCK_PROFILES : dbProfiles;
+  const cleanDbProfiles = dbProfiles.filter(
+    (p) => p.full_name && !p.full_name.toLowerCase().includes("xyz")
+  );
+
+  const activeProfiles = [...cleanDbProfiles, ...MOCK_PROFILES];
   const categoriesList = ["Core Team", "Technical Team", "Other Members", "Alumni"];
   const availabilityOptions = ["Available", "Busy", "Open to work"];
   const commonSkills = ["TypeScript", "Next.js", "Python", "Docker", "Figma", "C++"];
@@ -85,42 +89,44 @@ function DirectoryContent() {
     return true;
   });
 
-  const availabilityBadgeStyle = (av: string) => {
-    if (av === "Available") return { background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" };
-    if (av === "Busy") return { background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#ef4444" };
-    return { background: "rgba(240,165,0,0.1)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" };
+  const getBadgeClass = (av: string) => {
+    if (av === "Available") return "neo-badge neo-badge-green";
+    if (av === "Busy") return "neo-badge neo-badge-red";
+    return "neo-badge neo-badge-amber";
   };
 
   return (
     <div className="min-h-screen">
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-4 min-h-[680px]">
+      <div className="neo-card rounded-xl overflow-hidden border-2 border-slate-800 shadow-neo">
+        <div className="grid grid-cols-1 lg:grid-cols-4 min-h-[700px]">
 
-          {/* ── Sidebar Filters ── */}
-          <div className="glass-panel border-r p-5 space-y-5">
-            <div className="section-header flex items-center gap-2">
-              <Filter size={14} style={{ color: "#f0a500" }} />
-              <h2 className="section-title !mb-0">Filters</h2>
+          {/* ── Sidebar Filters (Neobrutalist Panel) ── */}
+          <div className="p-5 space-y-6 border-b lg:border-b-0 lg:border-r border-slate-800 bg-tech-grid">
+            <div className="section-header flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Filter size={15} className="text-amber-400" />
+                <h2 className="font-mono font-bold text-sm uppercase tracking-wider">[ RECRUIT FILTERS ]</h2>
+              </div>
               <button
                 onClick={fetchProfiles}
-                className="ml-auto text-gray-500 hover:text-gray-300 transition-colors p-1 cursor-pointer"
-                title="Refresh data"
+                className="text-slate-400 hover:text-amber-400 transition-colors p-1 cursor-pointer"
+                title="Refresh talent directory"
               >
-                <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
+                <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
               </button>
             </div>
 
             {/* Role Categories */}
-            <div className="space-y-1">
-              <h3 className="text-xs text-gray-500 font-semibold mb-2">Role Category</h3>
+            <div className="space-y-2">
+              <h3 className="text-xs font-mono font-bold uppercase text-slate-400">[ TEAM CATEGORY ]</h3>
               {categoriesList.map((cat) => {
                 const checked = selectedCategories.includes(cat);
                 return (
                   <div key={cat} onClick={() => toggleCategory(cat)}
-                    className="flex items-center gap-2.5 text-sm text-gray-400 hover:text-white cursor-pointer select-none py-1 transition-colors">
+                    className="flex items-center gap-2.5 font-mono text-xs text-slate-300 hover:text-white cursor-pointer select-none py-1 transition-colors">
                     {checked
-                      ? <CheckSquare size={14} style={{ color: "#f0a500" }} />
-                      : <Square size={14} className="text-gray-500" />}
+                      ? <CheckSquare size={14} className="text-amber-400" />
+                      : <Square size={14} className="text-slate-600" />}
                     <span>{cat}</span>
                   </div>
                 );
@@ -128,34 +134,31 @@ function DirectoryContent() {
             </div>
 
             {/* Availability */}
-            <div className="section-header pt-3 space-y-1">
-              <h3 className="text-xs text-gray-500 font-semibold mb-2">Availability</h3>
+            <div className="pt-4 border-t border-slate-800 space-y-2">
+              <h3 className="text-xs font-mono font-bold uppercase text-slate-400">[ STATUS & AVAILABILITY ]</h3>
               {availabilityOptions.map((av) => {
                 const checked = selectedAvailability.includes(av);
                 return (
                   <div key={av} onClick={() => toggleAvailability(av)}
-                    className="flex items-center gap-2.5 text-sm text-gray-400 hover:text-white cursor-pointer select-none py-1 transition-colors">
+                    className="flex items-center gap-2.5 font-mono text-xs text-slate-300 hover:text-white cursor-pointer select-none py-1 transition-colors">
                     {checked
-                      ? <CheckSquare size={14} style={{ color: "#f0a500" }} />
-                      : <Square size={14} className="text-gray-500" />}
+                      ? <CheckSquare size={14} className="text-amber-400" />
+                      : <Square size={14} className="text-slate-600" />}
                     <span>{av}</span>
                   </div>
                 );
               })}
             </div>
 
-            {/* Skills */}
-            <div className="section-header pt-3 space-y-2">
-              <h3 className="text-xs text-gray-500 font-semibold mb-2">Skills</h3>
+            {/* Skills Filter */}
+            <div className="pt-4 border-t border-slate-800 space-y-2">
+              <h3 className="text-xs font-mono font-bold uppercase text-slate-400">[ TECH STACK FILTER ]</h3>
               <div className="flex flex-wrap gap-1.5">
                 {commonSkills.map((sk) => {
                   const active = selectedSkills.includes(sk);
                   return (
                     <button key={sk} onClick={() => toggleSkill(sk)}
-                      className="text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer"
-                      style={active
-                        ? { background: "rgba(240,165,0,0.12)", borderColor: "rgba(240,165,0,0.4)", color: "#f0a500" }
-                        : { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#6b7280" }}
+                      className={`neo-badge cursor-pointer transition-all ${active ? "neo-badge-amber" : "text-slate-400 border-slate-800"}`}
                     >
                       {sk}
                     </button>
@@ -164,35 +167,43 @@ function DirectoryContent() {
               </div>
             </div>
 
-            {/* Data source tag */}
-            <div className="section-header pt-3 !mb-0">
-              <div className="glass-panel rounded-lg p-3 text-xs text-gray-500 space-y-1">
-                <div>Source: {useMock ? <span className="text-yellow-500 font-medium">Demo Fallback</span> : <span className="text-green-500 font-medium">Live API</span>}</div>
-                <div>{activeProfiles.length} profiles loaded</div>
+            {/* System Status Pill */}
+            <div className="pt-4 border-t border-slate-800">
+              <div className="neo-card rounded-lg p-3 text-xs font-mono space-y-1 bg-slate-950/60 border border-slate-800">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">INDEX:</span>
+                  <span className="font-bold text-amber-400">{filteredProfiles.length} PROFILES</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">SOURCE:</span>
+                  <span className="font-bold text-emerald-400">{useMock ? "OFFLINE DEMO" : "LIVE VERIFIED"}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ── Main Panel ── */}
-          <div className="col-span-3 p-5 flex flex-col gap-5">
-            {/* Search */}
-            <div className="glass-panel flex items-center gap-3 rounded-xl px-4 py-2.5">
-              <Search size={16} className="text-gray-500 flex-shrink-0" />
+          {/* ── Main Talent Cards Panel ── */}
+          <div className="col-span-3 p-6 flex flex-col gap-6">
+            
+            {/* Search Input */}
+            <div className="flex items-center gap-3 neo-card rounded-xl px-4 py-3 border-2 border-slate-800 shadow-neo-sm">
+              <Search size={18} className="text-amber-400 flex-shrink-0" />
               <input
                 type="text"
-                placeholder="Search by name, tagline, or tech stack..."
+                placeholder="Search talent by name, role, skills (e.g. Next.js, Python, Verilog)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-sm text-gray-200 w-full placeholder-gray-500"
+                className="bg-transparent border-none outline-none font-mono text-sm text-slate-100 w-full placeholder-slate-500"
               />
             </div>
 
-            {/* Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+            {/* Profile Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 flex-1">
               {filteredProfiles.length === 0 ? (
-                <div className="col-span-full flex flex-col items-center justify-center py-20 text-center space-y-3">
-                  <LayoutGrid size={30} className="text-gray-500" />
-                  <p className="text-sm text-gray-500">No profiles match the current filters</p>
+                <div className="col-span-full flex flex-col items-center justify-center py-24 text-center space-y-3 neo-card rounded-xl border border-slate-800">
+                  <LayoutGrid size={36} className="text-slate-600" />
+                  <p className="font-mono text-sm text-slate-400">[ NO MATCHING TALENT PROFILES FOUND ]</p>
+                  <p className="text-xs text-slate-500">Try clearing query parameters or selecting different skills.</p>
                 </div>
               ) : (
                 filteredProfiles.map((p, i) => {
@@ -201,38 +212,38 @@ function DirectoryContent() {
                     <Link
                       href={`/profiles/${p.profile_id}`}
                       key={p.profile_id}
-                      className={`glass-card glass-card-hover group block rounded-xl p-4 flex flex-col justify-between h-[200px] transition-all anim-fadeInUp anim-delay-${Math.min(i + 1, 8)}`}
+                      className={`neo-card neo-card-hover rounded-xl p-5 border border-slate-800 flex flex-col justify-between min-h-[255px] h-full overflow-hidden transition-all anim-fadeInUp anim-delay-${Math.min(i + 1, 8)}`}
                     >
                       <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                            style={{ background: "linear-gradient(135deg, rgba(240,165,0,0.25), rgba(240,24,112,0.2))", border: "1px solid rgba(240,165,0,0.2)" }}
-                          >
-                            {initials}
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-sm text-white group-hover:text-[#f0a500] transition-colors truncate">{p.full_name}</h3>
-                            <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{p.tagline}</p>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center font-mono text-xs font-bold text-white flex-shrink-0 brand-gradient shadow-neo-sm">
+                              {initials}
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="font-mono font-bold text-sm text-slate-100 group-hover:text-amber-400 transition-colors truncate">{p.full_name}</h3>
+                              <p className="text-xs text-slate-400 line-clamp-1">{p.tagline}</p>
+                            </div>
                           </div>
                         </div>
-                        <p className="text-xs text-gray-500">{p.department || "Technical Team"}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="neo-badge neo-badge-pink text-[10px]">{p.department || "Technical Team"}</span>
+                        </div>
                       </div>
 
-                      <div className="section-header pt-3 space-y-2 !mb-0">
+                      {/* Skills & Action */}
+                      <div className="pt-3 border-t border-slate-800/80 space-y-3 mt-auto">
                         <div className="flex flex-wrap gap-1">
                           {p.skills?.slice(0, 3).map((sk) => (
-                            <span key={sk.name} className="glass-panel text-[10px] px-2 py-0.5 rounded text-gray-400">
+                            <span key={sk.name} className="neo-badge text-[10px] text-slate-400 border-slate-800 bg-slate-900/60 max-w-[145px] truncate" title={sk.name}>
                               {sk.name}
                             </span>
                           ))}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={availabilityBadgeStyle(p.availability)}>
-                            {p.availability}
-                          </span>
-                          <span className="text-xs text-gray-500 group-hover:text-[#f0a500] transition-colors">
-                            View →
+                        <div className="flex items-center justify-between pt-1">
+                          <span className={getBadgeClass(p.availability)}>[ {(p.availability || "Available").toUpperCase()} ]</span>
+                          <span className="font-mono text-xs font-bold text-amber-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            PORTFOLIO <ArrowUpRight size={13} />
                           </span>
                         </div>
                       </div>
@@ -251,8 +262,8 @@ function DirectoryContent() {
 export default function DirectoryPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
-        Loading member directory...
+      <div className="min-h-screen flex items-center justify-center font-mono text-sm text-amber-400">
+        [ LOADING TALENT DIRECTORY... ]
       </div>
     }>
       <DirectoryContent />

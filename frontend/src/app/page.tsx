@@ -2,7 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Award, Users, Terminal, Code, Cpu, Sparkles, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowUpRight, Award, Users, Terminal, Code, Cpu, HelpCircle, ChevronDown, ChevronUp, Layers, CheckCircle2, Briefcase } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 interface Testimonial { name: string; role: string; company: string; quote: string; gradYear: number; }
 interface FAQItem { question: string; answer: string; }
@@ -21,161 +22,184 @@ const FAQS: FAQItem[] = [
 ];
 
 const STATS = [
-  { icon: Users, value: "150+", label: "Registered Talent Profiles", color: "#f0a500" },
-  { icon: Award, value: "50+", label: "Active Alumni Network", color: "#f05000" },
-  { icon: Code, value: "12+", label: "Core Domains & Tech Tracks", color: "#f01870" },
-  { icon: Terminal, value: "180+", label: "Open Source Repositories", color: "#e09000" },
+  { icon: Users, value: "150+", label: "Registered Talent Profiles", code: "TALENT_POOL" },
+  { icon: Award, value: "50+", label: "Active Alumni Network", code: "ALUMNI_NET" },
+  { icon: Code, value: "12+", label: "Core Engineering Tracks", code: "TECH_TRACKS" },
+  { icon: Terminal, value: "180+", label: "Open Source Repositories", code: "REPOS_INDEXED" },
 ];
 
 const DOMAINS = [
-  { title: "Web Development", tech: "React, Next.js, Node.js, TypeScript", href: "/directory?search=Next.js" },
-  { title: "AI & ML Pipelines", tech: "Python, PyTorch, Data Analysis", href: "/directory?search=Python" },
-  { title: "Systems & Hardware", tech: "Verilog, C/C++, Embedded Systems", href: "/directory?search=VLSI" },
-  { title: "Cloud & DevOps", tech: "Docker, AWS, Kubernetes, CI/CD", href: "/directory?search=Docker" },
+  { title: "Web Development", tech: "React, Next.js, Node.js, TypeScript", code: "DOMAIN_WEB", href: "/directory?search=Next.js" },
+  { title: "AI & ML Pipelines", tech: "Python, PyTorch, Data Analysis", code: "DOMAIN_AI", href: "/directory?search=Python" },
+  { title: "Systems & Hardware", tech: "Verilog, C/C++, Embedded Systems", code: "DOMAIN_HW", href: "/directory?search=VLSI" },
+  { title: "Cloud & DevOps", tech: "Docker, AWS, Kubernetes, CI/CD", code: "DOMAIN_OPS", href: "/directory?search=Docker" },
 ];
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { brandStyle, toggleBrandStyle } = useTheme();
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-10 pb-10">
       
-      {/* ── HERO ── */}
-      <div className="glass-card rounded-2xl relative overflow-hidden py-8 sm:py-10 text-center">
-        {/* Subtle radial glow */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(240,165,0,0.07) 0%, rgba(240,24,112,0.05) 40%, transparent 70%)" }} />
+      {/* ── HERO SECTION (MINIMAL NEOBRUTALIST ARCHITECTURE) ── */}
+      <div className="neo-card rounded-xl relative overflow-hidden p-8 sm:p-12 text-center bg-tech-grid border-2 border-slate-800 shadow-neo">
+        
+        {/* Top Right Theme Toggle Button */}
+        <div className="absolute top-4 right-4 z-20">
+          <button
+            onClick={toggleBrandStyle}
+            title="Toggle between Official OKC Theme and LinkedIn Corporate Look"
+            className="neo-btn-ghost text-xs font-mono font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-2 cursor-pointer shadow-neo-sm hover:scale-105 transition-all"
+          >
+            <Briefcase size={14} style={{ color: brandStyle === "linkedin" ? "#0a66c2" : "#f0a500" }} />
+            <span>{brandStyle === "linkedin" ? "[ SWITCH TO OKC THEME ]" : "[ SWITCH TO LINKEDIN LOOK ]"}</span>
+          </button>
+        </div>
 
-        <div className="relative z-10 space-y-5 px-6 max-w-3xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm anim-floatDown"
-            style={{ background: "rgba(240,165,0,0.08)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" }}>
-            <Sparkles size={13} />
-            <span>Official Oyster Kode Club Talent Showcase</span>
+        <div className="relative z-10 space-y-6 max-w-4xl mx-auto pt-4 sm:pt-0">
+          {/* Top Code Badge */}
+          <div className="inline-flex items-center gap-2 neo-badge neo-badge-amber anim-floatDown">
+            <Terminal size={13} />
+            <span>[ SYSTEM: OYSTER KODE CLUB TALENT REPOSITORY ]</span>
           </div>
 
-          {/* Continuous 3D Animated Logo */}
+          {/* 3D Animated Logo Frame */}
           <div className="flex justify-center py-2">
-            <div className="relative logo-3d-animated">
-              <Image src="/okc_main_logo.png" alt="OKC Logo" width={80} height={80} className="object-contain relative z-10" />
-              <div className="absolute inset-0 rounded-full blur-2xl opacity-60 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(240,165,0,0.5), rgba(240,24,112,0.3) 60%, transparent 75%)" }} />
+            <div className="relative logo-3d-animated p-3 rounded-lg border border-slate-700 bg-slate-900/60 shadow-neo-sm">
+              <Image src="/okc_main_logo.png" alt="OKC Logo" width={84} height={84} className="object-contain relative z-10" />
             </div>
           </div>
 
-          <h1
-            className="text-5xl sm:text-6xl font-extrabold tracking-tight uppercase anim-floatDown anim-delay-2"
-            style={{ background: "linear-gradient(135deg, #f0a500, #f01870)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
-          >
-            PROJECT K
+          <h1 className="text-4xl sm:text-6xl font-mono font-black uppercase tracking-tight leading-none">
+            ENGINEERING <span className="brand-text">TALENT PORTAL</span>
           </h1>
 
-          <p className="text-base text-gray-400 max-w-xl mx-auto leading-relaxed anim-fadeInUp anim-delay-3">
-            A structured portfolio database of members and alumni. Discover skill-based talent, download verified resumes, and connect with developers.
+          <p className="text-base sm:text-lg text-slate-400 font-sans max-w-2xl mx-auto leading-relaxed anim-fadeInUp anim-delay-2">
+            A structured, verified portfolio directory for Oyster Kode Club members & alumni. Discover skill-verified talent, download resumes, and recruit engineers.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 anim-fadeInUp anim-delay-4">
+          {/* Hero CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 anim-fadeInUp anim-delay-3">
             <Link href="/directory"
-              className="btn-brand w-full sm:w-auto flex items-center justify-center gap-2 text-sm text-white px-7 py-3 rounded-xl font-semibold">
-              Browse Directory <ArrowUpRight size={15} />
+              className="neo-btn-brand w-full sm:w-auto flex items-center justify-center gap-2 text-sm px-8 py-3.5 rounded-md font-mono uppercase tracking-wider">
+              Browse Directory <ArrowUpRight size={16} />
             </Link>
             <Link href="/auth"
-              className="btn-ghost w-full sm:w-auto flex items-center justify-center text-sm px-7 py-3 rounded-xl">
-              Join Portal
+              className="neo-btn-ghost w-full sm:w-auto flex items-center justify-center gap-2 text-sm px-8 py-3.5 rounded-md font-mono uppercase tracking-wider">
+              <Layers size={15} /> Join Portal
             </Link>
           </div>
+
+          {/* Feature Bullets */}
+          <div className="pt-6 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono text-slate-400 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle2 size={14} className="text-emerald-400" />
+              <span>[ VERIFIED PROFILES ]</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle2 size={14} className={brandStyle === "linkedin" ? "text-[#0a66c2]" : "text-amber-400"} />
+              <span>[ DIRECT RESUMES ]</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle2 size={14} className="text-pink-400" />
+              <span>[ BENTO PORTFOLIOS ]</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      {/* ── STATS CARDS (Static, No Hover Effect) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── STATS CARDS (MINIMAL NEOBRUTALIST GRID) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {STATS.map((s, i) => (
-          <div key={i} className={`glass-card rounded-2xl p-5 space-y-3 anim-fadeInUp anim-delay-${i + 1}`}>
-            <s.icon size={20} style={{ color: s.color }} />
-            <div className="text-3xl font-bold text-white">{s.value}</div>
-            <div className="text-sm text-gray-400 font-medium">{s.label}</div>
+          <div key={i} className={`neo-card rounded-xl p-6 space-y-3 border-2 border-slate-800 shadow-neo neo-card-hover anim-fadeInUp anim-delay-${i + 1}`}>
+            <div className="flex items-center justify-between">
+              <s.icon size={22} className="text-amber-400" />
+              <span className="neo-badge neo-badge-amber">{s.code}</span>
+            </div>
+            <div className="text-4xl font-mono font-black tracking-tight brand-text">{s.value}</div>
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-400">{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* ── DOMAINS (Slide & Icon Spin Hover) ── */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="section-header flex items-center justify-between">
+      {/* ── CORE DOMAINS ── */}
+      <div className="neo-card rounded-xl p-6 sm:p-8 space-y-6 border-2 border-slate-800 shadow-neo">
+        <div className="section-header flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-base font-bold text-white uppercase tracking-wide">Core Engineering Domains</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Discover members by filtering technical subdivisions</p>
+            <div className="neo-badge neo-badge-amber mb-2 inline-block">[ TECHNICAL TRACKS ]</div>
+            <h2 className="text-xl font-mono font-extrabold uppercase tracking-tight">Engineering Specialties</h2>
           </div>
-          <Link href="/directory" className="flex items-center gap-1 text-sm font-semibold" style={{ color: "#f0a500" }}>
-            All filters <ArrowUpRight size={13} />
+          <Link href="/directory" className="neo-badge neo-badge-pink flex items-center gap-1 self-start sm:self-auto">
+            <span>EXPLORE ALL FILTERS</span>
+            <ArrowUpRight size={13} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {DOMAINS.map((d, i) => (
             <Link key={i} href={d.href}
-              className={`glass-panel domain-card-hover block rounded-xl p-4 transition-all anim-fadeInUp anim-delay-${i + 2}`}>
+              className={`neo-card rounded-lg p-5 border border-slate-800 neo-card-hover block space-y-3 anim-fadeInUp anim-delay-${i + 2}`}>
               <div className="flex justify-between items-start">
-                <span className="text-sm font-semibold text-white">{d.title}</span>
-                <Cpu size={15} className="domain-icon text-gray-400 transition-all duration-300" />
+                <span className="neo-badge neo-badge-amber text-[10px]">{d.code}</span>
+                <Cpu size={18} className="text-slate-400 group-hover:text-amber-400 transition-colors" />
               </div>
-              <p className="text-xs text-gray-500 mt-2">{d.tech}</p>
+              <h3 className="text-base font-mono font-bold">{d.title}</h3>
+              <p className="text-xs font-mono text-slate-400">{d.tech}</p>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* ── TESTIMONIALS (3D Tilt & Glow Hover) ── */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
+      {/* ── ALUMNI TESTIMONIALS ── */}
+      <div className="neo-card rounded-xl p-6 sm:p-8 space-y-6 border-2 border-slate-800 shadow-neo">
         <div className="section-header">
-          <h2 className="text-base font-bold text-white uppercase tracking-wide">Alumni Success</h2>
-          <p className="text-sm text-gray-500 mt-0.5">What our members say about their journey</p>
+          <div className="neo-badge neo-badge-pink mb-2 inline-block">[ VERIFIED TESTIMONIALS ]</div>
+          <h2 className="text-xl font-mono font-extrabold uppercase tracking-tight">Alumni & Recruiter Feedback</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {TESTIMONIALS.map((t, i) => (
             <div key={i}
-              className={`glass-panel testimonial-hover rounded-xl p-5 flex flex-col justify-between space-y-4 anim-fadeInUp anim-delay-${i + 2}`}>
-              <div className="relative">
-                <span className="quote-mark absolute -top-2 -left-1 text-4xl leading-none opacity-15 font-serif pointer-events-none"
-                  style={{ color: "#f0a500" }}>&ldquo;</span>
-                <p className="text-sm text-gray-400 italic leading-relaxed pt-3">&ldquo;{t.quote}&rdquo;</p>
-              </div>
-              <div className="section-header pt-3 flex items-center justify-between !mb-0">
+              className={`neo-card rounded-lg p-6 border border-slate-800 flex flex-col justify-between space-y-5 anim-fadeInUp anim-delay-${i + 2}`}>
+              <p className="text-sm font-sans text-slate-300 italic leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-white">{t.name}</h4>
-                  <p className="text-xs text-gray-500 mt-0.5">{t.role} @ <span className="text-gray-400 font-medium">{t.company}</span></p>
+                  <h4 className="text-sm font-mono font-bold">{t.name}</h4>
+                  <p className="text-xs font-mono text-slate-400">{t.role} @ <span className="text-amber-400 font-bold">{t.company}</span></p>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                  style={{ background: "rgba(240,165,0,0.09)", border: "1px solid rgba(240,165,0,0.2)", color: "#f0a500" }}>
-                  {t.gradYear}
-                </span>
+                <span className="neo-badge neo-badge-amber">{t.gradYear}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── FAQ ── */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
+      {/* ── FREQUENTLY ASKED QUESTIONS ── */}
+      <div className="neo-card rounded-xl p-6 sm:p-8 space-y-6 border-2 border-slate-800 shadow-neo">
         <div className="section-header">
-          <h2 className="text-base font-bold text-white uppercase tracking-wide">Frequently Asked Questions</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Everything you need to know about the portfolio ecosystem</p>
+          <div className="neo-badge neo-badge-amber mb-2 inline-block">[ KNOWLEDGE BASE ]</div>
+          <h2 className="text-xl font-mono font-extrabold uppercase tracking-tight">Frequently Asked Questions</h2>
         </div>
-        <div className="space-y-2">
+
+        <div className="space-y-3">
           {FAQS.map((faq, i) => {
             const isOpen = openFaq === i;
             return (
-              <div key={i} className="glass-panel rounded-xl overflow-hidden transition-all duration-200">
+              <div key={i} className="neo-card rounded-lg overflow-hidden border border-slate-800">
                 <button
                   onClick={() => setOpenFaq(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between p-4 text-left text-sm text-gray-300 hover:text-white cursor-pointer transition-colors">
+                  className="w-full flex items-center justify-between p-4 text-left font-mono text-sm font-bold text-slate-200 hover:text-white cursor-pointer transition-colors">
                   <div className="flex items-center gap-3">
-                    <HelpCircle size={14} style={{ color: "#f0a500", flexShrink: 0 }} />
+                    <HelpCircle size={16} className="text-amber-400 flex-shrink-0" />
                     <span>{faq.question}</span>
                   </div>
-                  {isOpen ? <ChevronUp size={14} className="text-gray-500" /> : <ChevronDown size={14} className="text-gray-500" />}
+                  {isOpen ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-4 pt-0 text-sm text-gray-500 leading-relaxed section-header !mb-0">
-                    <div className="pt-3">{faq.answer}</div>
+                  <div className="px-5 pb-4 pt-2 text-sm font-sans text-slate-400 leading-relaxed border-t border-slate-800/60 bg-slate-950/40">
+                    {faq.answer}
                   </div>
                 )}
               </div>
@@ -185,42 +209,46 @@ export default function LandingPage() {
       </div>
 
       {/* ── FOOTER ── */}
-      <footer className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm text-gray-400">
+      <footer className="neo-card rounded-xl p-6 sm:p-8 space-y-6 border-2 border-slate-800 shadow-neo">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Image src="/okc_main_logo.png" alt="OKC" width={18} height={18} className="object-contain" />
-              <span className="font-semibold text-white text-sm tracking-wider">OYSTER KODE CLUB</span>
+            <div className="flex items-center gap-2.5">
+              <Image src="/okc_main_logo.png" alt="OKC" width={20} height={20} className="object-contain" />
+              <span className="font-mono font-black text-sm tracking-wider">OYSTER KODE CLUB</span>
             </div>
-            <p className="text-sm text-gray-500 leading-relaxed">Official portfolio ecosystem showcasing engineering talent built by our active student club.</p>
+            <p className="text-xs font-mono text-slate-400 leading-relaxed">Official member & alumni talent repository platform built for recruitment and showcase.</p>
           </div>
+
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Browse</h4>
-            <ul className="space-y-1.5">
-              {[["Web Systems", "/directory?search=Next.js"], ["Data Systems", "/directory?search=Python"], ["VLSI & Hardware", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
-                <li key={href}><Link href={href} className="hover:text-gray-200 transition-colors">{label}</Link></li>
+            <h4 className="neo-badge neo-badge-amber text-[10px] inline-block">[ DOMAINS ]</h4>
+            <ul className="space-y-1 font-mono text-xs text-slate-400">
+              {[["Web Systems", "/directory?search=Next.js"], ["AI Pipelines", "/directory?search=Python"], ["VLSI & Systems", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
+                <li key={href}><Link href={href} className="hover:text-amber-400 transition-colors">{label}</Link></li>
               ))}
             </ul>
           </div>
+
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Portal</h4>
-            <ul className="space-y-1.5">
-              {[["Member Directory", "/directory"], ["Pitch Showcase", "/pitches"], ["Join Portal", "/auth"], ["Admin Panel", "/admin"]].map(([label, href]) => (
-                <li key={href}><Link href={href} className="hover:text-gray-200 transition-colors">{label}</Link></li>
+            <h4 className="neo-badge neo-badge-pink text-[10px] inline-block">[ NAVIGATION ]</h4>
+            <ul className="space-y-1 font-mono text-xs text-slate-400">
+              {[["Talent Directory", "/directory"], ["Pitches Board", "/pitches"], ["Sign In / Register", "/auth"], ["Admin Control", "/admin"]].map(([label, href]) => (
+                <li key={href}><Link href={href} className="hover:text-amber-400 transition-colors">{label}</Link></li>
               ))}
             </ul>
           </div>
+
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Contact</h4>
-            <p className="text-sm text-gray-500">Questions or sponsorships?</p>
-            <p className="text-sm font-medium text-gray-300">contact@oysterkode.club</p>
+            <h4 className="neo-badge neo-badge-amber text-[10px] inline-block">[ CONTACT ]</h4>
+            <p className="text-xs font-mono text-slate-400">For sponsorships & hiring inquiries:</p>
+            <p className="text-xs font-mono font-bold text-slate-200">contact@oysterkode.club</p>
           </div>
         </div>
-        <div className="section-header pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 !mb-0">
-          <div>&copy; {new Date().getFullYear()} Oyster Kode Club. All Rights Reserved.</div>
+
+        <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500">
+          <div>&copy; {new Date().getFullYear()} Oyster Kode Club. All rights reserved.</div>
           <div className="flex gap-4 mt-2 sm:mt-0">
-            <Link href="#" className="hover:text-gray-400 transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-gray-400 transition-colors">Terms</Link>
+            <Link href="#" className="hover:text-slate-300 transition-colors">[ Privacy Policy ]</Link>
+            <Link href="#" className="hover:text-slate-300 transition-colors">[ Terms of Service ]</Link>
           </div>
         </div>
       </footer>

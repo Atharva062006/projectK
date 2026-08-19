@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft, Mail, Phone, School, MapPin,
-  Globe, FileText, Award, GraduationCap, Briefcase, Sparkles
+  Globe, FileText, Award, GraduationCap, Briefcase, Sparkles, Terminal, CheckCircle2, ExternalLink, ShieldAlert
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -41,29 +41,33 @@ const MOCK_PROFILES_DETAIL: Record<string, ProfileData> = {
   "demo-6": { profile_id: "demo-6", full_name: "Rahul Verma", email: "rahul@oysterkode.club", college: "City Engineering College", tagline: "Backend Developer & Database Admin", bio: "Exploring multi-threaded database engines and performance optimization.", availability: "Open to work", department: "Other Members", role_category: "Other Members", location: "Hyderabad, India", yr_of_graduation: 2026, completion_percentage: 80, contact: { github: "https://github.com/rahul" }, skills: [{ skill_id: "s17", name: "Node.js", category: "Languages", level: "Expert" }, { skill_id: "s18", name: "PostgreSQL", category: "Databases", level: "Expert" }], projects: [{ project_id: "p7", title: "Multi-tenant DB Driver", description: "Custom pooling wrapper for PostgreSQL to optimize multi-tenant connection lifetimes.", tech_stack: "Node.js, PostgreSQL, Redis", github_link: "https://github.com/rahul/db-pool-wrapper" }] },
 };
 
-const availabilityBadge = (av?: string) => {
-  if (av === "Available") return { background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80" };
-  if (av === "Busy") return { background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" };
-  return { background: "rgba(240,165,0,0.1)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" };
-};
-
 export default function ProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>();
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState(false);
   const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
   useEffect(() => {
     if (!profileId) return;
-    if (profileId.startsWith("demo-")) {
-      const demoData = MOCK_PROFILES_DETAIL[profileId];
-      setProfile(demoData || { profile_id: profileId, full_name: "Club Member", tagline: "Engineering Showcase Profile", availability: "Available", completion_percentage: 75 });
+    if (profileId.startsWith("demo-") || MOCK_PROFILES_DETAIL[profileId]) {
+      const demoData = MOCK_PROFILES_DETAIL[profileId] || MOCK_PROFILES_DETAIL["demo-1"];
+      setProfile(demoData);
       setIsLoading(false);
     } else {
       api.profile.getProfile(profileId)
-        .then((res) => { if (res.ok && res.data) setProfile(res.data as ProfileData); else setError(res.message || "Failed to load profile"); })
+        .then((res) => {
+          if (res.ok && res.data) {
+            setProfile(res.data as ProfileData);
+          } else {
+            if (res.status === 403 || res.status === 401 || res.message?.toLowerCase().includes("token")) {
+              setAuthError(true);
+            }
+            setError(res.message || "Failed to load profile");
+          }
+        })
         .catch(() => setError("Backend connection error"))
         .finally(() => setIsLoading(false));
     }
@@ -71,227 +75,240 @@ export default function ProfileDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-sm text-gray-500">
-        Loading profile details...
+      <div className="min-h-[60vh] flex items-center justify-center font-mono text-sm text-amber-400">
+        [ LOADING BENTO TALENT SHOWCASE... ]
       </div>
     );
   }
 
-  if (error || !profile) {
+  if (authError || error || !profile) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="glass-card rounded-2xl p-8 text-center space-y-4 max-w-sm w-full">
-          <p className="text-sm text-red-400">❌ {error || "Profile not found"}</p>
-          <button onClick={() => router.push("/")}
-            className="btn-ghost w-full py-2.5 rounded-xl text-sm cursor-pointer">
-            ← Back to Directory
-          </button>
+        <div className="neo-card rounded-xl p-8 text-center space-y-4 max-w-md w-full border-2 border-slate-800 shadow-neo">
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto neo-badge neo-badge-amber">
+            <ShieldAlert size={22} />
+          </div>
+          <h2 className="font-mono font-bold text-sm uppercase text-slate-100">[ AUTHENTICATION REQUIRED ]</h2>
+          <p className="font-mono text-xs text-slate-400 leading-relaxed">
+            {authError
+              ? "Detailed member profiles and resume downloads require an active authenticated session."
+              : error || "Profile record not found."}
+          </p>
+          <div className="flex gap-3 pt-2">
+            {authError && (
+              <button onClick={() => router.push("/auth")}
+                className="neo-btn-brand flex-1 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider cursor-pointer">
+                [ SIGN IN ]
+              </button>
+            )}
+            <button onClick={() => router.push("/directory")}
+              className="neo-btn-ghost flex-1 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider cursor-pointer">
+              ← [ DIRECTORY ]
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   const initials = profile.full_name ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase() : "?";
-  const iconColor = "#f0a500";
 
   return (
-    <div className="space-y-5 anim-fadeInUp">
-      {/* Nav bar */}
+    <div className="space-y-6 anim-fadeInUp pb-8">
+      
+      {/* Top Action Nav */}
       <div className="flex items-center justify-between">
-        <button onClick={() => router.push("/")}
-          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">
-          <ArrowLeft size={14} /> Directory
+        <button onClick={() => router.push("/directory")}
+          className="neo-btn-ghost flex items-center gap-2 text-xs font-mono font-bold px-4 py-2 rounded-lg cursor-pointer">
+          <ArrowLeft size={14} /> <span>[ BACK TO DIRECTORY ]</span>
         </button>
+
         <a
           href={profile.profile_id.startsWith("demo-") ? "#" : `${BASE}/profiles/${profile.profile_id}/resume`}
           target="_blank"
           onClick={() => profile.profile_id.startsWith("demo-") && alert("Demo resume download logged!")}
-          className="btn-brand flex items-center gap-2 text-sm px-4 py-2 rounded-lg cursor-pointer"
+          className="neo-btn-brand flex items-center gap-2 text-xs font-mono font-bold px-5 py-2.5 rounded-lg cursor-pointer uppercase tracking-wider"
         >
-          <FileText size={14} /> Download Resume
+          <FileText size={15} /> <span>DOWNLOAD CV RESUME</span>
         </a>
       </div>
 
-      {/* Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Avatar tile */}
-        <div className="glass-card rounded-2xl p-6 flex flex-col items-center justify-center h-[220px] relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(240,165,0,0.08), transparent 70%)" }} />
-          <div
-            className="w-24 h-24 rounded-2xl flex items-center justify-center text-2xl font-bold text-white relative z-10"
-            style={{ background: "linear-gradient(135deg, rgba(240,165,0,0.25), rgba(240,24,112,0.2))", border: "1px solid rgba(240,165,0,0.25)" }}
-          >
+      {/* Bento Layout Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Avatar & Verification Tile */}
+        <div className="neo-card rounded-xl p-6 flex flex-col items-center justify-center min-h-[240px] relative overflow-hidden border-2 border-slate-800 shadow-neo bg-tech-grid">
+          <div className="w-24 h-24 rounded-xl flex items-center justify-center font-mono text-2xl font-black text-white brand-gradient shadow-neo-brand relative z-10">
             {initials}
           </div>
-          <div className="mt-4 text-xs px-3 py-1 rounded-full relative z-10"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9ca3af" }}>
-            {profile.role_category || "Technical Team"}
+          <div className="mt-4 neo-badge neo-badge-amber">
+            [ {profile.role_category?.toUpperCase() || "TECHNICAL TEAM"} ]
           </div>
         </div>
 
-        {/* Core info tile */}
-        <div className="md:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between min-h-[220px]">
-          <div className="space-y-3">
+        {/* Core Info Tile */}
+        <div className="md:col-span-2 neo-card rounded-xl p-6 sm:p-8 flex flex-col justify-between min-h-[240px] border-2 border-slate-800 shadow-neo">
+          <div className="space-y-4">
             <div>
-              <h1 className="text-xl font-bold text-white">{profile.full_name}</h1>
-              <p className="text-sm text-gray-400 mt-0.5">{profile.tagline || "Oyster Kode Club Active Member"}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-2xl font-mono font-black text-slate-100">{profile.full_name}</h1>
+                <span className="neo-badge neo-badge-green text-[10px]">[ VERIFIED MEMBER ]</span>
+              </div>
+              <p className="text-xs font-mono text-slate-400">{profile.tagline || "Oyster Kode Club Talent Showcase"}</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-400">
-              {profile.email && <div className="flex items-center gap-2"><Mail size={13} style={{ color: iconColor }} /><span className="truncate">{profile.email}</span></div>}
-              {(profile.contact?.phone || profile.phone) && <div className="flex items-center gap-2"><Phone size={13} style={{ color: iconColor }} /><span>{profile.contact?.phone || profile.phone}</span></div>}
-              {profile.college && <div className="flex items-center gap-2 col-span-full"><School size={13} style={{ color: iconColor }} /><span className="truncate">{profile.college}</span></div>}
-              {profile.location && <div className="flex items-center gap-2"><MapPin size={13} style={{ color: iconColor }} /><span>{profile.location}</span></div>}
-              {profile.yr_of_graduation && <div className="flex items-center gap-2"><GraduationCap size={13} style={{ color: iconColor }} /><span>Graduation: {profile.yr_of_graduation}</span></div>}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono text-xs text-slate-300">
+              {profile.email && <div className="flex items-center gap-2"><Mail size={14} className="text-amber-400" /><span className="truncate">{profile.email}</span></div>}
+              {(profile.contact?.phone || profile.phone) && <div className="flex items-center gap-2"><Phone size={14} className="text-amber-400" /><span>{profile.contact?.phone || profile.phone}</span></div>}
+              {profile.college && <div className="flex items-center gap-2 col-span-full"><School size={14} className="text-amber-400" /><span className="truncate">{profile.college}</span></div>}
+              {profile.location && <div className="flex items-center gap-2"><MapPin size={14} className="text-amber-400" /><span>{profile.location}</span></div>}
+              {profile.yr_of_graduation && <div className="flex items-center gap-2"><GraduationCap size={14} className="text-amber-400" /><span>Graduation: {profile.yr_of_graduation}</span></div>}
             </div>
           </div>
-          <div className="border-t pt-4 mt-3 flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-            <div className="flex items-center gap-2">
+
+          <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3">
               {profile.contact?.github && (
                 <a href={profile.contact.github} target="_blank"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-gray-400 hover:text-white"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  className="neo-btn-ghost p-2 rounded-lg text-slate-300 hover:text-amber-400 transition-colors">
                   <GithubIcon />
                 </a>
               )}
               {profile.contact?.linkedin && (
                 <a href={profile.contact.linkedin} target="_blank"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-gray-400 hover:text-white"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  className="neo-btn-ghost p-2 rounded-lg text-slate-300 hover:text-amber-400 transition-colors">
                   <LinkedinIcon />
                 </a>
               )}
               {profile.contact?.portfolio_url && (
                 <a href={profile.contact.portfolio_url} target="_blank"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-gray-400 hover:text-white"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <Globe size={13} />
+                  className="neo-btn-ghost p-2 rounded-lg text-slate-300 hover:text-amber-400 transition-colors">
+                  <Globe size={14} />
                 </a>
               )}
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full" style={availabilityBadge(profile.availability)}>
-              {profile.availability || "Offline"}
+
+            <span className={profile.availability === "Available" ? "neo-badge neo-badge-green" : "neo-badge neo-badge-amber"}>
+              [ STATUS: {profile.availability?.toUpperCase() || "OFFLINE"} ]
             </span>
           </div>
         </div>
 
-        {/* Bio tile */}
-        <div className="md:col-span-2 glass-card rounded-2xl p-5 space-y-3">
-          <div className="section-header flex items-center gap-2">
-            <Briefcase size={13} style={{ color: iconColor }} />
-            <h2 className="section-title">Biography / Core Focus</h2>
+        {/* Bio Tile */}
+        <div className="md:col-span-2 neo-card rounded-xl p-6 space-y-3 border border-slate-800 shadow-neo-sm">
+          <div className="section-header flex items-center gap-2 pb-2 border-b border-slate-800">
+            <Briefcase size={15} className="text-amber-400" />
+            <h2 className="font-mono font-bold text-xs uppercase tracking-wider">[ BIOGRAPHY & BACKGROUND ]</h2>
           </div>
-          <p className="text-sm text-gray-400 leading-relaxed">{profile.bio || "No biography added yet."}</p>
+          <p className="font-sans text-sm text-slate-300 leading-relaxed">{profile.bio || "No biography provided."}</p>
         </div>
 
-        {/* Quality Index tile */}
-        <div className="glass-card rounded-2xl p-5 flex flex-col justify-between">
-          <div className="space-y-1.5">
+        {/* Quality Index Tile */}
+        <div className="neo-card rounded-xl p-6 flex flex-col justify-between border border-slate-800 shadow-neo-sm">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Sparkles size={13} style={{ color: iconColor }} />
-              <h2 className="section-title">Quality Index</h2>
+              <Sparkles size={15} className="text-amber-400" />
+              <h2 className="font-mono font-bold text-xs uppercase tracking-wider">[ QUALITY INDEX ]</h2>
             </div>
-            <p className="text-xs text-gray-500 leading-normal">Percentage of profile details, links, and projects configured.</p>
+            <p className="font-mono text-[11px] text-slate-400">Calculated score of profile data & resume completeness.</p>
           </div>
           <div className="pt-4">
-            <div className="flex items-end justify-between">
-              <span className="text-sm text-gray-400">Completion</span>
-              <span className="text-2xl font-bold" style={{ color: "#f0a500" }}>{profile.completion_percentage}%</span>
+            <div className="flex items-end justify-between font-mono">
+              <span className="text-xs text-slate-400">Score Rating</span>
+              <span className="text-3xl font-black brand-text">{profile.completion_percentage}%</span>
             </div>
-            <div className="w-full rounded-full h-1.5 mt-2 overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
-              <div className="progress-brand h-1.5 rounded-full" style={{ width: `${profile.completion_percentage}%` }} />
+            <div className="w-full rounded-full h-2 mt-2 overflow-hidden bg-slate-800">
+              <div className="brand-gradient h-2 rounded-full" style={{ width: `${profile.completion_percentage}%` }} />
             </div>
           </div>
         </div>
 
         {/* Achievements */}
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="section-header flex items-center gap-2">
-            <Award size={13} style={{ color: iconColor }} />
-            <h2 className="section-title">Achievements</h2>
+        <div className="neo-card rounded-xl p-6 space-y-3 border border-slate-800 shadow-neo-sm">
+          <div className="section-header flex items-center gap-2 pb-2 border-b border-slate-800">
+            <Award size={15} className="text-amber-400" />
+            <h2 className="font-mono font-bold text-xs uppercase tracking-wider">[ HONORS & ACHIEVEMENTS ]</h2>
           </div>
           <ul className="space-y-2.5">
             {profile.achievements && profile.achievements.length > 0 ? (
               profile.achievements.map((ach, i) => (
-                <li key={i} className="text-sm text-gray-400 leading-relaxed border-l-2 pl-3"
-                  style={{ borderColor: "rgba(240,165,0,0.4)" }}>{ach}</li>
+                <li key={i} className="font-sans text-xs text-slate-300 leading-relaxed border-l-2 border-amber-400 pl-3">{ach}</li>
               ))
             ) : (
-              <li className="text-sm text-gray-600">No achievements listed yet.</li>
+              <li className="font-mono text-xs text-slate-500">No achievements listed.</li>
             )}
           </ul>
         </div>
 
         {/* Certifications */}
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="section-header flex items-center gap-2">
-            <GraduationCap size={13} style={{ color: iconColor }} />
-            <h2 className="section-title">Certifications</h2>
+        <div className="neo-card rounded-xl p-6 space-y-3 border border-slate-800 shadow-neo-sm">
+          <div className="section-header flex items-center gap-2 pb-2 border-b border-slate-800">
+            <GraduationCap size={15} className="text-pink-400" />
+            <h2 className="font-mono font-bold text-xs uppercase tracking-wider">[ CERTIFICATIONS ]</h2>
           </div>
           <ul className="space-y-2.5">
             {profile.certifications && profile.certifications.length > 0 ? (
               profile.certifications.map((cert, i) => (
-                <li key={i} className="text-sm text-gray-400 leading-relaxed border-l-2 pl-3"
-                  style={{ borderColor: "rgba(240,24,112,0.4)" }}>{cert}</li>
+                <li key={i} className="font-sans text-xs text-slate-300 leading-relaxed border-l-2 border-pink-400 pl-3">{cert}</li>
               ))
             ) : (
-              <li className="text-sm text-gray-600">No certifications listed yet.</li>
+              <li className="font-mono text-xs text-slate-500">No certifications listed.</li>
             )}
           </ul>
         </div>
 
         {/* Skills */}
-        <div className="glass-card rounded-2xl p-5 space-y-3">
-          <div className="section-header flex items-center gap-2">
-            <Sparkles size={13} style={{ color: iconColor }} />
-            <h2 className="section-title">Verified Skills</h2>
+        <div className="neo-card rounded-xl p-6 space-y-3 border border-slate-800 shadow-neo-sm">
+          <div className="section-header flex items-center gap-2 pb-2 border-b border-slate-800">
+            <Terminal size={15} className="text-amber-400" />
+            <h2 className="font-mono font-bold text-xs uppercase tracking-wider">[ VERIFIED SKILLS ]</h2>
           </div>
           <div className="flex flex-wrap gap-1.5 pt-1">
             {profile.skills && profile.skills.length > 0 ? (
               profile.skills.map((sk) => (
-                <span key={sk.name} className="text-xs px-2.5 py-1 rounded"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#d1d5db" }}>
-                  {sk.name} <span className="text-gray-600">({sk.level})</span>
+                <span key={sk.name} className="neo-badge neo-badge-amber">
+                  {sk.name} <span className="text-[9px] opacity-75">({sk.level})</span>
                 </span>
               ))
             ) : (
-              <span className="text-sm text-gray-600">No skills associated yet.</span>
+              <span className="font-mono text-xs text-slate-500">No skills associated.</span>
             )}
           </div>
         </div>
 
-        {/* Projects full width */}
-        <div className="col-span-1 md:col-span-3 glass-card rounded-2xl p-5 space-y-4">
-          <div className="section-header flex items-center gap-2">
-            <Briefcase size={13} style={{ color: iconColor }} />
-            <h2 className="section-title">Projects Showcase</h2>
+        {/* Projects Grid — Full Width */}
+        <div className="col-span-1 md:col-span-3 neo-card rounded-xl p-6 sm:p-8 space-y-5 border-2 border-slate-800 shadow-neo">
+          <div className="section-header flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <Briefcase size={16} className="text-amber-400" />
+              <h2 className="font-mono font-bold text-sm uppercase tracking-wider">[ FEATURED REPOSITORY SHOWCASE ]</h2>
+            </div>
+            <span className="neo-badge neo-badge-pink text-[10px]">[ VERIFIED PROJECTS ]</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {profile.projects && profile.projects.length > 0 ? (
               profile.projects.map((proj) => (
                 <div key={proj.project_id}
-                  className="rounded-xl p-4 space-y-3 transition-all"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(240,165,0,0.25)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
-                >
+                  className="neo-card rounded-lg p-5 border border-slate-800 flex flex-col justify-between min-h-[160px] neo-card-hover">
                   <div>
-                    <h3 className="text-sm font-semibold text-white">{proj.title}</h3>
-                    <p className="text-xs text-gray-400 mt-1 leading-relaxed line-clamp-2">{proj.description}</p>
+                    <h3 className="font-mono font-bold text-sm text-slate-100">{proj.title}</h3>
+                    <p className="font-sans text-xs text-slate-400 mt-2 leading-relaxed line-clamp-3">{proj.description}</p>
                   </div>
-                  <div className="flex items-center justify-between border-t pt-2" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-                    <span className="text-[10px] text-gray-600">{proj.tech_stack}</span>
-                    <div className="flex gap-3 text-xs">
+
+                  <div className="flex items-center justify-between border-t border-slate-800/80 pt-3 mt-4">
+                    <span className="neo-badge text-[10px] text-slate-400 border-slate-800 bg-slate-900/60">{proj.tech_stack || "Core System"}</span>
+                    <div className="flex items-center gap-3 font-mono text-xs">
                       {proj.github_link && (
                         <a href={proj.github_link} target="_blank"
-                          className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors">
-                          <GithubIcon /> GitHub
+                          className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors">
+                          <GithubIcon /> <span>GitHub</span>
                         </a>
                       )}
                       {proj.demo_link && (
                         <a href={proj.demo_link} target="_blank"
-                          className="transition-opacity hover:opacity-75" style={{ color: "#f0a500" }}>
-                          Demo
+                          className="text-amber-400 font-bold hover:underline flex items-center gap-1">
+                          <span>Demo</span> <ExternalLink size={10} />
                         </a>
                       )}
                     </div>
@@ -299,10 +316,13 @@ export default function ProfileDetailPage() {
                 </div>
               ))
             ) : (
-              <div className="col-span-full py-6 text-center text-sm text-gray-600">No projects showcased yet.</div>
+              <div className="col-span-full py-8 text-center font-mono text-xs text-slate-500 neo-card rounded-lg border border-slate-800">
+                [ NO FEATURED PROJECTS SHOWCASED YET ]
+              </div>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

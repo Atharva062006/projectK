@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import ResponseBox from "@/components/ResponseBox";
-import { Radio, Globe, Search, Calendar } from "lucide-react";
+import { Radio, Globe, Search, Calendar, Terminal, ShieldAlert, ArrowUpRight } from "lucide-react";
 
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -73,91 +73,95 @@ function PitchViewerContent() {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Lookup */}
-      <div className="glass-card rounded-2xl p-5 space-y-4">
-        <div className="section-header flex items-center gap-2">
-          <Search size={14} style={{ color: "#f0a500" }} />
-          <h2 className="section-title">Load Curated Pitch</h2>
+    <div className="space-y-6">
+      
+      {/* Pitch Access Token Lookup Card */}
+      <div className="neo-card rounded-xl p-6 space-y-4 border-2 border-slate-800 shadow-neo">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <Search size={16} className="text-amber-400" />
+            <h2 className="font-mono font-bold text-sm uppercase tracking-wider">[ RECRUITMENT PITCH LOOKUP ]</h2>
+          </div>
+          <span className="neo-badge neo-badge-amber text-[10px]">[ PITCH_ID ACCESS ]</span>
         </div>
-        <form onSubmit={handleSubmitLookup} className="flex gap-2">
+
+        <form onSubmit={handleSubmitLookup} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             placeholder="Enter Pitch Access Token (UUID)..."
             value={pitchId}
             onChange={(e) => setPitchId(e.target.value)}
-            className="glass-input flex-1 rounded-xl px-4 py-2.5 text-sm"
+            className="neo-input flex-1 rounded-lg px-4 py-3 font-mono text-sm"
             required
           />
           <button type="submit" disabled={loading}
-            className="btn-brand px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer">
-            {loading ? "Loading..." : "Load Pitch"}
+            className="neo-btn-brand px-6 py-3 rounded-lg font-mono text-xs uppercase tracking-wider cursor-pointer">
+            {loading ? "[ LOADING... ]" : "[ LOAD PITCH ]"}
           </button>
         </form>
       </div>
 
       <ResponseBox result={result} />
 
-      {/* Pitch Display */}
+      {/* Pitch Presentation Card */}
       {pitch && (
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Pitch Header */}
-          <div className="glass-card rounded-2xl p-6 space-y-4">
+          <div className="neo-card rounded-xl p-6 sm:p-8 space-y-4 border-2 border-slate-800 shadow-neo">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="space-y-2">
-                <h1 className="text-xl font-bold text-white">{pitch.title}</h1>
-                <p className="text-sm text-gray-400 leading-relaxed">{pitch.description || "No summary provided."}</p>
-                <div className="flex items-center gap-3 text-xs text-gray-500 pt-1">
-                  <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border"
-                    style={pitch.is_active
-                      ? { background: "rgba(34,197,94,0.1)", borderColor: "rgba(34,197,94,0.25)", color: "#4ade80" }
-                      : { background: "rgba(239,68,68,0.1)", borderColor: "rgba(239,68,68,0.25)", color: "#f87171" }}>
-                    <Radio size={10} className={pitch.is_active ? "animate-pulse" : ""} />
-                    {pitch.is_active ? "Active Link" : "Link Expired"}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className={pitch.is_active ? "neo-badge neo-badge-green" : "neo-badge neo-badge-red"}>
+                    [ {pitch.is_active ? "ACTIVE PRESENTATION" : "EXPIRED LINK"} ]
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar size={10} />
-                    Created {new Date(pitch.created_at).toLocaleDateString()}
+                  <span className="neo-badge text-slate-400 border-slate-800">
+                    <Calendar size={10} className="inline mr-1" />
+                    CREATED: {new Date(pitch.created_at).toLocaleDateString()}
                   </span>
                 </div>
+
+                <h1 className="text-2xl font-mono font-black text-slate-100">{pitch.title}</h1>
+                <p className="text-sm font-sans text-slate-300 leading-relaxed max-w-3xl">{pitch.description || "No pitch summary provided."}</p>
               </div>
 
               {user?.role === "admin" && pitch.is_active && (
                 <button onClick={handleDeactivate}
-                  className="btn-danger px-4 py-2 rounded-lg text-sm cursor-pointer self-start">
+                  className="btn-danger px-4 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider cursor-pointer self-start">
                   Deactivate Pitch
                 </button>
               )}
             </div>
           </div>
 
-          {/* Members */}
+          {/* Members / Candidates List */}
           {pitch.members && pitch.members.length > 0 ? (
             <div className="space-y-4">
-              <h2 className="section-title px-1">Selected Candidates ({pitch.members.length})</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="font-mono font-bold text-sm uppercase tracking-wider text-slate-300">
+                  [ CANDIDATES INCLUDED: {pitch.members.length} ]
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {pitch.members.map((m) => {
                   const initials = m.full_name ? m.full_name.split(" ").map((n) => n[0]).join("").toUpperCase() : "?";
                   return (
-                    <div key={m.profile_id} className="glass-card rounded-2xl p-5 flex flex-col justify-between gap-4">
+                    <div key={m.profile_id} className="neo-card rounded-xl p-6 border border-slate-800 flex flex-col justify-between gap-4 neo-card-hover">
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                            style={{ background: "linear-gradient(135deg, rgba(240,165,0,0.22), rgba(240,24,112,0.18))", border: "1px solid rgba(240,165,0,0.2)" }}
-                          >
+                          <div className="w-11 h-11 rounded-lg flex items-center justify-center font-mono text-xs font-bold text-white flex-shrink-0 brand-gradient shadow-neo-sm">
                             {initials}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-sm text-white">{m.full_name}</h3>
-                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{m.tagline || "Oyster Kode Club Talent"}</p>
+                            <h3 className="font-mono font-bold text-sm text-slate-100">{m.full_name}</h3>
+                            <p className="text-xs font-mono text-slate-400 line-clamp-1">{m.tagline || "Oyster Kode Club Talent"}</p>
                           </div>
                         </div>
+
                         {m.skills && m.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1.5 pt-1">
                             {m.skills.slice(0, 4).map((sk) => (
-                              <span key={sk.name} className="text-[10px] px-2 py-0.5 rounded"
-                                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", color: "#9ca3af" }}>
+                              <span key={sk.name} className="neo-badge text-[10px] text-slate-400 border-slate-800 bg-slate-900/60">
                                 {sk.name}
                               </span>
                             ))}
@@ -165,25 +169,27 @@ function PitchViewerContent() {
                         )}
                       </div>
 
-                      <div className="border-t pt-3 space-y-2" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-400">
+                      {/* Contact & Links */}
+                      <div className="pt-3 border-t border-slate-800 space-y-2">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-slate-400">
                           {m.email && <span>✉ {m.email}</span>}
                           {m.phone && <span>✆ {m.phone}</span>}
                         </div>
-                        <div className="flex items-center gap-3">
+
+                        <div className="flex items-center gap-4 pt-1 font-mono text-xs">
                           {m.github && (
-                            <a href={m.github} target="_blank" className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
-                              <GithubIcon /> GitHub
+                            <a href={m.github} target="_blank" className="flex items-center gap-1.5 text-slate-300 hover:text-amber-400 transition-colors">
+                              <GithubIcon /> <span>GitHub</span>
                             </a>
                           )}
                           {m.linkedin && (
-                            <a href={m.linkedin} target="_blank" className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
-                              <LinkedinIcon /> LinkedIn
+                            <a href={m.linkedin} target="_blank" className="flex items-center gap-1.5 text-slate-300 hover:text-amber-400 transition-colors">
+                              <LinkedinIcon /> <span>LinkedIn</span>
                             </a>
                           )}
                           {m.portfolio_url && (
-                            <a href={m.portfolio_url} target="_blank" className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
-                              <Globe size={12} /> Portfolio
+                            <a href={m.portfolio_url} target="_blank" className="flex items-center gap-1.5 text-slate-300 hover:text-amber-400 transition-colors">
+                              <Globe size={13} /> <span>Portfolio</span>
                             </a>
                           )}
                         </div>
@@ -194,8 +200,8 @@ function PitchViewerContent() {
               </div>
             </div>
           ) : (
-            <div className="glass-card rounded-2xl p-8 text-center text-sm text-gray-500">
-              No profiles selected in this pitch presentation.
+            <div className="neo-card rounded-xl p-10 text-center font-mono text-sm text-slate-400 border border-slate-800">
+              [ NO TALENT PROFILES SELECTED IN THIS PITCH PRESENTATION ]
             </div>
           )}
         </div>
@@ -206,7 +212,11 @@ function PitchViewerContent() {
 
 export default function PitchesPage() {
   return (
-    <Suspense fallback={<div className="text-sm text-gray-500 py-6">Initializing pitch viewer...</div>}>
+    <Suspense fallback={
+      <div className="font-mono text-sm text-amber-400 py-10 text-center">
+        [ INITIALIZING PITCH SERVICES... ]
+      </div>
+    }>
       <PitchViewerContent />
     </Suspense>
   );

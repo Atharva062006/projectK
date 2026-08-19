@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import ResponseBox from "@/components/ResponseBox";
-import { ShieldAlert, UserPlus, KeyRound, Mail, User as UserIcon, LogIn, UserCog } from "lucide-react";
+import { ShieldAlert, UserPlus, KeyRound, Mail, User as UserIcon, LogIn, UserCog, Terminal } from "lucide-react";
 
 type AuthMode = "login" | "register" | "forgot";
 
@@ -79,35 +79,29 @@ export default function AuthPage() {
   if (user) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <div
-          className="glass-card rounded-2xl p-8 text-center space-y-5 w-full max-w-sm anim-scaleIn"
-        >
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
-            style={{ background: "linear-gradient(135deg, rgba(240,165,0,0.2), rgba(240,24,112,0.15))", border: "1px solid rgba(240,165,0,0.3)" }}
-          >
-            <UserIcon size={22} style={{ color: "#f0a500" }} />
+        <div className="neo-card rounded-xl p-8 text-center space-y-5 w-full max-w-sm border-2 border-slate-800 shadow-neo anim-scaleIn">
+          <div className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto brand-gradient shadow-neo-brand">
+            <UserIcon size={24} className="text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Active Session</h2>
-            <p className="text-sm text-gray-500 mt-1">Signed in as <span className="text-gray-300 font-medium">{user.username}</span></p>
-            <span className="text-xs px-2 py-0.5 rounded-full mt-2 inline-block uppercase font-semibold"
-              style={{ background: "rgba(240,165,0,0.1)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" }}>
-              {user.role}
-            </span>
+            <span className="neo-badge neo-badge-green">[ ACTIVE SESSION ]</span>
+            <h2 className="font-mono font-bold text-base text-slate-100 mt-2">{user.username}</h2>
+            <div className="mt-1">
+              <span className="neo-badge neo-badge-amber text-[10px]">[ {(user?.role || "member").toUpperCase()} ]</span>
+            </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               onClick={() => router.push(user.role === "admin" ? "/admin" : "/portfolio")}
-              className="btn-brand flex-1 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
+              className="neo-btn-brand flex-1 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider cursor-pointer"
             >
-              Go to Workspace
+              [ WORKSPACE ]
             </button>
             <button
               onClick={logout}
-              className="btn-danger flex-1 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
+              className="btn-danger flex-1 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider cursor-pointer"
             >
-              Sign Out
+              [ SIGN OUT ]
             </button>
           </div>
         </div>
@@ -117,39 +111,40 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center py-8">
-      {/* Brand header above card */}
+      
+      {/* Brand Header */}
       <div className="text-center mb-8 anim-floatDown">
-        <div className="flex justify-center mb-4">
-          <div className="relative">
-            <Image src="/okc_main_logo.png" alt="OKC" width={68} height={68} className="object-contain relative z-10" />
-            <div className="absolute inset-0 rounded-full blur-xl opacity-40"
-              style={{ background: "radial-gradient(circle, rgba(240,165,0,0.4), transparent 70%)" }} />
+        <div className="flex justify-center mb-3">
+          <div className="relative logo-3d-animated p-2 rounded-lg border border-slate-800 bg-slate-900/60 shadow-neo-sm">
+            <Image src="/okc_main_logo.png" alt="OKC" width={64} height={64} className="object-contain" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-white">Project K Portal</h1>
-        <p className="text-sm text-gray-500 mt-1">Oyster Kode Club Member Ecosystem</p>
+        <div className="neo-badge neo-badge-amber mb-2 inline-block">[ AUTHENTICATION GATEWAY ]</div>
+        <h1 className="text-3xl font-mono font-black uppercase tracking-tight">PROJECT K PORTAL</h1>
+        <p className="font-mono text-xs text-slate-400 mt-1">Oyster Kode Club Talent & Recruitment Ecosystem</p>
       </div>
 
-      {/* Main auth card */}
-      <div className="glass-card w-full max-w-md rounded-2xl p-7 space-y-6 anim-scaleIn">
-        {/* Tab switcher — only for login/register */}
+      {/* Main Auth Card */}
+      <div className="neo-card w-full max-w-md rounded-xl p-8 space-y-6 border-2 border-slate-800 shadow-neo bg-tech-grid anim-scaleIn">
+        
+        {/* Tab Switcher */}
         {mode !== "forgot" && (
-          <div className="glass-panel flex rounded-xl p-1">
+          <div className="neo-card rounded-lg p-1.5 flex gap-2 border border-slate-800 bg-slate-950/80">
             {[
               { id: "login" as AuthMode, label: "Sign In", icon: LogIn },
-              { id: "register" as AuthMode, label: "Create Account", icon: UserCog },
+              { id: "register" as AuthMode, label: "Register", icon: UserCog },
             ].map((tab) => {
               const isActive = mode === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => { setMode(tab.id); setResult(null); }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    isActive ? "btn-brand shadow-sm" : "btn-ghost border-transparent"
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md font-mono text-xs uppercase font-bold transition-all cursor-pointer ${
+                    isActive ? "neo-btn-brand" : "neo-btn-ghost border-transparent"
                   }`}
                 >
                   <tab.icon size={14} />
-                  <span>{tab.label}</span>
+                  <span>[ {tab.label.toUpperCase()} ]</span>
                 </button>
               );
             })}
@@ -161,37 +156,33 @@ export default function AuthPage() {
           <form onSubmit={handleLogin} className="space-y-4 anim-fadeInUp">
             <div className="space-y-3">
               <div className="relative">
-                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                 <input
                   type="email" placeholder="Email Address" value={email}
                   onChange={(e) => setEmail(e.target.value)} required
-                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                  className="neo-input w-full rounded-lg pl-10 pr-4 py-3 font-mono text-sm"
                 />
               </div>
               <div className="relative">
-                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                 <input
                   type="password" placeholder="Password" value={password}
                   onChange={(e) => setPassword(e.target.value)} required
-                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                  className="neo-input w-full rounded-lg pl-10 pr-4 py-3 font-mono text-sm"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end font-mono text-xs">
               <button type="button" onClick={() => setMode("forgot")}
-                className="text-sm transition-colors cursor-pointer"
-                style={{ color: "#f0a500" }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-              >
-                Forgot Password?
+                className="text-amber-400 font-bold hover:underline cursor-pointer">
+                [ Forgot Password? ]
               </button>
             </div>
 
             <button type="submit" disabled={loading}
-              className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer">
-              {loading ? "Authenticating..." : "Sign In"}
+              className="neo-btn-brand w-full py-3.5 rounded-lg font-mono text-xs uppercase font-bold tracking-wider cursor-pointer">
+              {loading ? "[ AUTHENTICATING... ]" : "[ SIGN IN TO PORTAL ]"}
             </button>
           </form>
         )}
@@ -201,52 +192,52 @@ export default function AuthPage() {
           <form onSubmit={handleRegister} className="space-y-4 anim-fadeInUp">
             <div className="space-y-3">
               <div className="relative">
-                <UserIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <UserIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                 <input
                   type="text" placeholder="Full Name" value={name}
                   onChange={(e) => setName(e.target.value)} required
-                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                  className="neo-input w-full rounded-lg pl-10 pr-4 py-3 font-mono text-sm"
                 />
               </div>
               <div className="relative">
-                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                 <input
                   type="email" placeholder="Email Address" value={email}
                   onChange={(e) => setEmail(e.target.value)} required
-                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                  className="neo-input w-full rounded-lg pl-10 pr-4 py-3 font-mono text-sm"
                 />
               </div>
               <div className="relative">
-                <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                 <input
                   type="password" placeholder="Choose Password" value={password}
                   onChange={(e) => setPassword(e.target.value)} required
-                  className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                  className="neo-input w-full rounded-lg pl-10 pr-4 py-3 font-mono text-sm"
                 />
               </div>
+
               <select
                 value={role} onChange={(e) => setRole(e.target.value)}
-                className="glass-select glass-input w-full rounded-xl px-4 py-3 text-sm"
+                className="glass-select neo-input w-full rounded-lg px-4 py-3 font-mono text-sm"
               >
                 <option value="member">Club Member</option>
                 <option value="alumni">Club Alumni</option>
-                <option value="recruiter">Recruiter</option>
+                <option value="recruiter">Recruiter / Guest</option>
                 <option value="guest">Guest / Visitor</option>
                 <option value="admin">Administrator</option>
               </select>
             </div>
 
             {(role === "member" || role === "alumni") && (
-              <div className="flex gap-2.5 p-3 rounded-xl text-sm anim-fadeInUp"
-                style={{ background: "rgba(240,165,0,0.07)", border: "1px solid rgba(240,165,0,0.2)", color: "#d4900a" }}>
-                <UserPlus size={15} className="flex-shrink-0 mt-0.5" />
+              <div className="neo-card rounded-lg p-3 text-xs font-mono border border-amber-500/30 bg-amber-950/20 text-amber-300 flex gap-2">
+                <UserPlus size={16} className="flex-shrink-0 text-amber-400 mt-0.5" />
                 <span>Member and Alumni accounts require Admin approval before activation.</span>
               </div>
             )}
 
             <button type="submit" disabled={loading}
-              className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer">
-              {loading ? "Creating Account..." : "Create Account"}
+              className="neo-btn-brand w-full py-3.5 rounded-lg font-mono text-xs uppercase font-bold tracking-wider cursor-pointer">
+              {loading ? "[ CREATING ACCOUNT... ]" : "[ CREATE ACCOUNT ]"}
             </button>
           </form>
         )}
@@ -255,27 +246,28 @@ export default function AuthPage() {
         {mode === "forgot" && (
           <form onSubmit={handleRequestReset} className="space-y-5 anim-fadeInUp">
             <div>
-              <h3 className="text-base font-semibold text-white">Reset Password</h3>
-              <p className="text-sm text-gray-500 mt-1 leading-relaxed">
-                Submit your registered email. The reset link and token will be printed to the backend terminal.
+              <div className="neo-badge neo-badge-amber mb-2 inline-block">[ SECURITY RESET ]</div>
+              <h3 className="font-mono font-bold text-sm text-slate-100">Reset Password Token</h3>
+              <p className="font-mono text-xs text-slate-400 mt-1 leading-relaxed">
+                Submit your registered email address to receive reset instructions.
               </p>
             </div>
             <div className="relative">
-              <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
               <input
                 type="email" placeholder="Email Address" value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)} required
-                className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
+                className="neo-input w-full rounded-lg pl-10 pr-4 py-3 font-mono text-sm"
               />
             </div>
             <div className="flex gap-3">
               <button type="button" onClick={() => setMode("login")}
-                className="btn-ghost flex-1 py-3 rounded-xl text-sm cursor-pointer">
-                ← Back
+                className="neo-btn-ghost flex-1 py-3 rounded-lg font-mono text-xs uppercase font-bold cursor-pointer">
+                ← [ BACK ]
               </button>
               <button type="submit" disabled={loading}
-                className="btn-brand flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer">
-                {loading ? "Sending..." : "Send Reset Link"}
+                className="neo-btn-brand flex-1 py-3 rounded-lg font-mono text-xs uppercase font-bold cursor-pointer">
+                {loading ? "[ SENDING... ]" : "[ REQUEST RESET ]"}
               </button>
             </div>
           </form>
@@ -283,11 +275,10 @@ export default function AuthPage() {
 
         <ResponseBox result={result} />
 
-        {/* Footer note */}
-        <p className="text-xs text-gray-600 text-center">
-          Member accounts are provisioned by Club Administration.{" "}
-          <Link href="/directory" className="hover:text-gray-400 transition-colors underline">
-            Browse public directory
+        <p className="font-mono text-[11px] text-slate-500 text-center">
+          Member profiles are verified by Club Administration.{" "}
+          <Link href="/directory" className="text-slate-300 font-bold hover:underline">
+            [ Browse Public Directory ]
           </Link>
         </p>
       </div>
