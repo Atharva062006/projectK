@@ -2,19 +2,30 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { useTheme } from "@/context/ThemeContext";
 import ResponseBox from "@/components/ResponseBox";
-import { KeyRound, Lock, Eye, EyeOff } from "lucide-react";
+
+import Card from "@leafygreen-ui/card";
+import { PasswordInput } from "@leafygreen-ui/password-input";
+import Button from "@leafygreen-ui/button";
+import { H2, Body } from "@leafygreen-ui/typography";
+import Icon from "@leafygreen-ui/icon";
+import { palette } from "@leafygreen-ui/palette";
+import { Spinner } from "@leafygreen-ui/loading-indicator";
+import { BRAND, STATUS } from "@/lib/theme";
 
 function ResetPasswordFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { darkMode } = useTheme();
   const token = searchParams.get("token") || "";
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; message: string; data?: unknown } | null>(null);
+
+  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,106 +47,66 @@ function ResetPasswordFormContent() {
 
   if (!token) {
     return (
-      <div className="glass-card rounded-2xl p-8 text-center space-y-5">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto btn-danger">
-          <Lock size={20} />
+      <Card darkMode={darkMode} style={{ padding: "32px", textAlign: "center" }}>
+        <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: STATUS.errorBg, border: `1px solid ${STATUS.errorBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+          <Icon glyph="Lock" fill={STATUS.error} size={20} />
         </div>
-        <div>
-          <h2 className="text-base font-semibold text-white">Invalid Reset Link</h2>
-          <p className="text-sm text-gray-500 mt-1">No recovery token found in URL. Please verify your email link or request a new one.</p>
-        </div>
-        <button
-          onClick={() => router.push("/auth")}
-          className="btn-ghost w-full py-2.5 rounded-xl text-sm cursor-pointer"
-        >
+        <H2 darkMode={darkMode} style={{ marginBottom: "8px" }}>Invalid Reset Link</H2>
+        <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "24px" }}>
+          No recovery token found in URL. Please verify your email link or request a new one.
+        </Body>
+        <Button darkMode={darkMode} variant="default" onClick={() => router.push("/auth")} style={{ width: "100%" }}>
           Back to Login
-        </button>
-      </div>
+        </Button>
+      </Card>
     );
   }
 
   return (
-    <div className="glass-card rounded-2xl p-8 space-y-6 anim-scaleIn">
-      <div className="text-center space-y-3">
-        <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto"
-          style={{ background: "rgba(240,165,0,0.12)", border: "1px solid rgba(240,165,0,0.28)", color: "#f0a500" }}
-        >
-          <KeyRound size={20} />
+    <Card darkMode={darkMode} className="anim-scaleIn" style={{ padding: "32px" }}>
+      <div style={{ textAlign: "center", marginBottom: "24px" }}>
+        <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: BRAND.primaryBg, border: `1px solid ${BRAND.primaryBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+          <Icon glyph="Key" fill={BRAND.primary} size={20} />
         </div>
-        <h2 className="text-base font-semibold text-white">Reset Your Password</h2>
-        <p className="text-sm text-gray-500">Enter a new secure password for your account.</p>
+        <H2 darkMode={darkMode} style={{ marginBottom: "8px" }}>Reset Your Password</H2>
+        <Body darkMode={darkMode} style={{ color: mutedColor }}>Enter a new secure password for your account.</Body>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-1.5">
-          <label className="text-xs text-gray-500 font-medium block">New Password</label>
-          <div className="relative">
-            <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Min. 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="glass-input w-full rounded-xl pl-10 pr-10 py-3 text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-            </button>
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <PasswordInput
+          darkMode={darkMode}
+          label="New Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <PasswordInput
+          darkMode={darkMode}
+          label="Confirm New Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
 
-        <div className="space-y-1.5">
-          <label className="text-xs text-gray-500 font-medium block">Confirm New Password</label>
-          <div className="relative">
-            <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Re-enter password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="glass-input w-full rounded-xl pl-10 pr-4 py-3 text-sm"
-            />
-          </div>
-        </div>
+        <ResponseBox result={result} />
 
-        {result && <ResponseBox ok={result.ok} message={result.message} />}
+        <Button type="submit" darkMode={darkMode} variant="primary" isLoading={loading} style={{ width: "100%", marginTop: "8px" }}>
+          Update Password
+        </Button>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer"
-        >
-          {loading ? "Updating..." : "Update Password"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/auth")}
-          className="btn-ghost w-full py-2.5 rounded-xl text-sm cursor-pointer"
-        >
+        <Button type="button" darkMode={darkMode} variant="default" onClick={() => router.push("/auth")} style={{ width: "100%" }}>
           Back to Login
-        </button>
+        </Button>
       </form>
-    </div>
+    </Card>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-[75vh] flex items-center justify-center py-8">
-      <div className="w-full max-w-md">
-        <Suspense fallback={
-          <div className="glass-card rounded-2xl p-8 text-center text-sm text-gray-500">
-            Initializing password recovery form...
-          </div>
-        }>
+    <div style={{ minHeight: "75vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px" }}>
+      <div style={{ width: "100%", maxWidth: "440px" }}>
+        <Suspense fallback={<div style={{ textAlign: "center", padding: "40px" }}><Spinner /></div>}>
           <ResetPasswordFormContent />
         </Suspense>
       </div>

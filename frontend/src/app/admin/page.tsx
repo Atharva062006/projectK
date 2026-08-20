@@ -2,86 +2,78 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import ResponseBox from "@/components/ResponseBox";
-import { Users, UserCheck, UserX, BarChart2, Award, FileText, ArrowUpRight, FolderPlus, Radio, Plus } from "lucide-react";
 
-type Tab = "pending" | "analytics" | "pitches" | "settings";
+import { Tabs, Tab } from "@leafygreen-ui/tabs";
+import Card from "@leafygreen-ui/card";
+import Badge from "@leafygreen-ui/badge";
+import Button from "@leafygreen-ui/button";
+import { TextInput } from "@leafygreen-ui/text-input";
+import { TextArea } from "@leafygreen-ui/text-area";
+import { H1, H2, H3, Body, Overline, Label } from "@leafygreen-ui/typography";
+import Icon from "@leafygreen-ui/icon";
+import { palette } from "@leafygreen-ui/palette";
+import { BRAND, SURFACE, STATUS } from "@/lib/theme";
+import ConfirmationModal from "@leafygreen-ui/confirmation-modal";
 
-interface PendingUser {
-  user_id: string; profile_id: string; full_name: string; email: string; role: string; created_at: string;
-}
-
-interface Analytics {
-  usersCount: Record<string, number>;
-  approvalStatus: { approved: number; pending: number };
-  totalViews: number; totalDownloads: number;
-  skillTrends: { name: string; category: string; occurrences: number }[];
-  topViewedProfiles: { profile_id: string; full_name: string; views_count: number }[];
-  resumeDownloadStats: { profile_id: string; full_name: string; download_count: number }[];
-}
-
-interface AdminPitch {
-  pitch_id: string; title: string; description?: string; is_active: boolean; created_at: string; member_count: number;
-}
-
-const inputClass = "glass-input w-full rounded-xl px-3 py-2.5 text-sm";
-const labelClass = "text-xs text-gray-500 font-medium block mb-1";
+interface PendingUser { user_id: string; profile_id: string; email: string; full_name: string; role: string; created_at: string; }
+interface PitchMeta { pitch_id: string; title: string; description?: string; is_active: boolean; created_at: string; member_count: number; }
 
 export default function AdminPage() {
   const { user, token } = useAuth();
-  const [tab, setTab] = useState<Tab>("pending");
-  const [pending, setPending] = useState<PendingUser[]>([]);
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [pitches, setPitches] = useState<AdminPitch[]>([]);
+  const { darkMode } = useTheme();
+  const [tabIndex, setTabIndex] = useState(0);
   const [result, setResult] = useState<{ ok: boolean; message: string; data?: unknown } | null>(null);
-  const [disableUserId, setDisableUserId] = useState("");
+
+  const [pending, setPending] = useState<PendingUser[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [pitches, setPitches] = useState<PitchMeta[]>([]);
+
+  // Pitch builder state
   const [pitchTitle, setPitchTitle] = useState("");
   const [pitchDesc, setPitchDesc] = useState("");
   const [pitchProfileIds, setPitchProfileIds] = useState("");
   const [createdPitchId, setCreatedPitchId] = useState<string | null>(null);
 
+  // Settings
+  const [disableUserId, setDisableUserId] = useState("");
+  const [confirmDisable, setConfirmDisable] = useState(false);
+
+  const textColor = darkMode ? palette.white : palette.black;
+  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
+
   const loadPending = async () => {
-    try {
-      const res = await api.admin.getPending();
-      if (res.ok) setPending((res.data as PendingUser[]) || []);
-      else setResult(res);
-    } catch { setResult({ ok: false, message: "Failed to connect to approvals queue" }); }
+    const res = await api.admin.getPending();
+    if (res.ok && res.data) setPending(res.data as PendingUser[]);
   };
-
   const loadAnalytics = async () => {
-    try {
-      const res = await api.admin.getAnalytics();
-      if (res.ok) setAnalytics(res.data as Analytics);
-      else setResult(res);
-    } catch { setResult({ ok: false, message: "Failed to fetch analytics" }); }
+    const res = await api.admin.getAnalytics();
+    if (res.ok && res.data) setAnalytics(res.data);
   };
-
   const loadPitches = async () => {
-    try {
-      const res = await api.admin.getPitches();
-      if (res.ok) setPitches((res.data as AdminPitch[]) || []);
-      else setResult(res);
-    } catch { setResult({ ok: false, message: "Failed to fetch pitches" }); }
+    const res = await api.admin.getPitches();
+    if (res.ok && res.data) setPitches(res.data as PitchMeta[]);
   };
 
   useEffect(() => {
     if (token && user?.role === "admin") {
-      if (tab === "pending") loadPending();
-      else if (tab === "analytics") loadAnalytics();
-      else if (tab === "pitches") loadPitches();
+      loadPending();
+      loadAnalytics();
+      loadPitches();
     }
-  }, [token, user, tab]);
+  }, [token, user]);
 
   if (!token || user?.role !== "admin") {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="glass-card rounded-2xl p-8 text-center space-y-4 max-w-sm w-full">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto btn-danger">
-            <UserX size={20} />
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: STATUS.errorBg, border: `1px solid ${STATUS.errorBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            <Icon glyph="XWithCircle" fill={STATUS.error} size={20} />
           </div>
-          <h2 className="text-base font-semibold text-white">Access Restricted</h2>
-          <p className="text-sm text-gray-500">Your account role does not have permission to access this control panel.</p>
-        </div>
+          <H2 darkMode={darkMode} style={{ marginBottom: "8px" }}>Access Restricted</H2>
+          <Body darkMode={darkMode} style={{ color: mutedColor }}>Your account role does not have permission to access this control panel.</Body>
+        </Card>
       </div>
     );
   }
@@ -93,13 +85,13 @@ export default function AdminPage() {
     if (res.ok) loadPending();
   };
 
-  const handleDisable = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDisable = async () => {
     if (!disableUserId.trim()) return;
     setResult(null);
     const res = await api.admin.disableUser(disableUserId.trim());
     setResult(res);
     if (res.ok) setDisableUserId("");
+    setConfirmDisable(false);
   };
 
   const handleCreatePitch = async (e: React.FormEvent) => {
@@ -123,278 +115,237 @@ export default function AdminPage() {
     if (res.ok) loadPitches();
   };
 
-  const TABS: { id: Tab; label: string }[] = [
-    { id: "pending", label: "Approvals Queue" },
-    { id: "analytics", label: "System Analytics" },
-    { id: "pitches", label: "Pitch Builder" },
-    { id: "settings", label: "Access Control" },
-  ];
-
   return (
-    <div className="space-y-6">
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "48px" }}>
       {/* Header */}
-      <div className="pb-5 border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-        <h1 className="text-2xl font-bold text-white">Administrator Panel</h1>
-        <p className="text-sm text-gray-500 mt-1">Configure memberships and curate shareable talent pitches</p>
-      </div>
-
-      {/* Tab Switcher */}
-      <div className="glass-panel flex gap-1 p-1 rounded-xl overflow-x-auto">
-        {TABS.map((t) => {
-          const isActive = tab === t.id;
-          return (
-            <button key={t.id}
-              onClick={() => { setTab(t.id); setResult(null); }}
-              className={`flex-shrink-0 text-sm px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer ${
-                isActive ? "btn-brand shadow-sm" : "btn-ghost border-transparent"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
+      <div style={{ paddingBottom: "20px", borderBottom: `1px solid ${SURFACE.border}` }}>
+        <H1 darkMode={darkMode}>Administrator Panel</H1>
+        <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
+          Configure memberships and curate shareable talent pitches
+        </Body>
       </div>
 
       <ResponseBox result={result} />
 
-      {/* ── Approvals ── */}
-      {tab === "pending" && (
-        <div className="space-y-4">
-          <h2 className="section-title">Pending Registrations ({pending.length})</h2>
-          {pending.length === 0 ? (
-            <div className="glass-card rounded-2xl p-8 text-center text-sm text-gray-500">
-              No membership requests currently pending activation.
+      <Tabs aria-label="Admin Tabs" darkMode={darkMode} value={tabIndex} onValueChange={(v) => setTabIndex(Number(v))}>
+        {/* ── Approvals Queue ── */}
+        <Tab name="Approvals Queue">
+          <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Icon glyph="Clock" fill={BRAND.primary} size={14} />
+              <Overline darkMode={darkMode}>Pending Registrations ({pending.length})</Overline>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {pending.map((u) => (
-                <div key={u.user_id}
-                  className="glass-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="font-semibold text-sm text-white">{u.full_name || "New Registrant"}</div>
-                    <div className="text-sm text-gray-400">{u.email}</div>
-                    <div className="flex gap-2 text-xs text-gray-500 pt-0.5">
-                      <span className="px-2 py-0.5 rounded uppercase"
-                        style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9ca3af" }}>
-                        {u.role}
-                      </span>
-                      <span>Requested: {new Date(u.created_at).toLocaleDateString()}</span>
+            
+            {pending.length === 0 ? (
+              <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", color: mutedColor }}>
+                No membership requests currently pending activation.
+              </Card>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {pending.map((u) => (
+                  <Card key={u.user_id} darkMode={darkMode} style={{ padding: "20px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
+                    <div>
+                      <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "4px" }}>{u.full_name || "New Registrant"}</H3>
+                      <Body darkMode={darkMode} style={{ color: mutedColor, fontSize: "13px", marginBottom: "8px" }}>{u.email}</Body>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Badge darkMode={darkMode} variant="lightgray">{u.role}</Badge>
+                        <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
+                          Requested: {new Date(u.created_at).toLocaleDateString()}
+                        </Body>
+                      </div>
+                      <Body darkMode={darkMode} style={{ fontSize: "10px", color: SURFACE.border, marginTop: "4px", userSelect: "all" }}>
+                        ID: {u.profile_id}
+                      </Body>
                     </div>
-                    <div className="text-[10px] text-gray-600 select-all">profile_id: {u.profile_id}</div>
+                    <Button darkMode={darkMode} variant="primary" onClick={() => handleApprove(u.profile_id)}>
+                      Approve
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </Tab>
+
+        {/* ── System Analytics ── */}
+        <Tab name="System Analytics">
+          {analytics && (
+            <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                {[
+                  { label: "Total Members", value: analytics.usersCount.member + analytics.usersCount.alumni, icon: "PersonGroup", color: BRAND.primary },
+                  { label: "Approved Users", value: analytics.approvalStatus.approved, icon: "CheckmarkWithCircle", color: STATUS.success },
+                  { label: "Showcase Views", value: analytics.totalViews, icon: "Charts", color: palette.blue.base },
+                  { label: "CV Downloads", value: analytics.totalDownloads, icon: "Download", color: BRAND.primary },
+                ].map((s, i) => (
+                  <Card key={i} darkMode={darkMode} style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div>
+                      <Overline darkMode={darkMode}>{s.label}</Overline>
+                      <H2 darkMode={darkMode} style={{ marginTop: "8px" }}>{s.value}</H2>
+                    </div>
+                    <Icon glyph={s.icon as never} fill={s.color} size={24} style={{ opacity: 0.5 }} />
+                  </Card>
+                ))}
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                {/* Skill Trends */}
+                <Card darkMode={darkMode} style={{ padding: "24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+                    <Icon glyph="Code" fill={BRAND.primary} size={14} />
+                    <Overline darkMode={darkMode}>Skill Distribution</Overline>
                   </div>
-                  <button onClick={() => handleApprove(u.profile_id)}
-                    className="btn-brand text-sm font-semibold px-5 py-2.5 rounded-lg cursor-pointer self-start sm:self-center">
-                    Approve
-                  </button>
-                </div>
-              ))}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    {analytics.skillTrends.length === 0 ? (
+                      <Body darkMode={darkMode} style={{ color: mutedColor }}>No skill maps registered.</Body>
+                    ) : (
+                      analytics.skillTrends.slice(0, 5).map((sk: any) => {
+                        const topVal = analytics.skillTrends[0]?.occurrences || 1;
+                        const pct = Math.round((sk.occurrences / topVal) * 100);
+                        return (
+                          <div key={sk.name}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                              <Body darkMode={darkMode} style={{ fontSize: "12px", color: textColor }}>{sk.name}</Body>
+                              <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{sk.occurrences}</Body>
+                            </div>
+                            <div style={{ height: "6px", background: SURFACE.border, borderRadius: "99px", overflow: "hidden" }}>
+                              <div style={{ width: `${pct}%`, height: "100%", background: BRAND.primary }} />
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </Card>
+
+                {/* Popular Profiles */}
+                <Card darkMode={darkMode} style={{ padding: "24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+                    <Icon glyph="Person" fill={BRAND.primary} size={14} />
+                    <Overline darkMode={darkMode}>Popular Profiles</Overline>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {analytics.topViewedProfiles.length === 0 ? (
+                      <Body darkMode={darkMode} style={{ color: mutedColor }}>No profile views logged yet.</Body>
+                    ) : (
+                      analytics.topViewedProfiles.slice(0, 5).map((p: any, i: number) => (
+                        <div key={p.profile_id} style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: `1px solid ${SURFACE.border}` }}>
+                          <Body darkMode={darkMode} style={{ fontSize: "13px" }}>{i + 1}. {p.full_name}</Body>
+                          <Badge darkMode={darkMode} variant="green">{p.views_count} views</Badge>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </Card>
+              </div>
             </div>
           )}
-        </div>
-      )}
+        </Tab>
 
-      {/* ── Analytics ── */}
-      {tab === "analytics" && analytics && (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "Total Members", value: analytics.usersCount.member + analytics.usersCount.alumni, icon: Users, color: "#f0a500" },
-              { label: "Approved Users", value: analytics.approvalStatus.approved, icon: UserCheck, color: "#4ade80" },
-              { label: "Showcase Views", value: analytics.totalViews, icon: BarChart2, color: "#e879f9" },
-              { label: "CV Downloads", value: analytics.totalDownloads, icon: FileText, color: "#f0a500" },
-            ].map((stat, i) => (
-              <div key={i} className="glass-card rounded-2xl p-4 flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-gray-500 uppercase font-semibold">{stat.label}</span>
-                  <div className="text-2xl font-bold text-white mt-1">{stat.value}</div>
+        {/* ── Pitch Builder ── */}
+        <Tab name="Pitch Builder">
+          <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+            <Card darkMode={darkMode} style={{ padding: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+                <Icon glyph="Megaphone" fill={BRAND.primary} size={14} />
+                <Overline darkMode={darkMode}>Create Curated Talent Pitch</Overline>
+              </div>
+              <form onSubmit={handleCreatePitch} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <TextInput darkMode={darkMode} label="Pitch Title" placeholder="e.g. Next.js Developers for Startup Team" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)} required />
+                <TextArea darkMode={darkMode} label="Description" placeholder="Summarize the credentials and suitability of chosen candidates..." value={pitchDesc} onChange={(e) => setPitchDesc(e.target.value)} rows={3} />
+                <TextArea darkMode={darkMode} label="Selected Profile IDs (comma-separated UUIDs)" placeholder="e.g. d3b07384-d113-..., ..." value={pitchProfileIds} onChange={(e) => setPitchProfileIds(e.target.value)} rows={2} required />
+                <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Copy IDs from Directory cards or Approvals queue list.</Body>
+                
+                <Button type="submit" darkMode={darkMode} variant="primary" leftGlyph={<Icon glyph="Plus" />} style={{ width: "100%", marginTop: "8px" }}>
+                  Generate Shareable Pitch URL
+                </Button>
+              </form>
+            </Card>
+
+            {createdPitchId && (
+              <Card darkMode={darkMode} style={{ padding: "20px", background: STATUS.successBg, border: `1px solid ${STATUS.successBorder}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <Icon glyph="Checkmark" fill={STATUS.success} size={14} />
+                  <H3 darkMode={darkMode} style={{ fontSize: "14px", color: STATUS.success }}>Pitch Page Active</H3>
                 </div>
-                <stat.icon size={20} style={{ color: stat.color, opacity: 0.5 }} />
-              </div>
-            ))}
-          </div>
+                <Body darkMode={darkMode} style={{ color: textColor, marginBottom: "12px" }}>Share the Pitch ID below:</Body>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: SURFACE.card, padding: "12px", borderRadius: "8px", border: `1px solid ${SURFACE.border}` }}>
+                  <Body darkMode={darkMode} style={{ fontSize: "13px", userSelect: "all" }}>{createdPitchId}</Body>
+                  <Button as="a" href={`/pitches?id=${createdPitchId}`} target="_blank" darkMode={darkMode} variant="default" size="xsmall" rightGlyph={<Icon glyph="ArrowRight" />}>
+                    Open
+                  </Button>
+                </div>
+              </Card>
+            )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Skill Trends */}
-            <div className="glass-card rounded-2xl p-5 space-y-4">
-              <div className="section-header flex items-center gap-2">
-                <Award size={14} style={{ color: "#f0a500" }} />
-                <h3 className="section-title">Skill Distribution</h3>
+            <Card darkMode={darkMode} style={{ padding: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+                <Icon glyph="List" fill={BRAND.primary} size={14} />
+                <Overline darkMode={darkMode}>Curated Pitches ({pitches.length})</Overline>
               </div>
-              <div className="space-y-3">
-                {analytics.skillTrends.length === 0 ? (
-                  <p className="text-sm text-gray-500">No skill maps registered.</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {pitches.length === 0 ? (
+                  <Body darkMode={darkMode} style={{ color: mutedColor, textAlign: "center", padding: "20px 0" }}>No pitches created yet.</Body>
                 ) : (
-                  analytics.skillTrends.slice(0, 5).map((sk) => {
-                    const topVal = analytics.skillTrends[0]?.occurrences || 1;
-                    const pct = Math.round((sk.occurrences / topVal) * 100);
-                    return (
-                      <div key={sk.name} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-300">{sk.name}</span>
-                          <span className="text-gray-500">{sk.occurrences}</span>
+                  pitches.map((p) => (
+                    <Card key={p.pitch_id} darkMode={darkMode} style={{ padding: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
+                          <H3 darkMode={darkMode} style={{ fontSize: "14px" }}>{p.title}</H3>
+                          <Badge darkMode={darkMode} variant={p.is_active ? "green" : "red"}>{p.is_active ? "Active" : "Deactivated"}</Badge>
                         </div>
-                        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
-                          <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #f0a500, #f01870)" }} />
-                        </div>
+                        {p.description && <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, marginBottom: "8px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</Body>}
+                        <Body darkMode={darkMode} style={{ fontSize: "11px", color: SURFACE.border }}>
+                          Created: {new Date(p.created_at).toLocaleDateString()} · Members: {p.member_count}
+                        </Body>
                       </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Top Profiles */}
-            <div className="glass-card rounded-2xl p-5 space-y-4">
-              <div className="section-header flex items-center gap-2">
-                <BarChart2 size={14} style={{ color: "#f0a500" }} />
-                <h3 className="section-title">Popular Profiles</h3>
-              </div>
-              <div className="space-y-2">
-                {analytics.topViewedProfiles.length === 0 ? (
-                  <p className="text-sm text-gray-500">No profile views logged yet.</p>
-                ) : (
-                  analytics.topViewedProfiles.slice(0, 5).map((p, i) => (
-                    <div key={p.profile_id}
-                      className="flex items-center justify-between text-sm py-1.5 border-b last:border-0"
-                      style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                      <span className="text-gray-300"><span className="text-gray-600 mr-2">{i + 1}.</span>{p.full_name}</span>
-                      <span className="font-semibold" style={{ color: "#f0a500" }}>{p.views_count} views</span>
-                    </div>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <Button as="a" href={`/pitches?id=${p.pitch_id}`} target="_blank" darkMode={darkMode} variant="default" size="small">View</Button>
+                        {p.is_active && (
+                          <Button darkMode={darkMode} variant="dangerOutline" size="small" onClick={() => handleDeactivatePitch(p.pitch_id)}>Deactivate</Button>
+                        )}
+                      </div>
+                    </Card>
                   ))
                 )}
               </div>
-            </div>
+            </Card>
           </div>
-        </div>
-      )}
+        </Tab>
 
-      {/* ── Pitch Builder ── */}
-      {tab === "pitches" && (
-        <div className="space-y-5">
-          {/* Create Pitch Form */}
-          <form onSubmit={handleCreatePitch} className="glass-card rounded-2xl p-6 space-y-4">
-            <div className="section-header flex items-center gap-2">
-              <FolderPlus size={14} style={{ color: "#f0a500" }} />
-              <h2 className="section-title">Create Curated Talent Pitch</h2>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className={labelClass}>Pitch Title</label>
-                <input type="text" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)}
-                  className={inputClass} placeholder="e.g. Next.js Developers for Startup Team" required />
+        {/* ── Access Control ── */}
+        <Tab name="Access Control">
+          <div style={{ paddingTop: "24px" }}>
+            <Card darkMode={darkMode} style={{ padding: "24px", maxWidth: "600px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                <Icon glyph="XWithCircle" fill={STATUS.error} size={14} />
+                <Overline darkMode={darkMode}>Disable User Account</Overline>
               </div>
-              <div>
-                <label className={labelClass}>Description</label>
-                <textarea value={pitchDesc} onChange={(e) => setPitchDesc(e.target.value)}
-                  className={`${inputClass} resize-none`} rows={3}
-                  placeholder="Summarize the credentials and suitability of chosen candidates..." />
-              </div>
-              <div>
-                <label className={labelClass}>Selected Profile IDs (comma-separated UUIDs)</label>
-                <textarea value={pitchProfileIds} onChange={(e) => setPitchProfileIds(e.target.value)}
-                  className={`${inputClass} resize-none`} rows={2}
-                  placeholder="e.g. d3b07384-d113-..., ..." required />
-                <p className="text-xs text-gray-600 mt-1">Copy IDs from Directory cards or Approvals queue list.</p>
-              </div>
-            </div>
-            <button type="submit"
-              className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer flex items-center justify-center gap-2">
-              <Plus size={14} /> Generate Shareable Pitch URL
-            </button>
-          </form>
+              <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "20px" }}>
+                Disabling an account sets the approved status to inactive. The user will be logged out and blocked from logging in.
+              </Body>
+              
+              <TextInput darkMode={darkMode} label="Target User ID (UUID)" placeholder="e.g. c3f02174-b112-..." value={disableUserId} onChange={(e) => setDisableUserId(e.target.value)} required />
+              
+              <Button darkMode={darkMode} variant="danger" style={{ marginTop: "16px", width: "100%" }} onClick={() => setConfirmDisable(true)} disabled={!disableUserId.trim()}>
+                Disable Account
+              </Button>
 
-          {createdPitchId && (
-            <div className="rounded-2xl p-5 space-y-2"
-              style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)" }}>
-              <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: "#4ade80" }}>
-                <Radio size={13} className="animate-pulse" /> Pitch Page Active
-              </div>
-              <p className="text-sm text-gray-400">Share the Pitch ID below:</p>
-              <div className="flex items-center justify-between rounded-lg px-3 py-2"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
-                <span className="text-sm text-gray-300 select-all">{createdPitchId}</span>
-                <a href={`/pitches?id=${createdPitchId}`}
-                  onClick={(e) => { e.preventDefault(); window.location.href = `/pitches?id=${createdPitchId}`; }}
-                  className="flex items-center gap-1 text-sm font-medium transition-opacity cursor-pointer"
-                  style={{ color: "#f0a500" }}>
-                  Open <ArrowUpRight size={12} />
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* Pitches List */}
-          <div className="glass-card rounded-2xl p-6 space-y-4">
-            <div className="section-header flex items-center gap-2">
-              <Radio size={14} style={{ color: "#f0a500" }} />
-              <h2 className="section-title">Curated Pitches ({pitches.length})</h2>
-            </div>
-            <div className="space-y-3">
-              {pitches.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">No pitches created yet.</p>
-              ) : (
-                pitches.map((p) => (
-                  <div key={p.pitch_id}
-                    className="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-white">{p.title}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full"
-                          style={p.is_active
-                            ? { background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80" }
-                            : { background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
-                          {p.is_active ? "Active" : "Deactivated"}
-                        </span>
-                      </div>
-                      {p.description && <p className="text-xs text-gray-500 line-clamp-1">{p.description}</p>}
-                      <p className="text-xs text-gray-600">
-                        Created: {new Date(p.created_at).toLocaleDateString()} · Members: {p.member_count}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4 shrink-0 text-sm">
-                      <a href={`/pitches?id=${p.pitch_id}`} target="_blank"
-                        className="transition-opacity hover:opacity-75" style={{ color: "#f0a500" }}>
-                        View
-                      </a>
-                      {p.is_active && (
-                        <button type="button" onClick={() => handleDeactivatePitch(p.pitch_id)}
-                          className="text-red-400 hover:text-red-300 transition-colors cursor-pointer">
-                          Deactivate
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+              <ConfirmationModal
+                darkMode={darkMode}
+                open={confirmDisable}
+                onConfirm={handleDisable}
+                onCancel={() => setConfirmDisable(false)}
+                title="Confirm Account Deactivation"
+                buttonText="Disable Account"
+                variant="danger"
+              >
+                Are you sure you want to disable this account? The user will immediately lose access to the portal.
+              </ConfirmationModal>
+            </Card>
           </div>
-        </div>
-      )}
-
-      {/* ── Access Control ── */}
-      {tab === "settings" && (
-        <div>
-          <form onSubmit={handleDisable} className="glass-card rounded-2xl p-6 space-y-4 max-w-xl">
-            <div className="section-header flex items-center gap-2">
-              <UserX size={14} className="text-red-400" />
-              <h2 className="section-title">Disable User Account</h2>
-            </div>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              Disabling an account sets the approved status to inactive. The user will be logged out and blocked from logging in.
-            </p>
-            <div>
-              <label className={labelClass}>Target User ID (UUID)</label>
-              <input type="text" value={disableUserId} onChange={(e) => setDisableUserId(e.target.value)}
-                className={inputClass} placeholder="e.g. c3f02174-b112-..." required />
-            </div>
-            <button type="submit"
-              className="btn-danger w-full py-2.5 rounded-xl text-sm font-semibold cursor-pointer">
-              Disable Account
-            </button>
-          </form>
-        </div>
-      )}
+        </Tab>
+      </Tabs>
     </div>
   );
 }

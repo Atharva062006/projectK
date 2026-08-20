@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { PageWrapper } from "@/components/PageWrapper";
 import Navbar from "@/components/Navbar";
 
-const roboto = Roboto({
+// Using Geist — clean, modern, pairs well with LG's design language
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  variable: "--font-roboto",
+  variable: "--font-geist",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
 });
 
 export const metadata: Metadata = {
@@ -20,38 +25,27 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={roboto.variable} data-theme="dark" suppressHydrationWarning>
-      <body className="min-h-screen font-[family-name:var(--font-roboto)] relative overflow-x-hidden okc-body">
-        {/* Ambient background orbs — fixed, decorative */}
-        <div className="ambient-orbs fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-          <div
-            className="absolute rounded-full"
-            style={{
-              width: "700px",
-              height: "700px",
-              top: "-220px",
-              left: "-180px",
-              background: "radial-gradient(circle, rgba(240,165,0,0.055) 0%, transparent 68%)",
-              animation: "orbitGlow 9s ease-in-out infinite",
-            }}
-          />
-          <div
-            className="absolute rounded-full"
-            style={{
-              width: "550px",
-              height: "550px",
-              bottom: "-120px",
-              right: "-120px",
-              background: "radial-gradient(circle, rgba(240,24,112,0.045) 0%, transparent 68%)",
-              animation: "orbitGlow 11s ease-in-out infinite reverse",
-            }}
-          />
-        </div>
-
+    <html
+      lang="en"
+      className={`${geist.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body
+        style={{
+          fontFamily: "var(--font-geist), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          minHeight: "100vh",
+        }}
+      >
         <ThemeProvider>
           <AuthProvider>
             <Navbar />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6 sm:pb-8 relative z-10">
+            <div
+              style={{
+                maxWidth: "1280px",
+                margin: "0 auto",
+                padding: "16px 24px 48px",
+              }}
+            >
               <PageWrapper>{children}</PageWrapper>
             </div>
           </AuthProvider>

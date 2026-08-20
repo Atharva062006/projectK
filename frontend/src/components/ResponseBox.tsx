@@ -1,27 +1,23 @@
 "use client";
+import { Banner, Variant as BannerVariant } from "@leafygreen-ui/banner";
+import { useTheme } from "@/context/ThemeContext";
 
 interface ResponseBoxProps {
-  result?: { ok: boolean; message: string; data?: unknown } | null;
-  ok?: boolean;
-  message?: string;
+  result: { ok: boolean; message: string; data?: unknown } | null;
 }
 
-export default function ResponseBox({ result, ok, message }: ResponseBoxProps) {
-  const isOk = result !== undefined ? result?.ok : ok;
-  const msg = result !== undefined ? result?.message : message;
+export default function ResponseBox({ result }: ResponseBoxProps) {
+  const { darkMode } = useTheme();
 
-  if (!msg) return null;
+  if (!result) return null;
 
   return (
-    <div
-      className="p-3 rounded-xl text-sm border anim-fadeInUp"
-      style={
-        isOk
-          ? { background: "rgba(34,197,94,0.07)", borderColor: "rgba(34,197,94,0.2)", color: "#86efac" }
-          : { background: "rgba(239,68,68,0.07)", borderColor: "rgba(239,68,68,0.2)", color: "#fca5a5" }
-      }
+    <Banner
+      darkMode={darkMode}
+      variant={result.ok ? BannerVariant.Success : BannerVariant.Danger}
+      style={{ marginTop: "12px" }}
     >
-      <div className="font-semibold">{isOk ? "✅" : "❌"} {msg}</div>
-    </div>
+      {result.message}
+    </Banner>
   );
 }

@@ -1,12 +1,24 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { User, FileText, Award, Briefcase, Plus, Save, ShieldAlert, Upload, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import ResponseBox from "@/components/ResponseBox";
 
+import Card from "@leafygreen-ui/card";
+import Button from "@leafygreen-ui/button";
+import { TextInput } from "@leafygreen-ui/text-input";
+import { TextArea } from "@leafygreen-ui/text-area";
+import { Select, Option, OptionGroup } from "@leafygreen-ui/select";
+import { H1, H2, Body, Overline, Label } from "@leafygreen-ui/typography";
+import Icon from "@leafygreen-ui/icon";
+import { Banner } from "@leafygreen-ui/banner";
+import { Chip } from "@leafygreen-ui/chip";
+import { palette } from "@leafygreen-ui/palette";
+import { BRAND, SURFACE } from "@/lib/theme";
+
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
   </svg>
 );
@@ -23,11 +35,9 @@ interface ProfileData {
   analytics?: { views_count: number; downloads_count: number; clicks_count: number };
 }
 
-const inputClass = "glass-input w-full rounded-xl px-3 py-2.5 text-sm";
-const labelClass = "text-xs text-gray-500 font-medium block mb-1";
-
 export default function PortfolioPage() {
   const { user, token, refreshProfileId } = useAuth();
+  const { darkMode } = useTheme();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
   const [result, setResult] = useState<{ ok: boolean; message: string; data?: unknown } | null>(null);
@@ -40,6 +50,9 @@ export default function PortfolioPage() {
   const [newProj, setNewProj] = useState({ title: "", description: "", github_link: "", tech_stack: "", demo_link: "" });
   const [selectedSkillId, setSelectedSkillId] = useState("");
   const [selectedSkillLevel, setSelectedSkillLevel] = useState("Intermediate");
+
+  const textColor = darkMode ? palette.white : palette.black;
+  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
 
   const loadData = async () => {
     try {
@@ -59,15 +72,14 @@ export default function PortfolioPage() {
 
   if (!token) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="glass-card rounded-2xl p-8 text-center space-y-4 max-w-sm w-full">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto"
-            style={{ background: "rgba(240,165,0,0.12)", border: "1px solid rgba(240,165,0,0.28)", color: "#f0a500" }}>
-            <ShieldAlert size={20} />
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: BRAND.primaryBg, border: `1px solid ${BRAND.primaryBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            <Icon glyph="Lock" fill={BRAND.primary} size={20} />
           </div>
-          <h2 className="text-base font-semibold text-white">Authentication Required</h2>
-          <p className="text-sm text-gray-500">You must be logged in to manage your portfolio.</p>
-        </div>
+          <H2 darkMode={darkMode} style={{ marginBottom: "8px" }}>Authentication Required</H2>
+          <Body darkMode={darkMode} style={{ color: mutedColor }}>You must be logged in to manage your portfolio.</Body>
+        </Card>
       </div>
     );
   }
@@ -91,8 +103,7 @@ export default function PortfolioPage() {
 
   const handleRemoveSkill = async (skillId: string) => {
     const res = await api.profile.removeSkill(skillId);
-    setResult(res);
-    if (res.ok) await loadData();
+    setResult(res); if (res.ok) await loadData();
   };
 
   const handleAddProject = async (e: React.FormEvent) => {
@@ -105,8 +116,7 @@ export default function PortfolioPage() {
 
   const handleDeleteProject = async (projectId: string) => {
     const res = await api.profile.deleteProject(projectId);
-    setResult(res);
-    if (res.ok) await loadData();
+    setResult(res); if (res.ok) await loadData();
   };
 
   const handleUploadResume = async (e: React.FormEvent) => {
@@ -122,27 +132,28 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "48px" }}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", paddingBottom: "20px", borderBottom: `1px solid ${SURFACE.border}` }}>
         <div>
-          <h1 className="text-2xl font-bold text-white">Workspace Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Configure your portfolio details and project showcases</p>
+          <H1 darkMode={darkMode}>Workspace Dashboard</H1>
+          <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
+            Configure your portfolio details and project showcases
+          </Body>
         </div>
-
         {profile && (
-          <div className="glass-card rounded-xl p-4 flex items-center gap-5">
+          <Card darkMode={darkMode} style={{ padding: "16px", display: "flex", alignItems: "center", gap: "20px" }}>
             <div>
-              <div className="text-xs text-gray-500 font-semibold uppercase">Quality Index</div>
-              <div className="text-xs text-gray-600 mt-0.5">Profile Completion</div>
+              <Overline darkMode={darkMode}>Quality Index</Overline>
+              <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Profile Completion</Body>
             </div>
-            <div className="text-right">
-              <span className="text-2xl font-bold" style={{ color: "#f0a500" }}>{profile.completion_percentage}%</span>
-              <div className="w-28 rounded-full h-1.5 mt-1.5 overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
-                <div className="progress-brand h-1.5 rounded-full" style={{ width: `${profile.completion_percentage}%` }} />
+            <div style={{ textAlign: "right" }}>
+              <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0 }}>{profile.completion_percentage}%</H2>
+              <div style={{ width: "112px", height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden", marginTop: "6px" }}>
+                <div style={{ height: "100%", borderRadius: "99px", width: `${profile.completion_percentage}%`, background: palette.green.base }} />
               </div>
             </div>
-          </div>
+          </Card>
         )}
       </div>
 
@@ -150,271 +161,214 @@ export default function PortfolioPage() {
 
       {/* Analytics */}
       {profile?.analytics && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
           {[
-            { label: "Profile Views", sublabel: "Portfolio views logged", value: profile.analytics.views_count || 0, color: "#f0a500" },
-            { label: "Resume Downloads", sublabel: "Times CV was downloaded", value: profile.analytics.downloads_count || 0, color: "#f01870" },
-            { label: "Link Clicks", sublabel: "Social link redirects tracked", value: profile.analytics.clicks_count || 0, color: "#4ade80" },
-          ].map((stat, i) => (
-            <div key={i} className="glass-card rounded-xl p-4 flex items-center justify-between">
+            { label: "Profile Views", sub: "Portfolio views logged", value: profile.analytics.views_count || 0 },
+            { label: "Resume Downloads", sub: "Times CV was downloaded", value: profile.analytics.downloads_count || 0 },
+            { label: "Link Clicks", sub: "Social link redirects", value: profile.analytics.clicks_count || 0 },
+          ].map((s, i) => (
+            <Card key={i} darkMode={darkMode} style={{ padding: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <div className="text-xs text-gray-500 font-semibold uppercase">{stat.label}</div>
-                <div className="text-xs text-gray-600 mt-0.5">{stat.sublabel}</div>
+                <Overline darkMode={darkMode}>{s.label}</Overline>
+                <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>{s.sub}</Body>
               </div>
-              <div className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
-            </div>
+              <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0 }}>{s.value}</H2>
+            </Card>
           ))}
         </div>
       )}
 
-      {/* Editor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Core Details — 2 cols */}
-        <div className="md:col-span-2 glass-card rounded-2xl p-6 space-y-5">
-          <div className="section-header flex items-center gap-2">
-            <User size={14} style={{ color: "#f0a500" }} />
-            <h2 className="section-title">Core Profile Settings</h2>
+      {/* Editor grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px", alignItems: "start" }}>
+        {/* Core Details */}
+        <Card darkMode={darkMode} style={{ padding: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
+            <Icon glyph="Person" fill={BRAND.primary} size={14} />
+            <Overline darkMode={darkMode}>Core Profile Settings</Overline>
           </div>
-          <form onSubmit={handleProfileSave} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { label: "Full Name", key: "full_name", type: "text", placeholder: "" },
-                { label: "Tagline / Title", key: "tagline", type: "text", placeholder: "e.g. Full Stack Developer" },
-                { label: "Department", key: "department", type: "text", placeholder: "e.g. Core Team" },
-                { label: "Graduation Year", key: "yr_of_graduation", type: "number", placeholder: "2026" },
-                { label: "College / Institution", key: "college", type: "text", placeholder: "" },
-                { label: "Location", key: "location", type: "text", placeholder: "e.g. Bangalore, India" },
-              ].map(({ label, key, type, placeholder }) => (
-                <div key={key}>
-                  <label className={labelClass}>{label}</label>
-                  <input type={type} value={pf[key as keyof typeof pf]} placeholder={placeholder}
-                    onChange={(e) => setPf({ ...pf, [key]: e.target.value })}
-                    className={inputClass} required={key === "full_name"} />
-                </div>
-              ))}
+          <form onSubmit={handleProfileSave} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <TextInput darkMode={darkMode} label="Full Name" value={pf.full_name} onChange={(e) => setPf({ ...pf, full_name: e.target.value })} required />
+              <TextInput darkMode={darkMode} label="Tagline / Title" placeholder="e.g. Full Stack Developer" value={pf.tagline} onChange={(e) => setPf({ ...pf, tagline: e.target.value })} />
+              <TextInput darkMode={darkMode} label="Department" placeholder="e.g. Core Team" value={pf.department} onChange={(e) => setPf({ ...pf, department: e.target.value })} />
+              <TextInput darkMode={darkMode} label="Graduation Year" type="number" placeholder="2026" value={pf.yr_of_graduation} onChange={(e) => setPf({ ...pf, yr_of_graduation: e.target.value })} />
+              <TextInput darkMode={darkMode} label="College / Institution" value={pf.college} onChange={(e) => setPf({ ...pf, college: e.target.value })} />
+              <TextInput darkMode={darkMode} label="Location" placeholder="e.g. Bangalore, India" value={pf.location} onChange={(e) => setPf({ ...pf, location: e.target.value })} />
             </div>
 
-            <div>
-              <label className={labelClass}>Biography / Core Focus</label>
-              <textarea value={pf.bio} onChange={(e) => setPf({ ...pf, bio: e.target.value })}
-                className={`${inputClass} resize-none`} rows={3}
-                placeholder="Write a brief overview of your projects and interests..." />
-            </div>
+            <TextArea darkMode={darkMode} label="Biography / Core Focus" placeholder="Write a brief overview of your projects and interests..." value={pf.bio} onChange={(e) => setPf({ ...pf, bio: e.target.value })} rows={3} />
 
-            <div>
-              <label className={labelClass}>Availability Status</label>
-              <select value={pf.availability} onChange={(e) => setPf({ ...pf, availability: e.target.value })}
-                className={`${inputClass} glass-select`}>
-                <option value="">Choose status...</option>
-                <option value="Available">Available</option>
-                <option value="Busy">Busy</option>
-                <option value="Open to work">Open to work</option>
-              </select>
-            </div>
+            <Select darkMode={darkMode} label="Availability Status" value={pf.availability} onChange={(val) => setPf({ ...pf, availability: val })}>
+              <Option value="">Choose status...</Option>
+              <Option value="Available">Available</Option>
+              <Option value="Busy">Busy</Option>
+              <Option value="Open to work">Open to work</Option>
+            </Select>
 
             {/* Social Links */}
-            <div className="border-t pt-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-              <h3 className="text-sm font-semibold text-gray-400">Social Connections</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { label: "Phone", key: "phone", type: "text", placeholder: "+91..." },
-                  { label: "GitHub Link", key: "github", type: "url", placeholder: "https://github.com/..." },
-                  { label: "LinkedIn Link", key: "linkedin", type: "url", placeholder: "https://linkedin.com/in/..." },
-                  { label: "Portfolio Link", key: "portfolio_url", type: "url", placeholder: "https://..." },
-                ].map(({ label, key, type, placeholder }) => (
-                  <div key={key}>
-                    <label className={labelClass}>{label}</label>
-                    <input type={type} value={contact[key as keyof typeof contact]} placeholder={placeholder}
-                      onChange={(e) => setContact({ ...contact, [key]: e.target.value })}
-                      className={inputClass} />
-                  </div>
-                ))}
+            <div style={{ paddingTop: "16px", borderTop: `1px solid ${SURFACE.border}` }}>
+              <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Social Connections</Overline>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <TextInput darkMode={darkMode} label="Phone" placeholder="+91..." value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
+                <TextInput darkMode={darkMode} label="GitHub Link" placeholder="https://github.com/..." value={contact.github} onChange={(e) => setContact({ ...contact, github: e.target.value })} />
+                <TextInput darkMode={darkMode} label="LinkedIn Link" placeholder="https://linkedin.com/in/..." value={contact.linkedin} onChange={(e) => setContact({ ...contact, linkedin: e.target.value })} />
+                <TextInput darkMode={darkMode} label="Portfolio Link" placeholder="https://..." value={contact.portfolio_url} onChange={(e) => setContact({ ...contact, portfolio_url: e.target.value })} />
               </div>
             </div>
 
-            <button type="submit" disabled={loading}
-              className="btn-brand w-full py-3 rounded-xl text-sm font-semibold cursor-pointer flex items-center justify-center gap-2">
-              <Save size={14} />
-              <span>Save Profile Details</span>
-            </button>
+            <Button type="submit" darkMode={darkMode} variant="primary" isLoading={loading} loadingText="Saving..." leftGlyph={<Icon glyph="Save" />} style={{ width: "100%" }}>
+              Save Profile Details
+            </Button>
           </form>
-        </div>
+        </Card>
 
-        {/* Right column: CV + Skills */}
-        <div className="space-y-5">
+        {/* Right column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {/* Resume Upload */}
-          <div className="glass-card rounded-2xl p-5 space-y-4">
-            <div className="section-header flex items-center gap-2">
-              <FileText size={14} style={{ color: "#f0a500" }} />
-              <h2 className="section-title">Curriculum Vitae</h2>
+          <Card darkMode={darkMode} style={{ padding: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
+              <Icon glyph="File" fill={BRAND.primary} size={14} />
+              <Overline darkMode={darkMode}>Curriculum Vitae</Overline>
             </div>
-            <form onSubmit={handleUploadResume} className="space-y-3">
-              <div className="relative border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.02)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(240,165,0,0.35)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+            <form onSubmit={handleUploadResume} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div
+                style={{ position: "relative", border: `2px dashed ${SURFACE.border}`, borderRadius: "12px", padding: "28px 20px", textAlign: "center", cursor: "pointer", transition: "border-color 0.15s ease" }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = BRAND.primaryBorder)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = SURFACE.border)}
               >
-                <input type="file" accept=".pdf" ref={fileRef} className="absolute inset-0 opacity-0 cursor-pointer" required />
-                <Upload size={22} className="mx-auto mb-2 text-gray-600" />
-                <p className="text-sm text-gray-400">Select PDF resume</p>
-                <p className="text-xs text-gray-600 mt-0.5">Maximum file size: 5MB</p>
+                <input type="file" accept=".pdf" ref={fileRef} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} required />
+                <Icon glyph="Upload" fill={mutedColor} size={24} style={{ margin: "0 auto 8px", display: "block" }} />
+                <Body darkMode={darkMode} style={{ color: mutedColor, fontSize: "13px" }}>Select PDF resume</Body>
+                <Body darkMode={darkMode} style={{ color: SURFACE.border, fontSize: "11px", marginTop: "4px" }}>Maximum file size: 5MB</Body>
               </div>
-              <button type="submit" disabled={loading} className="btn-ghost w-full py-2.5 rounded-xl text-sm cursor-pointer">
+              <Button type="submit" darkMode={darkMode} variant="default" isLoading={loading} style={{ width: "100%" }}>
                 Upload PDF Resume
-              </button>
+              </Button>
             </form>
             {profile?.resumes && profile.resumes.length > 0 && (
-              <div className="border-t pt-3" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-                <p className="text-xs text-gray-500 uppercase font-semibold mb-2">Active CV</p>
-                <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
-                  <span className="text-gray-300 text-xs">Resume Uploaded</span>
-                  <a href={`${BASE}/profiles/${profile.profile_id}/resume`} target="_blank"
-                    className="text-xs font-medium transition-colors" style={{ color: "#f0a500" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}>
+              <div style={{ paddingTop: "12px", marginTop: "12px", borderTop: `1px solid ${SURFACE.border}` }}>
+                <Label htmlFor="resume-cv" darkMode={darkMode} style={{ color: mutedColor, display: "block", marginBottom: "8px" }}>Active CV</Label>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderRadius: "8px", background: SURFACE.card, border: `1px solid ${SURFACE.border}` }}>
+                  <Body darkMode={darkMode} style={{ fontSize: "12px" }}>Resume Uploaded</Body>
+                  <Button as="a" href={`${BASE}/profiles/${profile.profile_id}/resume`} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<Icon glyph="Download" />}>
                     Download
-                  </a>
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
+          </Card>
 
           {/* Skills */}
-          <div className="glass-card rounded-2xl p-5 space-y-4">
-            <div className="section-header flex items-center gap-2">
-              <Award size={14} style={{ color: "#f0a500" }} />
-              <h2 className="section-title">Manage Skills</h2>
+          <Card darkMode={darkMode} style={{ padding: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
+              <Icon glyph="Code" fill={BRAND.primary} size={14} />
+              <Overline darkMode={darkMode}>Manage Skills</Overline>
             </div>
-            <form onSubmit={handleAddSkill} className="space-y-2">
-              <select value={selectedSkillId} onChange={(e) => setSelectedSkillId(e.target.value)}
-                className={`${inputClass} glass-select`} required>
-                <option value="">Select skill...</option>
+            <form onSubmit={handleAddSkill} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <Select darkMode={darkMode} label="Skill" value={selectedSkillId} onChange={(val) => setSelectedSkillId(val)} placeholder="Select skill...">
                 {[...new Set(allSkills.map((s) => s.category))].sort().map((cat) => (
-                  <optgroup key={cat} label={cat}>
+                  <OptionGroup key={cat} label={cat}>
                     {allSkills.filter((s) => s.category === cat).map((s) => (
-                      <option key={s.skill_id} value={s.skill_id}>{s.name}</option>
+                      <Option key={s.skill_id} value={s.skill_id}>{s.name}</Option>
                     ))}
-                  </optgroup>
+                  </OptionGroup>
                 ))}
-              </select>
-              <select value={selectedSkillLevel} onChange={(e) => setSelectedSkillLevel(e.target.value)}
-                className={`${inputClass} glass-select`}>
-                <option>Beginner</option>
-                <option>Intermediate</option>
-                <option>Expert</option>
-              </select>
-              <button type="submit"
-                className="btn-ghost w-full py-2 rounded-xl text-sm cursor-pointer flex items-center justify-center gap-1.5">
-                <Plus size={13} /> Link Skill
-              </button>
+              </Select>
+              <Select darkMode={darkMode} label="Level" value={selectedSkillLevel} onChange={(val) => setSelectedSkillLevel(val)}>
+                <Option value="Beginner">Beginner</Option>
+                <Option value="Intermediate">Intermediate</Option>
+                <Option value="Expert">Expert</Option>
+              </Select>
+              <Button type="submit" darkMode={darkMode} variant="default" size="small" leftGlyph={<Icon glyph="Plus" />} style={{ width: "100%" }}>
+                Link Skill
+              </Button>
             </form>
 
-            <div className="border-t pt-3" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-              <p className="text-xs text-gray-500 uppercase font-semibold mb-2">
+            <div style={{ paddingTop: "12px", marginTop: "12px", borderTop: `1px solid ${SURFACE.border}` }}>
+              <Label htmlFor="skills-list" darkMode={darkMode} style={{ color: mutedColor, display: "block", marginBottom: "8px" }}>
                 Linked Skills ({profile?.skills?.length || 0})
-              </p>
+              </Label>
               {profile?.skills && profile.skills.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {profile.skills.map((s) => (
-                    <div key={s.skill_id}
-                      className="flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full text-xs"
-                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#d1d5db" }}>
-                      <span>{s.name}</span>
-                      <span className="text-gray-600 text-[10px]">({s.level})</span>
-                      <button type="button" onClick={() => handleRemoveSkill(s.skill_id)}
-                        className="ml-1 text-gray-600 hover:text-red-400 transition-colors cursor-pointer">
-                        <Trash2 size={10} />
-                      </button>
-                    </div>
+                    <Chip
+                      key={s.skill_id}
+                      darkMode={darkMode}
+                      label={`${s.name} (${s.level})`}
+                      variant="green"
+                      onDismiss={() => handleRemoveSkill(s.skill_id)}
+                    />
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-600">No skills linked yet.</p>
+                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>No skills linked yet.</Body>
               )}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
-      {/* Projects Section */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="section-header flex items-center gap-2">
-          <Briefcase size={14} style={{ color: "#f0a500" }} />
-          <h2 className="section-title">Projects Showcase Manager</h2>
+      {/* Projects */}
+      <Card darkMode={darkMode} style={{ padding: "24px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
+          <Icon glyph="Laptop" fill={BRAND.primary} size={14} />
+          <Overline darkMode={darkMode}>Projects Showcase Manager</Overline>
         </div>
 
         {/* Add Project Form */}
-        <form onSubmit={handleAddProject}
-          className="rounded-xl p-4 space-y-3"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <p className="text-xs font-semibold text-gray-400 uppercase">Add Project</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[
-              { placeholder: "Project Title", key: "title", type: "text", required: true },
-              { placeholder: "Tech Stack (e.g. React, Docker)", key: "tech_stack", type: "text", required: false },
-              { placeholder: "GitHub Repository URL", key: "github_link", type: "url", required: false },
-              { placeholder: "Live Demo URL", key: "demo_link", type: "url", required: false },
-            ].map(({ placeholder, key, type, required }) => (
-              <input key={key} type={type} placeholder={placeholder} required={required}
-                value={newProj[key as keyof typeof newProj]}
-                onChange={(e) => setNewProj({ ...newProj, [key]: e.target.value })}
-                className={`${inputClass}`} />
-            ))}
-          </div>
-          <textarea placeholder="Project Description" rows={2}
-            value={newProj.description}
-            onChange={(e) => setNewProj({ ...newProj, description: e.target.value })}
-            className={`${inputClass} resize-none w-full`} />
-          <button type="submit"
-            className="btn-brand px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer flex items-center gap-1.5">
-            <Plus size={13} /> Add Project
-          </button>
-        </form>
+        <Card darkMode={darkMode} style={{ padding: "16px", marginBottom: "20px" }}>
+          <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Add Project</Overline>
+          <form onSubmit={handleAddProject} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <TextInput darkMode={darkMode} label="Project Title" value={newProj.title} onChange={(e) => setNewProj({ ...newProj, title: e.target.value })} required />
+              <TextInput darkMode={darkMode} label="Tech Stack" placeholder="React, Docker..." value={newProj.tech_stack} onChange={(e) => setNewProj({ ...newProj, tech_stack: e.target.value })} />
+              <TextInput darkMode={darkMode} label="GitHub URL" placeholder="https://github.com/..." value={newProj.github_link} onChange={(e) => setNewProj({ ...newProj, github_link: e.target.value })} />
+              <TextInput darkMode={darkMode} label="Demo URL" placeholder="https://..." value={newProj.demo_link} onChange={(e) => setNewProj({ ...newProj, demo_link: e.target.value })} />
+            </div>
+            <TextArea darkMode={darkMode} label="Description" placeholder="Project overview..." value={newProj.description} onChange={(e) => setNewProj({ ...newProj, description: e.target.value })} rows={2} />
+            <Button type="submit" darkMode={darkMode} variant="primary" size="small" leftGlyph={<Icon glyph="Plus" />}>
+              Add Project
+            </Button>
+          </form>
+        </Card>
 
-        {/* Existing Projects */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Existing projects */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
           {profile?.projects && profile.projects.length > 0 ? (
             profile.projects.map((p) => (
-              <div key={p.project_id}
-                className="rounded-xl p-4 flex flex-col justify-between h-[145px]"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div>
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-sm text-white">{p.title}</h3>
-                    <button type="button" onClick={() => handleDeleteProject(p.project_id)}
-                      className="text-gray-600 hover:text-red-400 transition-colors p-0.5 cursor-pointer">
-                      <Trash2 size={13} />
-                    </button>
+              <Card key={p.project_id} darkMode={darkMode} style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Body darkMode={darkMode} style={{ fontWeight: 600, marginBottom: "4px" }}>{p.title}</Body>
+                    <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      {p.description}
+                    </Body>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{p.description}</p>
+                  <Button
+                    darkMode={darkMode}
+                    variant="dangerOutline"
+                    size="xsmall"
+                    leftGlyph={<Icon glyph="Trash" />}
+                    onClick={() => handleDeleteProject(p.project_id)}
+                    style={{ flexShrink: 0, marginLeft: "8px" }}
+                  />
                 </div>
-                <div className="flex items-center justify-between border-t pt-2 mt-2" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-                  <span className="text-[10px] text-gray-600">{p.tech_stack}</span>
-                  <div className="flex gap-3">
-                    {p.github_link && (
-                      <a href={p.github_link} target="_blank"
-                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
-                        <GithubIcon /> GitHub
-                      </a>
-                    )}
-                    {p.demo_link && (
-                      <a href={p.demo_link} target="_blank"
-                        className="text-xs transition-colors" style={{ color: "#f0a500" }}>
-                        Demo
-                      </a>
-                    )}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "8px", borderTop: `1px solid ${SURFACE.border}` }}>
+                  <Body darkMode={darkMode} style={{ fontSize: "10px", color: mutedColor }}>{p.tech_stack}</Body>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    {p.github_link && <Button as="a" href={p.github_link} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<GithubIcon />}>GitHub</Button>}
+                    {p.demo_link && <Button as="a" href={p.demo_link} target="_blank" darkMode={darkMode} variant="primary" size="xsmall">Demo</Button>}
                   </div>
                 </div>
-              </div>
+              </Card>
             ))
           ) : (
-            <div className="col-span-full py-6 text-center text-sm text-gray-600">
+            <Body darkMode={darkMode} style={{ color: mutedColor, textAlign: "center", padding: "32px 0", gridColumn: "1 / -1" }}>
               No projects added yet. Fill the form above to add your projects.
-            </div>
+            </Body>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
