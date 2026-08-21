@@ -109,7 +109,7 @@ export default function LandingPage() {
       <Card darkMode={darkMode} style={{ textAlign: "center", padding: "48px 32px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-            <Badge darkMode={darkMode} variant="lightGray">
+            <Badge darkMode={darkMode} variant="lightgray">
               Official Oyster Kode Club Talent Showcase
             </Badge>
           </div>
@@ -268,7 +268,7 @@ export default function LandingPage() {
                     {t.role} @ {t.company}
                   </Body>
                 </div>
-                <Badge darkMode={darkMode} variant="lightGray">{t.gradYear}</Badge>
+                <Badge darkMode={darkMode} variant="lightgray">{t.gradYear}</Badge>
               </div>
             </Card>
           ))}

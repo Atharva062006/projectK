@@ -150,7 +150,7 @@ export default function ProfileDetailPage() {
           <div
             style={{
               width: "80px", height: "80px", borderRadius: "16px",
-              background: SURFACE.background,
+              background: SURFACE.elevated,
               border: `1px solid ${BRAND.primaryBorder}`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: "24px", fontWeight: 700, color: BRAND.primary,
