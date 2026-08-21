@@ -7,7 +7,7 @@ import ResponseBox from "@/components/ResponseBox";
 
 import Card from "@leafygreen-ui/card";
 import { PasswordInput } from "@leafygreen-ui/password-input";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { H2, Body } from "@leafygreen-ui/typography";
 import Icon from "@leafygreen-ui/icon";
 import { palette } from "@leafygreen-ui/palette";
@@ -47,7 +47,7 @@ function ResetPasswordFormContent() {
 
   if (!token) {
     return (
-      <Card darkMode={darkMode} style={{ padding: "32px", textAlign: "center" }}>
+      <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "32px", textAlign: "center" }}>
         <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: STATUS.errorBg, border: `1px solid ${STATUS.errorBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
           <Icon glyph="Lock" fill={STATUS.error} size={20} />
         </div>
@@ -63,7 +63,7 @@ function ResetPasswordFormContent() {
   }
 
   return (
-    <Card darkMode={darkMode} className="anim-scaleIn" style={{ padding: "32px" }}>
+    <Card data-okc-theme="true" darkMode={darkMode} className="anim-scaleIn" style={{ padding: "32px" }}>
       <div style={{ textAlign: "center", marginBottom: "24px" }}>
         <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: BRAND.primaryBg, border: `1px solid ${BRAND.primaryBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
           <Icon glyph="Key" fill={BRAND.primary} size={20} />
@@ -73,14 +73,14 @@ function ResetPasswordFormContent() {
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <PasswordInput
+        <PasswordInput data-okc-theme="true"
           darkMode={darkMode}
           label="New Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <PasswordInput
+        <PasswordInput data-okc-theme="true"
           darkMode={darkMode}
           label="Confirm New Password"
           value={confirmPassword}

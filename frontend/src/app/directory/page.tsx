@@ -9,7 +9,7 @@ import Card from "@leafygreen-ui/card";
 import Badge from "@leafygreen-ui/badge";
 import { TextInput } from "@leafygreen-ui/text-input";
 import { Checkbox } from "@leafygreen-ui/checkbox";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { Chip } from "@leafygreen-ui/chip";
 import { Body, H3, Overline, Label } from "@leafygreen-ui/typography";
 import Icon from "@leafygreen-ui/icon";
@@ -44,7 +44,7 @@ const MOCK_PROFILES: ProfileCard[] = [
   { profile_id: "demo-6", full_name: "Rahul Verma", tagline: "Backend Developer & Database Admin", availability: "Open to work", department: "Other Members", role_category: "Other Members", role: "member", skills: [{ name: "Node.js", level: "Expert" }, { name: "PostgreSQL", level: "Expert" }] },
 ];
 
-function AvailabilityBadge({ av }: { av: string }) {
+function AvailabilityChip({ av }: { av: string }) {
   const { darkMode } = useTheme();
   const variantMap: Record<string, "green" | "yellow" | "gray" | "red"> = {
     Available: "green",
@@ -66,6 +66,7 @@ function DirectoryContent() {
   const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [useMock, setUseMock] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialQuery) setSearchQuery(initialQuery);
@@ -110,6 +111,7 @@ function DirectoryContent() {
 
   const textColor = darkMode ? palette.white : palette.black;
   const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
+  const hoverBg = darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)";
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -121,8 +123,8 @@ function DirectoryContent() {
           alignItems: "start",
         }}
       >
-        {/* ── Sidebar Filters ── */}
-        <Card
+        {/* ── Sidebar Filters — one Card is acceptable here as a distinct elevated surface ── */}
+        <Card data-okc-theme="true"
           darkMode={darkMode}
           style={{ padding: "20px", position: "sticky", top: "72px", display: "flex", flexDirection: "column", gap: "20px" }}
         >
@@ -175,7 +177,7 @@ function DirectoryContent() {
             ))}
           </div>
 
-          {/* Skills */}
+          {/* Skills — Chip filter bar */}
           <div>
             <Label htmlFor="level-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
               Skills
@@ -210,7 +212,7 @@ function DirectoryContent() {
         {/* ── Main Panel ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {/* Search */}
-          <TextInput
+          <TextInput data-okc-theme="true"
             aria-label="Search profiles"
             darkMode={darkMode}
             placeholder="Search by name, tagline, or tech stack..."
@@ -226,11 +228,11 @@ function DirectoryContent() {
             </div>
           )}
 
-          {/* Cards */}
+          {/* Profile results — hover-based divs, no Card per item ── */}
           {!isLoading && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
               {filteredProfiles.length === 0 ? (
-                <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: "12px" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: "12px" }}>
                   <Icon glyph="Apps" fill={mutedColor} size={32} />
                   <Body darkMode={darkMode} style={{ color: mutedColor }}>
                     No profiles match the current filters
@@ -241,6 +243,7 @@ function DirectoryContent() {
                   const initials = p.full_name
                     ? p.full_name.split(" ").map((n) => n[0]).join("").toUpperCase()
                     : "?";
+                  const isHovered = hoveredId === p.profile_id;
                   return (
                     <Link
                       href={`/profiles/${p.profile_id}`}
@@ -248,64 +251,73 @@ function DirectoryContent() {
                       style={{ textDecoration: "none" }}
                       className={`anim-fadeInUp anim-delay-${Math.min(i + 1, 8)}`}
                     >
-                      <Card
-                        darkMode={darkMode}
+                      <div
+                        onMouseEnter={() => setHoveredId(p.profile_id)}
+                        onMouseLeave={() => setHoveredId(null)}
                         style={{
-                          padding: "16px",
-                          cursor: "pointer",
-                          height: "100%",
                           display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          minHeight: "190px",
-                          transition: "border-color 0.15s ease",
+                          alignItems: "center",
+                          gap: "16px",
+                          padding: "16px",
+                          borderRadius: "8px",
+                          background: isHovered ? hoverBg : "transparent",
+                          transition: "background 0.15s ease",
+                          cursor: "pointer",
+                          borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                          <div
-                            style={{
-                              width: "40px", height: "40px", borderRadius: "10px",
-                              background: darkMode ? palette.gray.dark2 : palette.gray.light2,
-                              border: `1px solid ${darkMode ? palette.gray.dark1 : palette.gray.light1}`,
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              fontSize: "13px", fontWeight: 700, color: textColor, flexShrink: 0,
-                            }}
-                          >
-                            {initials}
-                          </div>
-                          <div style={{ minWidth: 0 }}>
-                            <H3
-                              darkMode={darkMode}
-                              style={{ fontSize: "14px", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                            >
-                              {p.full_name}
-                            </H3>
-                            <Body
-                              darkMode={darkMode}
-                              style={{ fontSize: "11px", color: mutedColor, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                            >
-                              {p.tagline}
-                            </Body>
-                          </div>
+                        {/* Avatar */}
+                        <div
+                          style={{
+                            width: "44px", height: "44px", borderRadius: "10px",
+                            background: darkMode ? palette.gray.dark2 : palette.gray.light2,
+                            border: `1px solid ${darkMode ? palette.gray.dark1 : palette.gray.light1}`,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: "13px", fontWeight: 700, color: textColor, flexShrink: 0,
+                          }}
+                        >
+                          {initials}
                         </div>
 
-                        <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginBottom: "12px" }}>
-                          {p.department || "Technical Team"}
-                        </Body>
+                        {/* Name + tagline */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <H3
+                            darkMode={darkMode}
+                            style={{ fontSize: "14px", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                          >
+                            {p.full_name}
+                          </H3>
+                          <Body
+                            darkMode={darkMode}
+                            style={{ fontSize: "12px", color: mutedColor, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                          >
+                            {p.tagline}
+                          </Body>
+                        </div>
 
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "12px" }}>
+                        {/* Skill Badges */}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", flexShrink: 0, maxWidth: "200px" }}>
                           {p.skills?.slice(0, 3).map((sk) => (
-                            <Chip key={sk.name} darkMode={darkMode} label={sk.name} variant="gray" />
+                            <Badge key={sk.name} darkMode={darkMode} variant="lightgray">{sk.name}</Badge>
                           ))}
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                          <AvailabilityBadge av={p.availability} />
-                          <Body darkMode={darkMode} style={{ fontSize: "11px", color: BRAND.primary }}>
-                            View →
-                          </Body>
+                        {/* Availability chip */}
+                        <div style={{ flexShrink: 0 }}>
+                          <AvailabilityChip av={p.availability} />
                         </div>
-                      </Card>
+
+                        {/* Arrow hint on hover */}
+                        <Body
+                          darkMode={darkMode}
+                          style={{
+                            fontSize: "13px", color: BRAND.primary, flexShrink: 0,
+                            opacity: isHovered ? 1 : 0, transition: "opacity 0.15s ease",
+                          }}
+                        >
+                          →
+                        </Body>
+                      </div>
                     </Link>
                   );
                 })

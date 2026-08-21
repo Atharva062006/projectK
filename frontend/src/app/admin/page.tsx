@@ -6,9 +6,10 @@ import { useTheme } from "@/context/ThemeContext";
 import ResponseBox from "@/components/ResponseBox";
 
 import { Tabs, Tab } from "@leafygreen-ui/tabs";
+import { Table, TableHead, HeaderRow, HeaderCell, TableBody, Row, Cell } from "@leafygreen-ui/table";
 import Card from "@leafygreen-ui/card";
 import Badge from "@leafygreen-ui/badge";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { TextInput } from "@leafygreen-ui/text-input";
 import { TextArea } from "@leafygreen-ui/text-area";
 import { H1, H2, H3, Body, Overline, Label } from "@leafygreen-ui/typography";
@@ -42,6 +43,7 @@ export default function AdminPage() {
 
   const textColor = darkMode ? palette.white : palette.black;
   const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
+  const borderColor = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
 
   const loadPending = async () => {
     const res = await api.admin.getPending();
@@ -67,7 +69,8 @@ export default function AdminPage() {
   if (!token || user?.role !== "admin") {
     return (
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
+        {/* Single Card acceptable here — isolated access-denied surface */}
+        <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: STATUS.errorBg, border: `1px solid ${STATUS.errorBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             <Icon glyph="XWithCircle" fill={STATUS.error} size={20} />
           </div>
@@ -128,41 +131,49 @@ export default function AdminPage() {
       <ResponseBox result={result} />
 
       <Tabs aria-label="Admin Tabs" darkMode={darkMode} value={tabIndex} onValueChange={(v) => setTabIndex(Number(v))}>
-        {/* ── Approvals Queue ── */}
+
+        {/* ── Approvals Queue — uses Table for dense enterprise layout ── */}
         <Tab name="Approvals Queue">
           <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Icon glyph="Clock" fill={BRAND.primary} size={14} />
               <Overline darkMode={darkMode}>Pending Registrations ({pending.length})</Overline>
             </div>
-            
+
             {pending.length === 0 ? (
-              <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", color: mutedColor }}>
-                No membership requests currently pending activation.
-              </Card>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {pending.map((u) => (
-                  <Card key={u.user_id} darkMode={darkMode} style={{ padding: "20px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
-                    <div>
-                      <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "4px" }}>{u.full_name || "New Registrant"}</H3>
-                      <Body darkMode={darkMode} style={{ color: mutedColor, fontSize: "13px", marginBottom: "8px" }}>{u.email}</Body>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Badge darkMode={darkMode} variant="lightgray">{u.role}</Badge>
-                        <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
-                          Requested: {new Date(u.created_at).toLocaleDateString()}
-                        </Body>
-                      </div>
-                      <Body darkMode={darkMode} style={{ fontSize: "10px", color: SURFACE.border, marginTop: "4px", userSelect: "all" }}>
-                        ID: {u.profile_id}
-                      </Body>
-                    </div>
-                    <Button darkMode={darkMode} variant="primary" onClick={() => handleApprove(u.profile_id)}>
-                      Approve
-                    </Button>
-                  </Card>
-                ))}
+              <div style={{ textAlign: "center", padding: "40px 0", color: mutedColor }}>
+                <Icon glyph="CheckmarkWithCircle" fill={STATUS.success} size={24} style={{ display: "block", margin: "0 auto 12px" }} />
+                <Body darkMode={darkMode} style={{ color: mutedColor }}>No membership requests currently pending activation.</Body>
               </div>
+            ) : (
+              <Table darkMode={darkMode}>
+                <TableHead>
+                  <HeaderRow>
+                    <HeaderCell>Name</HeaderCell>
+                    <HeaderCell>Email</HeaderCell>
+                    <HeaderCell>Role</HeaderCell>
+                    <HeaderCell>Requested</HeaderCell>
+                    <HeaderCell>Profile ID</HeaderCell>
+                    <HeaderCell>Action</HeaderCell>
+                  </HeaderRow>
+                </TableHead>
+                <TableBody>
+                  {pending.map((datum) => (
+                    <Row key={datum.user_id}>
+                      <Cell><Body darkMode={darkMode} style={{ fontWeight: 600, fontSize: "13px" }}>{datum.full_name || "New Registrant"}</Body></Cell>
+                      <Cell><Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{datum.email}</Body></Cell>
+                      <Cell><Badge darkMode={darkMode} variant="lightgray">{datum.role}</Badge></Cell>
+                      <Cell><Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{new Date(datum.created_at).toLocaleDateString()}</Body></Cell>
+                      <Cell><Body darkMode={darkMode} style={{ fontSize: "10px", color: SURFACE.border, userSelect: "all" }}>{datum.profile_id}</Body></Cell>
+                      <Cell>
+                        <Button darkMode={darkMode} variant="primary" size="small" onClick={() => handleApprove(datum.profile_id)}>
+                          Approve
+                        </Button>
+                      </Cell>
+                    </Row>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </div>
         </Tab>
@@ -171,6 +182,7 @@ export default function AdminPage() {
         <Tab name="System Analytics">
           {analytics && (
             <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+              {/* Stat tiles — standalone Cards (no outer wrapper) */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
                 {[
                   { label: "Total Members", value: analytics.usersCount.member + analytics.usersCount.alumni, icon: "PersonGroup", color: BRAND.primary },
@@ -178,7 +190,7 @@ export default function AdminPage() {
                   { label: "Showcase Views", value: analytics.totalViews, icon: "Charts", color: palette.blue.base },
                   { label: "CV Downloads", value: analytics.totalDownloads, icon: "Download", color: BRAND.primary },
                 ].map((s, i) => (
-                  <Card key={i} darkMode={darkMode} style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Card data-okc-theme="true" key={i} darkMode={darkMode} style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div>
                       <Overline darkMode={darkMode}>{s.label}</Overline>
                       <H2 darkMode={darkMode} style={{ marginTop: "8px" }}>{s.value}</H2>
@@ -189,8 +201,8 @@ export default function AdminPage() {
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-                {/* Skill Trends */}
-                <Card darkMode={darkMode} style={{ padding: "24px" }}>
+                {/* Skill Trends — standalone Card */}
+                <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
                     <Icon glyph="Code" fill={BRAND.primary} size={14} />
                     <Overline darkMode={darkMode}>Skill Distribution</Overline>
@@ -218,8 +230,8 @@ export default function AdminPage() {
                   </div>
                 </Card>
 
-                {/* Popular Profiles */}
-                <Card darkMode={darkMode} style={{ padding: "24px" }}>
+                {/* Popular Profiles — standalone Card */}
+                <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
                     <Icon glyph="Person" fill={BRAND.primary} size={14} />
                     <Overline darkMode={darkMode}>Popular Profiles</Overline>
@@ -242,81 +254,110 @@ export default function AdminPage() {
           )}
         </Tab>
 
-        {/* ── Pitch Builder ── */}
+        {/* ── Pitch Builder — no wrapping Cards; plain sections ── */}
         <Tab name="Pitch Builder">
-          <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
-            <Card darkMode={darkMode} style={{ padding: "24px" }}>
+          <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
+
+            {/* Create Pitch form — plain section, no Card wrapper */}
+            <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
                 <Icon glyph="Megaphone" fill={BRAND.primary} size={14} />
                 <Overline darkMode={darkMode}>Create Curated Talent Pitch</Overline>
               </div>
-              <form onSubmit={handleCreatePitch} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <TextInput darkMode={darkMode} label="Pitch Title" placeholder="e.g. Next.js Developers for Startup Team" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)} required />
-                <TextArea darkMode={darkMode} label="Description" placeholder="Summarize the credentials and suitability of chosen candidates..." value={pitchDesc} onChange={(e) => setPitchDesc(e.target.value)} rows={3} />
-                <TextArea darkMode={darkMode} label="Selected Profile IDs (comma-separated UUIDs)" placeholder="e.g. d3b07384-d113-..., ..." value={pitchProfileIds} onChange={(e) => setPitchProfileIds(e.target.value)} rows={2} required />
-                <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Copy IDs from Directory cards or Approvals queue list.</Body>
-                
-                <Button type="submit" darkMode={darkMode} variant="primary" leftGlyph={<Icon glyph="Plus" />} style={{ width: "100%", marginTop: "8px" }}>
+              <form onSubmit={handleCreatePitch} style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px" }}>
+                <TextInput data-okc-theme="true" darkMode={darkMode} label="Pitch Title" placeholder="e.g. Next.js Developers for Startup Team" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)} required />
+                <TextArea data-okc-theme="true" darkMode={darkMode} label="Description" placeholder="Summarize the credentials and suitability of chosen candidates..." value={pitchDesc} onChange={(e) => setPitchDesc(e.target.value)} rows={3} />
+                <TextArea data-okc-theme="true" darkMode={darkMode} label="Selected Profile IDs (comma-separated UUIDs)" placeholder="e.g. d3b07384-d113-..., ..." value={pitchProfileIds} onChange={(e) => setPitchProfileIds(e.target.value)} rows={2} required />
+                <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Copy IDs from Directory or Approvals queue.</Body>
+                <Button type="submit" darkMode={darkMode} variant="primary" leftGlyph={<Icon glyph="Plus" />}>
                   Generate Shareable Pitch URL
                 </Button>
               </form>
-            </Card>
+            </div>
 
+            {/* Created pitch success — Banner, not Card */}
             {createdPitchId && (
-              <Card darkMode={darkMode} style={{ padding: "20px", background: STATUS.successBg, border: `1px solid ${STATUS.successBorder}` }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <div
+                style={{
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  background: STATUS.successBg,
+                  border: `1px solid ${STATUS.successBorder}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icon glyph="Checkmark" fill={STATUS.success} size={14} />
-                  <H3 darkMode={darkMode} style={{ fontSize: "14px", color: STATUS.success }}>Pitch Page Active</H3>
+                  <H3 darkMode={darkMode} style={{ fontSize: "14px", color: STATUS.success, margin: 0 }}>Pitch Active —</H3>
+                  <Body darkMode={darkMode} style={{ fontSize: "13px", userSelect: "all", color: textColor }}>{createdPitchId}</Body>
                 </div>
-                <Body darkMode={darkMode} style={{ color: textColor, marginBottom: "12px" }}>Share the Pitch ID below:</Body>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: SURFACE.card, padding: "12px", borderRadius: "8px", border: `1px solid ${SURFACE.border}` }}>
-                  <Body darkMode={darkMode} style={{ fontSize: "13px", userSelect: "all" }}>{createdPitchId}</Body>
-                  <Button as="a" href={`/pitches?id=${createdPitchId}`} target="_blank" darkMode={darkMode} variant="default" size="xsmall" rightGlyph={<Icon glyph="ArrowRight" />}>
-                    Open
-                  </Button>
-                </div>
-              </Card>
+                <Button as="a" href={`/pitches?id=${createdPitchId}`} target="_blank" darkMode={darkMode} variant="default" size="xsmall" rightGlyph={<Icon glyph="ArrowRight" />}>
+                  Open Pitch
+                </Button>
+              </div>
             )}
 
-            <Card darkMode={darkMode} style={{ padding: "24px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+            {/* Curated Pitches list — Table, no outer Card */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <Icon glyph="List" fill={BRAND.primary} size={14} />
                 <Overline darkMode={darkMode}>Curated Pitches ({pitches.length})</Overline>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {pitches.length === 0 ? (
-                  <Body darkMode={darkMode} style={{ color: mutedColor, textAlign: "center", padding: "20px 0" }}>No pitches created yet.</Body>
-                ) : (
-                  pitches.map((p) => (
-                    <Card key={p.pitch_id} darkMode={darkMode} style={{ padding: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
-                          <H3 darkMode={darkMode} style={{ fontSize: "14px" }}>{p.title}</H3>
-                          <Badge darkMode={darkMode} variant={p.is_active ? "green" : "red"}>{p.is_active ? "Active" : "Deactivated"}</Badge>
-                        </div>
-                        {p.description && <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, marginBottom: "8px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</Body>}
-                        <Body darkMode={darkMode} style={{ fontSize: "11px", color: SURFACE.border }}>
-                          Created: {new Date(p.created_at).toLocaleDateString()} · Members: {p.member_count}
-                        </Body>
-                      </div>
-                      <div style={{ display: "flex", gap: "8px" }}>
-                        <Button as="a" href={`/pitches?id=${p.pitch_id}`} target="_blank" darkMode={darkMode} variant="default" size="small">View</Button>
-                        {p.is_active && (
-                          <Button darkMode={darkMode} variant="dangerOutline" size="small" onClick={() => handleDeactivatePitch(p.pitch_id)}>Deactivate</Button>
-                        )}
-                      </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </Card>
+
+              {pitches.length === 0 ? (
+                <Body darkMode={darkMode} style={{ color: mutedColor, textAlign: "center", padding: "20px 0" }}>No pitches created yet.</Body>
+              ) : (
+                <Table darkMode={darkMode}>
+                  <TableHead>
+                    <HeaderRow>
+                      <HeaderCell>Title</HeaderCell>
+                      <HeaderCell>Status</HeaderCell>
+                      <HeaderCell>Members</HeaderCell>
+                      <HeaderCell>Created</HeaderCell>
+                      <HeaderCell>Actions</HeaderCell>
+                    </HeaderRow>
+                  </TableHead>
+                  <TableBody>
+                    {pitches.map((datum) => (
+                      <Row key={datum.pitch_id}>
+                        <Cell>
+                          <div>
+                            <Body darkMode={darkMode} style={{ fontWeight: 600, fontSize: "13px" }}>{datum.title}</Body>
+                            {datum.description && (
+                              <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginTop: "2px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                                {datum.description}
+                              </Body>
+                            )}
+                          </div>
+                        </Cell>
+                        <Cell><Badge darkMode={darkMode} variant={datum.is_active ? "green" : "red"}>{datum.is_active ? "Active" : "Deactivated"}</Badge></Cell>
+                        <Cell><Body darkMode={darkMode} style={{ fontSize: "13px" }}>{datum.member_count}</Body></Cell>
+                        <Cell><Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{new Date(datum.created_at).toLocaleDateString()}</Body></Cell>
+                        <Cell>
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            <Button as="a" href={`/pitches?id=${datum.pitch_id}`} target="_blank" darkMode={darkMode} variant="default" size="xsmall">View</Button>
+                            {datum.is_active && (
+                              <Button darkMode={darkMode} variant="dangerOutline" size="xsmall" onClick={() => handleDeactivatePitch(datum.pitch_id)}>Deactivate</Button>
+                            )}
+                          </div>
+                        </Cell>
+                      </Row>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
           </div>
         </Tab>
 
-        {/* ── Access Control ── */}
+        {/* ── Access Control — single Card for the isolated action ── */}
         <Tab name="Access Control">
           <div style={{ paddingTop: "24px" }}>
-            <Card darkMode={darkMode} style={{ padding: "24px", maxWidth: "600px" }}>
+            <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px", maxWidth: "600px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <Icon glyph="XWithCircle" fill={STATUS.error} size={14} />
                 <Overline darkMode={darkMode}>Disable User Account</Overline>
@@ -324,9 +365,9 @@ export default function AdminPage() {
               <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "20px" }}>
                 Disabling an account sets the approved status to inactive. The user will be logged out and blocked from logging in.
               </Body>
-              
-              <TextInput darkMode={darkMode} label="Target User ID (UUID)" placeholder="e.g. c3f02174-b112-..." value={disableUserId} onChange={(e) => setDisableUserId(e.target.value)} required />
-              
+
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="Target User ID (UUID)" placeholder="e.g. c3f02174-b112-..." value={disableUserId} onChange={(e) => setDisableUserId(e.target.value)} required />
+
               <Button darkMode={darkMode} variant="danger" style={{ marginTop: "16px", width: "100%" }} onClick={() => setConfirmDisable(true)} disabled={!disableUserId.trim()}>
                 Disable Account
               </Button>

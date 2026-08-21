@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import ResponseBox from "@/components/ResponseBox";
 
 import Card from "@leafygreen-ui/card";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { TextInput } from "@leafygreen-ui/text-input";
 import { PasswordInput } from "@leafygreen-ui/password-input";
 import { Select, Option } from "@leafygreen-ui/select";
@@ -100,7 +100,7 @@ export default function AuthPage() {
   if (user) {
     return (
       <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Card darkMode={darkMode} className="anim-scaleIn" style={{ padding: "40px", textAlign: "center", width: "100%", maxWidth: "380px" }}>
+        <Card data-okc-theme="true" darkMode={darkMode} className="anim-scaleIn" style={{ padding: "40px", textAlign: "center", width: "100%", maxWidth: "380px" }}>
           <div
             style={{
               width: "56px", height: "56px", borderRadius: "16px",
@@ -167,13 +167,13 @@ export default function AuthPage() {
       </div>
 
       {/* Auth card */}
-      <Card darkMode={darkMode} className="anim-scaleIn" style={{ width: "100%", maxWidth: "440px", padding: "28px" }}>
+      <Card data-okc-theme="true" darkMode={darkMode} className="anim-scaleIn" style={{ width: "100%", maxWidth: "440px", padding: "28px" }}>
         {!forgotMode ? (
           <>
             <Tabs aria-label="Auth Tabs" darkMode={darkMode} value={tabIndex} onValueChange={(i) => { setTabIndex(Number(i)); setResult(null); }}>
               <Tab name="Sign In">
                 <form onSubmit={handleLogin} style={{ paddingTop: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                  <TextInput
+                  <TextInput data-okc-theme="true"
                     darkMode={darkMode}
                     label="Email Address"
                     type="email"
@@ -182,7 +182,7 @@ export default function AuthPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <PasswordInput
+                  <PasswordInput data-okc-theme="true"
                     darkMode={darkMode}
                     label="Password"
                     id="login-password"
@@ -218,7 +218,7 @@ export default function AuthPage() {
 
               <Tab name="Create Account">
                 <form onSubmit={handleRegister} style={{ paddingTop: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                  <TextInput
+                  <TextInput data-okc-theme="true"
                     darkMode={darkMode}
                     label="Full Name"
                     placeholder="Your full name"
@@ -226,7 +226,7 @@ export default function AuthPage() {
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
-                  <TextInput
+                  <TextInput data-okc-theme="true"
                     darkMode={darkMode}
                     label="Email Address"
                     type="email"
@@ -235,7 +235,7 @@ export default function AuthPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <PasswordInput
+                  <PasswordInput data-okc-theme="true"
                     darkMode={darkMode}
                     label="Password"
                     id="register-password"
@@ -243,7 +243,7 @@ export default function AuthPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
                   />
-                  <Select
+                  <Select data-okc-theme="true"
                     darkMode={darkMode}
                     label="Account Role"
                     value={role}
@@ -287,7 +287,7 @@ export default function AuthPage() {
             </div>
 
             <form onSubmit={handleRequestReset} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <TextInput
+              <TextInput data-okc-theme="true"
                 darkMode={darkMode}
                 label="Email Address"
                 type="email"
