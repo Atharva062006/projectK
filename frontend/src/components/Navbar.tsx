@@ -41,30 +41,34 @@ export default function Navbar() {
 
   return (
     <LeafyGreenProvider darkMode={darkMode}>
-      <nav
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 999,
-          height: "52px",
-          display: "flex",
-          alignItems: "center",
-          background: darkMode ? palette.black : palette.white,
-          borderBottom: `1px solid ${darkMode ? palette.gray.dark2 : palette.gray.light2}`,
-        }}
-      >
-        <div
+      <div style={{ position: "sticky", top: 0, zIndex: 999, padding: "20px 24px 16px", pointerEvents: "none" }}>
+        <nav
           style={{
-            maxWidth: "1280px",
-            width: "100%",
+            maxWidth: "1080px",
             margin: "0 auto",
-            padding: "0 24px",
+            height: "60px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            gap: "16px",
+            background: darkMode ? "rgba(22, 26, 29, 0.78)" : "rgba(255, 255, 255, 0.85)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            border: `1px solid ${navBorder}`,
+            borderRadius: "16px",
+            boxShadow: darkMode ? "0 8px 32px rgba(0,0,0,0.35)" : "0 8px 32px rgba(0,0,0,0.08)",
+            pointerEvents: "auto",
+            transition: "all 0.3s ease",
           }}
         >
+          <div
+            style={{
+              width: "100%",
+              padding: "0 20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "16px",
+            }}
+          >
           {/* ── Left: Logo ── */}
           <Link
             href="/"
@@ -270,7 +274,8 @@ export default function Navbar() {
             )}
           </div>
         </div>
-      </nav>
+        </nav>
+      </div>
     </LeafyGreenProvider>
   );
 }

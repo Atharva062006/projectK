@@ -103,7 +103,7 @@ export default function ProfileDetailPage() {
     return (
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* Single Card for error state — isolated distinct surface */}
-        <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
+        <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
           <Banner darkMode={darkMode} variant="danger" style={{ marginBottom: "20px" }}>
             {error || "Profile not found"}
           </Banner>
@@ -252,7 +252,7 @@ export default function ProfileDetailPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
           {profile.projects && profile.projects.length > 0 ? (
             profile.projects.map((proj) => (
-              <Card
+              <Card data-okc-theme="true"
                 key={proj.project_id}
                 darkMode={darkMode}
                 style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}
@@ -332,7 +332,7 @@ export default function ProfileDetailPage() {
       <SectionDivider darkMode={darkMode} />
 
       {/* ── RESUME CTA — ONE Card for this distinct action ── */}
-      <Card
+      <Card data-okc-theme="true"
         darkMode={darkMode}
         style={{ padding: "24px", marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}
       >

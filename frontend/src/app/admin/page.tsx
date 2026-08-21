@@ -70,7 +70,7 @@ export default function AdminPage() {
     return (
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* Single Card acceptable here — isolated access-denied surface */}
-        <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
+        <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: STATUS.errorBg, border: `1px solid ${STATUS.errorBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             <Icon glyph="XWithCircle" fill={STATUS.error} size={20} />
           </div>
@@ -190,7 +190,7 @@ export default function AdminPage() {
                   { label: "Showcase Views", value: analytics.totalViews, icon: "Charts", color: palette.blue.base },
                   { label: "CV Downloads", value: analytics.totalDownloads, icon: "Download", color: BRAND.primary },
                 ].map((s, i) => (
-                  <Card key={i} darkMode={darkMode} style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Card data-okc-theme="true" key={i} darkMode={darkMode} style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div>
                       <Overline darkMode={darkMode}>{s.label}</Overline>
                       <H2 darkMode={darkMode} style={{ marginTop: "8px" }}>{s.value}</H2>
@@ -202,7 +202,7 @@ export default function AdminPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                 {/* Skill Trends — standalone Card */}
-                <Card darkMode={darkMode} style={{ padding: "24px" }}>
+                <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
                     <Icon glyph="Code" fill={BRAND.primary} size={14} />
                     <Overline darkMode={darkMode}>Skill Distribution</Overline>
@@ -231,7 +231,7 @@ export default function AdminPage() {
                 </Card>
 
                 {/* Popular Profiles — standalone Card */}
-                <Card darkMode={darkMode} style={{ padding: "24px" }}>
+                <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
                     <Icon glyph="Person" fill={BRAND.primary} size={14} />
                     <Overline darkMode={darkMode}>Popular Profiles</Overline>
@@ -265,9 +265,9 @@ export default function AdminPage() {
                 <Overline darkMode={darkMode}>Create Curated Talent Pitch</Overline>
               </div>
               <form onSubmit={handleCreatePitch} style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px" }}>
-                <TextInput darkMode={darkMode} label="Pitch Title" placeholder="e.g. Next.js Developers for Startup Team" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)} required />
-                <TextArea darkMode={darkMode} label="Description" placeholder="Summarize the credentials and suitability of chosen candidates..." value={pitchDesc} onChange={(e) => setPitchDesc(e.target.value)} rows={3} />
-                <TextArea darkMode={darkMode} label="Selected Profile IDs (comma-separated UUIDs)" placeholder="e.g. d3b07384-d113-..., ..." value={pitchProfileIds} onChange={(e) => setPitchProfileIds(e.target.value)} rows={2} required />
+                <TextInput data-okc-theme="true" darkMode={darkMode} label="Pitch Title" placeholder="e.g. Next.js Developers for Startup Team" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)} required />
+                <TextArea data-okc-theme="true" darkMode={darkMode} label="Description" placeholder="Summarize the credentials and suitability of chosen candidates..." value={pitchDesc} onChange={(e) => setPitchDesc(e.target.value)} rows={3} />
+                <TextArea data-okc-theme="true" darkMode={darkMode} label="Selected Profile IDs (comma-separated UUIDs)" placeholder="e.g. d3b07384-d113-..., ..." value={pitchProfileIds} onChange={(e) => setPitchProfileIds(e.target.value)} rows={2} required />
                 <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Copy IDs from Directory or Approvals queue.</Body>
                 <Button type="submit" darkMode={darkMode} variant="primary" leftGlyph={<Icon glyph="Plus" />}>
                   Generate Shareable Pitch URL
@@ -357,7 +357,7 @@ export default function AdminPage() {
         {/* ── Access Control — single Card for the isolated action ── */}
         <Tab name="Access Control">
           <div style={{ paddingTop: "24px" }}>
-            <Card darkMode={darkMode} style={{ padding: "24px", maxWidth: "600px" }}>
+            <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px", maxWidth: "600px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <Icon glyph="XWithCircle" fill={STATUS.error} size={14} />
                 <Overline darkMode={darkMode}>Disable User Account</Overline>
@@ -366,7 +366,7 @@ export default function AdminPage() {
                 Disabling an account sets the approved status to inactive. The user will be logged out and blocked from logging in.
               </Body>
 
-              <TextInput darkMode={darkMode} label="Target User ID (UUID)" placeholder="e.g. c3f02174-b112-..." value={disableUserId} onChange={(e) => setDisableUserId(e.target.value)} required />
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="Target User ID (UUID)" placeholder="e.g. c3f02174-b112-..." value={disableUserId} onChange={(e) => setDisableUserId(e.target.value)} required />
 
               <Button darkMode={darkMode} variant="danger" style={{ marginTop: "16px", width: "100%" }} onClick={() => setConfirmDisable(true)} disabled={!disableUserId.trim()}>
                 Disable Account

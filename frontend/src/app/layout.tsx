@@ -34,16 +34,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{
           fontFamily: "var(--font-geist), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           minHeight: "100vh",
+          position: "relative",
+          overflowX: "hidden",
         }}
       >
         <ThemeProvider>
           <AuthProvider>
+            {/* Top ambient glow & dot grid — edge-to-edge behind floating navbar */}
+            <div className="top-ambient-glow" aria-hidden="true" />
+            <div className="top-dot-grid" aria-hidden="true" />
+
             <Navbar />
             <div
               style={{
                 maxWidth: "1280px",
                 margin: "0 auto",
-                padding: "16px 24px 48px",
+                padding: "8px 24px 48px",
+                position: "relative",
+                zIndex: 1,
               }}
             >
               <PageWrapper>{children}</PageWrapper>

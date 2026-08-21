@@ -53,8 +53,41 @@ body {
   background-color: var(--bg-page);
   color: var(--text-primary);
   overflow-x: hidden;
+  position: relative;
   /* Smooth scrolling */
   scroll-behavior: smooth;
+}
+
+/* ── Top Ambient Glow & Dot Grid (Edge to Edge, behind Navbar) ──────────── */
+.top-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 650px;
+  background: radial-gradient(
+    ellipse 100% 80% at 50% 0%,
+    rgba(240, 165, 0, 0.20) 0%,
+    rgba(232, 105, 63, 0.14) 35%,
+    rgba(240, 56, 122, 0.07) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.top-dot-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 550px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ── 3. Scrollbar styling (subtle, LG-aligned) ─────────────────────────── */
@@ -157,9 +190,32 @@ a {
   z-index: 9000 !important;
 }
 
-/* Cards match page surface */
-[class*="leafygreen-ui-card"] {
+/* Cards, Modals, ExpandableCards, and Popovers match page surface and borders */
+[data-okc-theme="true"],
+[class*="leafygreen-ui-card"],
+[class*="leafygreen-ui"][class*="expandable"],
+[class*="leafygreen-ui"][class*="popover"],
+[class*="leafygreen-ui"][class*="modal"] {
   background-color: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Base Text Input, Text Areas, Selects */
+[data-okc-theme="true"] input,
+[data-okc-theme="true"] textarea,
+[data-okc-theme="true"] [role="button"],
+[data-okc-theme="true"] [role="listbox"],
+[data-okc-theme="true"] [role="option"],
+[data-okc-theme="true"] > div > div, /* Catch inner LG input wrappers */
+[class*="leafygreen-ui"][class*="input-container"],
+[class*="leafygreen-ui"][class*="input-container"] > div,
+[class*="leafygreen-ui"][class*="input-container"] > input,
+[class*="leafygreen-ui"][class*="input-container"] > textarea,
+[class*="leafygreen-ui"][class*="text-input"],
+[class*="leafygreen-ui"][class*="select-button"],
+[class*="leafygreen-ui"][class*="menu-item"] {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
 }
 
 /* Select/combobox dropdown z-index */

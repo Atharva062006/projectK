@@ -83,14 +83,14 @@ function PitchViewerContent() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "48px" }}>
       {/* Lookup */}
-      <Card darkMode={true} style={{ padding: "24px" }}>
+      <Card data-okc-theme="true" darkMode={true} style={{ padding: "24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
           <Icon glyph="Search" fill={BRAND.primary} size={14} />
           <Overline darkMode={true}>Load Curated Pitch</Overline>
         </div>
         <form onSubmit={handleSubmitLookup} style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
           <div style={{ flex: 1 }}>
-            <TextInput
+            <TextInput data-okc-theme="true"
               darkMode={true}
               label="Pitch Access Token (UUID)"
               placeholder="Enter Pitch ID..."
@@ -111,7 +111,7 @@ function PitchViewerContent() {
       {pitch && (
         <div className="anim-fadeInUp" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {/* Pitch Header */}
-          <Card darkMode={true} style={{ padding: "32px", position: "relative", overflow: "hidden" }}>
+          <Card data-okc-theme="true" darkMode={true} style={{ padding: "32px", position: "relative", overflow: "hidden" }}>
             {/* Background glow based on active state */}
             <div style={{ position: "absolute", inset: 0, backgroundColor: pitch.is_active ? "rgba(0,237,100,0.05)" : "rgba(255,0,0,0.05)", pointerEvents: "none" }} />
             
@@ -150,7 +150,7 @@ function PitchViewerContent() {
                 {pitch.members.map((m) => {
                   const initials = m.full_name ? m.full_name.split(" ").map((n) => n[0]).join("").toUpperCase() : "?";
                   return (
-                    <Card key={m.profile_id} darkMode={true} style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px" }}>
+                    <Card data-okc-theme="true" key={m.profile_id} darkMode={true} style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: palette.gray.dark2, border: `1px solid ${palette.gray.dark1}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: palette.white, flexShrink: 0 }}>

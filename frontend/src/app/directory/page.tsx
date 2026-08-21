@@ -124,7 +124,7 @@ function DirectoryContent() {
         }}
       >
         {/* ── Sidebar Filters — one Card is acceptable here as a distinct elevated surface ── */}
-        <Card
+        <Card data-okc-theme="true"
           darkMode={darkMode}
           style={{ padding: "20px", position: "sticky", top: "72px", display: "flex", flexDirection: "column", gap: "20px" }}
         >
@@ -212,7 +212,7 @@ function DirectoryContent() {
         {/* ── Main Panel ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {/* Search */}
-          <TextInput
+          <TextInput data-okc-theme="true"
             aria-label="Search profiles"
             darkMode={darkMode}
             placeholder="Search by name, tagline, or tech stack..."

@@ -107,38 +107,15 @@ export default function LandingPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "56px", paddingBottom: "64px" }}>
 
-      {/* ── HERO — full-bleed, no Card ── */}
+      {/* ── HERO — seamless full-bleed top flow ── */}
       <div
         style={{
           textAlign: "center",
-          padding: "72px 32px 64px",
+          padding: "40px 24px 32px",
           position: "relative",
-          overflow: "hidden",
-          borderRadius: "0 0 16px 16px",
-          background: darkMode
-            ? "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 165, 0, 0.10) 0%, rgba(240, 56, 122, 0.06) 60%, transparent 100%)"
-            : "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 165, 0, 0.08) 0%, rgba(240, 56, 122, 0.04) 60%, transparent 100%)",
         }}
       >
-        {/* Dot-grid overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px)`,
-            backgroundSize: "24px 24px",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-
         <div style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-            <Badge darkMode={darkMode} variant="lightgray">
-              Official Oyster Kode Club Talent Showcase
-            </Badge>
-          </div>
-
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
             <div style={{ position: "relative" }}>
               <Image
@@ -299,7 +276,7 @@ export default function LandingPage() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
           {TESTIMONIALS.map((t, i) => (
-            <Card
+            <Card data-okc-theme="true"
               key={i}
               darkMode={darkMode}
               className={`anim-fadeInUp anim-delay-${i + 2}`}
@@ -339,7 +316,7 @@ export default function LandingPage() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {FAQS.map((faq, i) => (
-            <ExpandableCard
+            <ExpandableCard data-okc-theme="true"
               key={i}
               darkMode={darkMode}
               title={faq.question}
