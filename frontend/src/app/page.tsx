@@ -2,29 +2,92 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Award, Users, Terminal, Code, Cpu, Sparkles, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 
-interface Testimonial { name: string; role: string; company: string; quote: string; gradYear: number; }
-interface FAQItem { question: string; answer: string; }
+import Card from "@leafygreen-ui/card";
+import Button from "@leafygreen-ui/button";
+import Badge from "@leafygreen-ui/badge";
+import {
+  H1,
+  H2,
+  H3,
+  Subtitle,
+  Body,
+  Label,
+  Overline,
+} from "@leafygreen-ui/typography";
+import Icon from "@leafygreen-ui/icon";
+import { ExpandableCard } from "@leafygreen-ui/expandable-card";
+import { palette } from "@leafygreen-ui/palette";
+import { useTheme } from "@/context/ThemeContext";
+import { BRAND, STATUS, SURFACE, availabilityStyle } from "@/lib/theme";
+
+interface Testimonial {
+  name: string;
+  role: string;
+  company: string;
+  quote: string;
+  gradYear: number;
+}
+interface FAQItem {
+  question: string;
+  answer: string;
+}
 
 const TESTIMONIALS: Testimonial[] = [
-  { name: "Rohan Kulkarni", role: "Software Engineer", company: "Google", quote: "Being part of Oyster Kode Club was a turning point. The technical autonomy and building real projects prepared me directly for industry standards.", gradYear: 2024 },
-  { name: "Meera Sen", role: "Hardware Engineer", company: "Intel Corporation", quote: "The club's focus on low-level design, systems integration, and peer learning is rare. It helped me land my hardware role directly after graduation.", gradYear: 2023 },
-  { name: "Kabir Mehta", role: "Founding Engineer", company: "DevFlow Labs", quote: "The portfolio showcase portal is a game changer. We hiring managers need direct access to repos and resume downloads without navigating standard HR spam.", gradYear: 2022 },
+  {
+    name: "Rohan Kulkarni",
+    role: "Software Engineer",
+    company: "Google",
+    quote:
+      "Being part of Oyster Kode Club was a turning point. The technical autonomy and building real projects prepared me directly for industry standards.",
+    gradYear: 2024,
+  },
+  {
+    name: "Meera Sen",
+    role: "Hardware Engineer",
+    company: "Intel Corporation",
+    quote:
+      "The club's focus on low-level design, systems integration, and peer learning is rare. It helped me land my hardware role directly after graduation.",
+    gradYear: 2023,
+  },
+  {
+    name: "Kabir Mehta",
+    role: "Founding Engineer",
+    company: "DevFlow Labs",
+    quote:
+      "The portfolio showcase portal is a game changer. Hiring managers need direct access to repos and resume downloads without navigating standard HR spam.",
+    gradYear: 2022,
+  },
 ];
 
 const FAQS: FAQItem[] = [
-  { question: "What is Project K?", answer: "Project K is the official member portfolio showcase of Oyster Kode Club. It serves as a structured, searchable, and verified directory of our active members and alumni." },
-  { question: "Who can create a profile on this platform?", answer: "Only verified members and alumni of the Oyster Kode Club can create and customize their bento portfolios. External visitors can sign up as recruiters or guests to search and view profiles." },
-  { question: "How are member accounts approved?", answer: "When a new member or alumni registers, their account is flagged as 'Pending Approval'. The club administration verifies their membership records before activating the account." },
-  { question: "Can recruiters download member resumes directly?", answer: "Yes. Registered recruiters and authenticated guests can download resumes directly from detailed member profiles. The platform logs each download and click for internal analytics." },
+  {
+    question: "What is Project K?",
+    answer:
+      "Project K is the official member portfolio showcase of Oyster Kode Club. It serves as a structured, searchable, and verified directory of our active members and alumni.",
+  },
+  {
+    question: "Who can create a profile on this platform?",
+    answer:
+      "Only verified members and alumni of the Oyster Kode Club can create and customize their bento portfolios. External visitors can sign up as recruiters or guests to search and view profiles.",
+  },
+  {
+    question: "How are member accounts approved?",
+    answer:
+      "When a new member or alumni registers, their account is flagged as 'Pending Approval'. The club administration verifies their membership records before activating the account.",
+  },
+  {
+    question: "Can recruiters download member resumes directly?",
+    answer:
+      "Yes. Registered recruiters and authenticated guests can download resumes directly from detailed member profiles. The platform logs each download and click for internal analytics.",
+  },
 ];
 
 const STATS = [
-  { icon: Users, value: "150+", label: "Registered Talent Profiles", color: "#f0a500" },
-  { icon: Award, value: "50+", label: "Active Alumni Network", color: "#f05000" },
-  { icon: Code, value: "12+", label: "Core Domains & Tech Tracks", color: "#f01870" },
-  { icon: Terminal, value: "180+", label: "Open Source Repositories", color: "#e09000" },
+  { glyph: "MultiDirectionArrow", value: "150+", label: "Registered Talent Profiles" },
+  { glyph: "University", value: "50+", label: "Active Alumni Network" },
+  { glyph: "Code", value: "12+", label: "Core Domains & Tech Tracks" },
+  { glyph: "Shell", value: "180+", label: "Open Source Repositories" },
 ];
 
 const DOMAINS = [
@@ -35,196 +98,286 @@ const DOMAINS = [
 ];
 
 export default function LandingPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { darkMode } = useTheme();
+  const textColor = darkMode ? palette.white : palette.black;
+  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
 
   return (
-    <div className="space-y-8 pb-8">
-      
-      {/* ── HERO ── */}
-      <div className="glass-card rounded-2xl relative overflow-hidden py-8 sm:py-10 text-center">
-        {/* Subtle radial glow */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(240,165,0,0.07) 0%, rgba(240,24,112,0.05) 40%, transparent 70%)" }} />
+    <div style={{ display: "flex", flexDirection: "column", gap: "32px", paddingBottom: "48px" }}>
 
-        <div className="relative z-10 space-y-5 px-6 max-w-3xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm anim-floatDown"
-            style={{ background: "rgba(240,165,0,0.08)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" }}>
-            <Sparkles size={13} />
-            <span>Official Oyster Kode Club Talent Showcase</span>
+      {/* ── HERO ── */}
+      <Card darkMode={darkMode} style={{ textAlign: "center", padding: "48px 32px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+            <Badge darkMode={darkMode} variant="lightgray">
+              Official Oyster Kode Club Talent Showcase
+            </Badge>
           </div>
 
-          {/* Continuous 3D Animated Logo */}
-          <div className="flex justify-center py-2">
-            <div className="relative logo-3d-animated">
-              <Image src="/okc_main_logo.png" alt="OKC Logo" width={80} height={80} className="object-contain relative z-10" />
-              <div className="absolute inset-0 rounded-full blur-2xl opacity-60 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(240,165,0,0.5), rgba(240,24,112,0.3) 60%, transparent 75%)" }} />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+            <div style={{ position: "relative" }}>
+              <Image
+                src="/okc_main_logo.png"
+                alt="OKC Logo"
+                width={80}
+                height={80}
+                style={{ objectFit: "contain", position: "relative", zIndex: 1 }}
+              />
             </div>
           </div>
 
-          <h1
-            className="text-5xl sm:text-6xl font-extrabold tracking-tight uppercase anim-floatDown anim-delay-2"
-            style={{ background: "linear-gradient(135deg, #f0a500, #f01870)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
+          <H1
+            darkMode={darkMode}
+            style={{
+              color: textColor,
+              marginBottom: "16px",
+              letterSpacing: "-0.02em",
+            }}
           >
             PROJECT K
-          </h1>
+          </H1>
 
-          <p className="text-base text-gray-400 max-w-xl mx-auto leading-relaxed anim-fadeInUp anim-delay-3">
-            A structured portfolio database of members and alumni. Discover skill-based talent, download verified resumes, and connect with developers.
-          </p>
+          <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "24px", lineHeight: "1.7" }}>
+            A structured portfolio database of members and alumni. Discover skill-based talent,
+            download verified resumes, and connect with developers.
+          </Body>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 anim-fadeInUp anim-delay-4">
-            <Link href="/directory"
-              className="btn-brand w-full sm:w-auto flex items-center justify-center gap-2 text-sm text-white px-7 py-3 rounded-xl font-semibold">
-              Browse Directory <ArrowUpRight size={15} />
-            </Link>
-            <Link href="/auth"
-              className="btn-ghost w-full sm:w-auto flex items-center justify-center text-sm px-7 py-3 rounded-xl">
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Button
+              as={Link}
+              href="/directory"
+              darkMode={darkMode}
+              variant="primary"
+              rightGlyph={<Icon glyph="ArrowRight" />}
+            >
+              Browse Directory
+            </Button>
+            <Button
+              as={Link}
+              href="/auth"
+              darkMode={darkMode}
+              variant="default"
+            >
               Join Portal
-            </Link>
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* ── STATS CARDS (Static, No Hover Effect) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── STATS ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
         {STATS.map((s, i) => (
-          <div key={i} className={`glass-card rounded-2xl p-5 space-y-3 anim-fadeInUp anim-delay-${i + 1}`}>
-            <s.icon size={20} style={{ color: s.color }} />
-            <div className="text-3xl font-bold text-white">{s.value}</div>
-            <div className="text-sm text-gray-400 font-medium">{s.label}</div>
-          </div>
+          <Card
+            key={i}
+            darkMode={darkMode}
+            className={`anim-fadeInUp anim-delay-${i + 1}`}
+            style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "12px" }}
+          >
+            <Icon glyph={s.glyph as never} fill={BRAND.primary} size={24} />
+            <H2 darkMode={darkMode} style={{ color: textColor, margin: 0 }}>{s.value}</H2>
+            <Label htmlFor="metric-label" darkMode={darkMode} style={{ color: mutedColor }}>{s.label}</Label>
+          </Card>
         ))}
       </div>
 
-      {/* ── DOMAINS (Slide & Icon Spin Hover) ── */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="section-header flex items-center justify-between">
+      {/* ── DOMAINS ── */}
+      <Card darkMode={darkMode} style={{ padding: "28px" }}>
+        <div
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            marginBottom: "20px", flexWrap: "wrap", gap: "8px",
+          }}
+        >
           <div>
-            <h2 className="text-base font-bold text-white uppercase tracking-wide">Core Engineering Domains</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Discover members by filtering technical subdivisions</p>
+            <Overline darkMode={darkMode}>Core Engineering Domains</Overline>
+            <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
+              Discover members by filtering technical subdivisions
+            </Body>
           </div>
-          <Link href="/directory" className="flex items-center gap-1 text-sm font-semibold" style={{ color: "#f0a500" }}>
-            All filters <ArrowUpRight size={13} />
-          </Link>
+          <Button
+            as={Link}
+            href="/directory"
+            darkMode={darkMode}
+            variant="default"
+            size="small"
+            rightGlyph={<Icon glyph="ArrowRight" />}
+          >
+            All filters
+          </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
           {DOMAINS.map((d, i) => (
-            <Link key={i} href={d.href}
-              className={`glass-panel domain-card-hover block rounded-xl p-4 transition-all anim-fadeInUp anim-delay-${i + 2}`}>
-              <div className="flex justify-between items-start">
-                <span className="text-sm font-semibold text-white">{d.title}</span>
-                <Cpu size={15} className="domain-icon text-gray-400 transition-all duration-300" />
-              </div>
-              <p className="text-xs text-gray-500 mt-2">{d.tech}</p>
+            <Link
+              key={i}
+              href={d.href}
+              style={{ textDecoration: "none" }}
+              className={`anim-fadeInUp anim-delay-${i + 2}`}
+            >
+              <Card
+                darkMode={darkMode}
+                style={{
+                  padding: "16px",
+                  cursor: "pointer",
+                  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                  height: "100%",
+                }}
+              >
+                <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "8px", color: textColor }}>
+                  {d.title}
+                </H3>
+                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
+                  {d.tech}
+                </Body>
+              </Card>
             </Link>
           ))}
         </div>
-      </div>
+      </Card>
 
-      {/* ── TESTIMONIALS (3D Tilt & Glow Hover) ── */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="section-header">
-          <h2 className="text-base font-bold text-white uppercase tracking-wide">Alumni Success</h2>
-          <p className="text-sm text-gray-500 mt-0.5">What our members say about their journey</p>
+      {/* ── TESTIMONIALS ── */}
+      <Card darkMode={darkMode} style={{ padding: "28px" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <Overline darkMode={darkMode}>Alumni Success</Overline>
+          <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
+            What our members say about their journey
+          </Body>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
           {TESTIMONIALS.map((t, i) => (
-            <div key={i}
-              className={`glass-panel testimonial-hover rounded-xl p-5 flex flex-col justify-between space-y-4 anim-fadeInUp anim-delay-${i + 2}`}>
-              <div className="relative">
-                <span className="quote-mark absolute -top-2 -left-1 text-4xl leading-none opacity-15 font-serif pointer-events-none"
-                  style={{ color: "#f0a500" }}>&ldquo;</span>
-                <p className="text-sm text-gray-400 italic leading-relaxed pt-3">&ldquo;{t.quote}&rdquo;</p>
-              </div>
-              <div className="section-header pt-3 flex items-center justify-between !mb-0">
+            <Card
+              key={i}
+              darkMode={darkMode}
+              className={`anim-fadeInUp anim-delay-${i + 2}`}
+              style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              <Body
+                darkMode={darkMode}
+                style={{ fontStyle: "italic", color: mutedColor, lineHeight: "1.7", flex: 1 }}
+              >
+                &ldquo;{t.quote}&rdquo;
+              </Body>
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "12px", borderTop: `1px solid ${SURFACE.border}` }}>
                 <div>
-                  <h4 className="text-sm font-semibold text-white">{t.name}</h4>
-                  <p className="text-xs text-gray-500 mt-0.5">{t.role} @ <span className="text-gray-400 font-medium">{t.company}</span></p>
+                  <Subtitle darkMode={darkMode} style={{ fontSize: "13px", color: textColor, margin: 0 }}>
+                    {t.name}
+                  </Subtitle>
+                  <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginTop: "2px" }}>
+                    {t.role} @ {t.company}
+                  </Body>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                  style={{ background: "rgba(240,165,0,0.09)", border: "1px solid rgba(240,165,0,0.2)", color: "#f0a500" }}>
-                  {t.gradYear}
-                </span>
+                <Badge darkMode={darkMode} variant="lightgray">{t.gradYear}</Badge>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* ── FAQ ── */}
-      <div className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="section-header">
-          <h2 className="text-base font-bold text-white uppercase tracking-wide">Frequently Asked Questions</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Everything you need to know about the portfolio ecosystem</p>
+      <Card darkMode={darkMode} style={{ padding: "28px" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <Overline darkMode={darkMode}>Frequently Asked Questions</Overline>
+          <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
+            Everything you need to know about the portfolio ecosystem
+          </Body>
         </div>
-        <div className="space-y-2">
-          {FAQS.map((faq, i) => {
-            const isOpen = openFaq === i;
-            return (
-              <div key={i} className="glass-panel rounded-xl overflow-hidden transition-all duration-200">
-                <button
-                  onClick={() => setOpenFaq(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between p-4 text-left text-sm text-gray-300 hover:text-white cursor-pointer transition-colors">
-                  <div className="flex items-center gap-3">
-                    <HelpCircle size={14} style={{ color: "#f0a500", flexShrink: 0 }} />
-                    <span>{faq.question}</span>
-                  </div>
-                  {isOpen ? <ChevronUp size={14} className="text-gray-500" /> : <ChevronDown size={14} className="text-gray-500" />}
-                </button>
-                {isOpen && (
-                  <div className="px-5 pb-4 pt-0 text-sm text-gray-500 leading-relaxed section-header !mb-0">
-                    <div className="pt-3">{faq.answer}</div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {FAQS.map((faq, i) => (
+            <ExpandableCard
+              key={i}
+              darkMode={darkMode}
+              title={faq.question}
+              flagText="FAQ"
+            >
+              <Body darkMode={darkMode} style={{ color: mutedColor }}>{faq.answer}</Body>
+            </ExpandableCard>
+          ))}
         </div>
-      </div>
+      </Card>
 
       {/* ── FOOTER ── */}
-      <footer className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm text-gray-400">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Image src="/okc_main_logo.png" alt="OKC" width={18} height={18} className="object-contain" />
-              <span className="font-semibold text-white text-sm tracking-wider">OYSTER KODE CLUB</span>
+      <footer>
+        <Card darkMode={darkMode} style={{ padding: "28px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+              gap: "24px",
+              marginBottom: "24px",
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                <Image src="/okc_main_logo.png" alt="OKC" width={20} height={20} style={{ objectFit: "contain" }} />
+                <Subtitle darkMode={darkMode} style={{ fontSize: "12px", letterSpacing: "0.05em" }}>
+                  OYSTER KODE CLUB
+                </Subtitle>
+              </div>
+              <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, lineHeight: "1.6" }}>
+                Official portfolio ecosystem showcasing engineering talent built by our active student club.
+              </Body>
             </div>
-            <p className="text-sm text-gray-500 leading-relaxed">Official portfolio ecosystem showcasing engineering talent built by our active student club.</p>
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Browse</h4>
-            <ul className="space-y-1.5">
-              {[["Web Systems", "/directory?search=Next.js"], ["Data Systems", "/directory?search=Python"], ["VLSI & Hardware", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
-                <li key={href}><Link href={href} className="hover:text-gray-200 transition-colors">{label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Portal</h4>
-            <ul className="space-y-1.5">
-              {[["Member Directory", "/directory"], ["Pitch Showcase", "/pitches"], ["Join Portal", "/auth"], ["Admin Panel", "/admin"]].map(([label, href]) => (
-                <li key={href}><Link href={href} className="hover:text-gray-200 transition-colors">{label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Contact</h4>
-            <p className="text-sm text-gray-500">Questions or sponsorships?</p>
-            <p className="text-sm font-medium text-gray-300">contact@oysterkode.club</p>
-          </div>
-        </div>
-        <div className="section-header pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 !mb-0">
-          <div>&copy; {new Date().getFullYear()} Oyster Kode Club. All Rights Reserved.</div>
-          <div className="flex gap-4 mt-2 sm:mt-0">
-            <Link href="#" className="hover:text-gray-400 transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-gray-400 transition-colors">Terms</Link>
-          </div>
-        </div>
-      </footer>
 
+            <div>
+              <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Browse</Overline>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {[["Web Systems", "/directory?search=Next.js"], ["Data Systems", "/directory?search=Python"], ["VLSI & Hardware", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
+                  <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Portal</Overline>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {[["Member Directory", "/directory"], ["Pitch Showcase", "/pitches"], ["Join Portal", "/auth"], ["Admin Panel", "/admin"]].map(([label, href]) => (
+                  <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Contact</Overline>
+              <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
+                Questions or sponsorships?
+              </Body>
+              <Body darkMode={darkMode} style={{ fontSize: "13px", color: BRAND.primary, marginTop: "4px" }}>
+                contact@oysterkode.club
+              </Body>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "8px",
+              paddingTop: "16px",
+              borderTop: `1px solid ${SURFACE.border}`,
+            }}
+          >
+            <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
+              © {new Date().getFullYear()} Oyster Kode Club. All Rights Reserved.
+            </Body>
+            <div style={{ display: "flex", gap: "16px" }}>
+              {["Privacy", "Terms"].map((l) => (
+                <Link key={l} href="#" style={{ fontSize: "11px", color: mutedColor, textDecoration: "none" }}>
+                  {l}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </footer>
     </div>
   );
 }

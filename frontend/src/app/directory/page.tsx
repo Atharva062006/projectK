@@ -2,8 +2,20 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, Filter, LayoutGrid, CheckSquare, Square, RefreshCw } from "lucide-react";
 import { api } from "@/lib/api";
+import { useTheme } from "@/context/ThemeContext";
+
+import Card from "@leafygreen-ui/card";
+import Badge from "@leafygreen-ui/badge";
+import { TextInput } from "@leafygreen-ui/text-input";
+import { Checkbox } from "@leafygreen-ui/checkbox";
+import Button from "@leafygreen-ui/button";
+import { Chip } from "@leafygreen-ui/chip";
+import { Body, H3, Overline, Label } from "@leafygreen-ui/typography";
+import Icon from "@leafygreen-ui/icon";
+import { Spinner } from "@leafygreen-ui/loading-indicator";
+import { palette } from "@leafygreen-ui/palette";
+import { BRAND, SURFACE, STATUS, availabilityStyle } from "@/lib/theme";
 
 interface ProfileCard {
   profile_id: string;
@@ -20,19 +32,30 @@ interface DirectoryGroups {
   "Core Team": ProfileCard[];
   "Technical Team": ProfileCard[];
   "Other Members": ProfileCard[];
-  "Alumni": ProfileCard[];
+  Alumni: ProfileCard[];
 }
 
 const MOCK_PROFILES: ProfileCard[] = [
   { profile_id: "demo-1", full_name: "Atharva Kulkarni", tagline: "Full Stack Engineer & AI Enthusiast", availability: "Available", department: "Core Team", role_category: "Core Team", role: "member", skills: [{ name: "TypeScript", level: "Expert" }, { name: "Next.js", level: "Expert" }, { name: "PostgreSQL", level: "Intermediate" }] },
   { profile_id: "demo-2", full_name: "Sneha Sharma", tagline: "UI/UX Designer & Frontend Developer", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Figma", level: "Expert" }, { name: "React.js", level: "Expert" }, { name: "HTML5/CSS3", level: "Expert" }] },
   { profile_id: "demo-3", full_name: "Vikram Malhotra", tagline: "DevOps & Cloud Architect", availability: "Busy", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Docker", level: "Expert" }, { name: "Kubernetes", level: "Intermediate" }, { name: "AWS", level: "Expert" }] },
-  { profile_id: "demo-4", full_name: "Rohan Das", tagline: "ML Engineer | Embedded Systems Dev", availability: "Available", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Python", level: "Expert" }, { name: "C++", level: "Expert" }, { name: "Embedded Systems", level: "Expert" }] },
-  { profile_id: "demo-5", full_name: "Ananya Iyer", tagline: "Systems Engineer & VLSI Designer", availability: "Available", department: "Alumni", role_category: "Alumni", role: "alumni", skills: [{ name: "Verilog", level: "Expert" }, { name: "C (Programming Language)", level: "Expert" }, { name: "VLSI Design", level: "Intermediate" }] },
-  { profile_id: "demo-6", full_name: "Rahul Verma", tagline: "Backend Developer & Database Admin", availability: "Open to work", department: "Other Members", role_category: "Other Members", role: "member", skills: [{ name: "Node.js", level: "Expert" }, { name: "Express.js", level: "Expert" }, { name: "PostgreSQL", level: "Expert" }] },
+  { profile_id: "demo-4", full_name: "Rohan Das", tagline: "ML Engineer | Embedded Systems Dev", availability: "Available", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Python", level: "Expert" }, { name: "C++", level: "Expert" }] },
+  { profile_id: "demo-5", full_name: "Ananya Iyer", tagline: "Systems Engineer & VLSI Designer", availability: "Available", department: "Alumni", role_category: "Alumni", role: "alumni", skills: [{ name: "Verilog", level: "Expert" }, { name: "VLSI Design", level: "Intermediate" }] },
+  { profile_id: "demo-6", full_name: "Rahul Verma", tagline: "Backend Developer & Database Admin", availability: "Open to work", department: "Other Members", role_category: "Other Members", role: "member", skills: [{ name: "Node.js", level: "Expert" }, { name: "PostgreSQL", level: "Expert" }] },
 ];
 
+function AvailabilityBadge({ av }: { av: string }) {
+  const { darkMode } = useTheme();
+  const variantMap: Record<string, "green" | "yellow" | "gray" | "red"> = {
+    Available: "green",
+    "Open to work": "yellow",
+    Busy: "red",
+  };
+  return <Chip darkMode={darkMode} label={av} variant={variantMap[av] ?? "gray"} />;
+}
+
 function DirectoryContent() {
+  const { darkMode } = useTheme();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("search") || "";
 
@@ -85,163 +108,210 @@ function DirectoryContent() {
     return true;
   });
 
-  const availabilityBadgeStyle = (av: string) => {
-    if (av === "Available") return { background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" };
-    if (av === "Busy") return { background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#ef4444" };
-    return { background: "rgba(240,165,0,0.1)", border: "1px solid rgba(240,165,0,0.25)", color: "#f0a500" };
-  };
+  const textColor = darkMode ? palette.white : palette.black;
+  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
 
   return (
-    <div className="min-h-screen">
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-4 min-h-[680px]">
-
-          {/* ── Sidebar Filters ── */}
-          <div className="glass-panel border-r p-5 space-y-5">
-            <div className="section-header flex items-center gap-2">
-              <Filter size={14} style={{ color: "#f0a500" }} />
-              <h2 className="section-title !mb-0">Filters</h2>
-              <button
-                onClick={fetchProfiles}
-                className="ml-auto text-gray-500 hover:text-gray-300 transition-colors p-1 cursor-pointer"
-                title="Refresh data"
-              >
-                <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
-              </button>
+    <div style={{ minHeight: "100vh" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "240px 1fr",
+          gap: "20px",
+          alignItems: "start",
+        }}
+      >
+        {/* ── Sidebar Filters ── */}
+        <Card
+          darkMode={darkMode}
+          style={{ padding: "20px", position: "sticky", top: "72px", display: "flex", flexDirection: "column", gap: "20px" }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Icon glyph="Filter" fill={BRAND.primary} size={14} />
+              <Overline darkMode={darkMode}>Filters</Overline>
             </div>
+            <Button
+              darkMode={darkMode}
+              variant="default"
+              size="xsmall"
+              leftGlyph={<Icon glyph={isLoading ? "Refresh" : "Refresh"} />}
+              onClick={fetchProfiles}
+              title="Refresh data"
+            />
+          </div>
 
-            {/* Role Categories */}
-            <div className="space-y-1">
-              <h3 className="text-xs text-gray-500 font-semibold mb-2">Role Category</h3>
-              {categoriesList.map((cat) => {
-                const checked = selectedCategories.includes(cat);
-                return (
-                  <div key={cat} onClick={() => toggleCategory(cat)}
-                    className="flex items-center gap-2.5 text-sm text-gray-400 hover:text-white cursor-pointer select-none py-1 transition-colors">
-                    {checked
-                      ? <CheckSquare size={14} style={{ color: "#f0a500" }} />
-                      : <Square size={14} className="text-gray-500" />}
-                    <span>{cat}</span>
-                  </div>
-                );
-              })}
-            </div>
+          {/* Role Categories */}
+          <div>
+            <Label htmlFor="category-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
+              Role Category
+            </Label>
+            {categoriesList.map((cat) => (
+              <Checkbox
+                key={cat}
+                darkMode={darkMode}
+                label={cat}
+                checked={selectedCategories.includes(cat)}
+                onChange={() => toggleCategory(cat)}
+                style={{ marginBottom: "6px" }}
+              />
+            ))}
+          </div>
 
-            {/* Availability */}
-            <div className="section-header pt-3 space-y-1">
-              <h3 className="text-xs text-gray-500 font-semibold mb-2">Availability</h3>
-              {availabilityOptions.map((av) => {
-                const checked = selectedAvailability.includes(av);
-                return (
-                  <div key={av} onClick={() => toggleAvailability(av)}
-                    className="flex items-center gap-2.5 text-sm text-gray-400 hover:text-white cursor-pointer select-none py-1 transition-colors">
-                    {checked
-                      ? <CheckSquare size={14} style={{ color: "#f0a500" }} />
-                      : <Square size={14} className="text-gray-500" />}
-                    <span>{av}</span>
-                  </div>
-                );
-              })}
-            </div>
+          {/* Availability */}
+          <div>
+            <Label htmlFor="availability-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
+              Availability
+            </Label>
+            {availabilityOptions.map((av) => (
+              <Checkbox
+                key={av}
+                darkMode={darkMode}
+                label={av}
+                checked={selectedAvailability.includes(av)}
+                onChange={() => toggleAvailability(av)}
+                style={{ marginBottom: "6px" }}
+              />
+            ))}
+          </div>
 
-            {/* Skills */}
-            <div className="section-header pt-3 space-y-2">
-              <h3 className="text-xs text-gray-500 font-semibold mb-2">Skills</h3>
-              <div className="flex flex-wrap gap-1.5">
-                {commonSkills.map((sk) => {
-                  const active = selectedSkills.includes(sk);
-                  return (
-                    <button key={sk} onClick={() => toggleSkill(sk)}
-                      className="text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer"
-                      style={active
-                        ? { background: "rgba(240,165,0,0.12)", borderColor: "rgba(240,165,0,0.4)", color: "#f0a500" }
-                        : { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#6b7280" }}
-                    >
-                      {sk}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Data source tag */}
-            <div className="section-header pt-3 !mb-0">
-              <div className="glass-panel rounded-lg p-3 text-xs text-gray-500 space-y-1">
-                <div>Source: {useMock ? <span className="text-yellow-500 font-medium">Demo Fallback</span> : <span className="text-green-500 font-medium">Live API</span>}</div>
-                <div>{activeProfiles.length} profiles loaded</div>
-              </div>
+          {/* Skills */}
+          <div>
+            <Label htmlFor="level-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
+              Skills
+            </Label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {commonSkills.map((sk) => (
+                <Chip
+                  key={sk}
+                  darkMode={darkMode}
+                  label={sk}
+                  variant={selectedSkills.includes(sk) ? "green" : "gray"}
+                  onClick={() => toggleSkill(sk)}
+                />
+              ))}
             </div>
           </div>
 
-          {/* ── Main Panel ── */}
-          <div className="col-span-3 p-5 flex flex-col gap-5">
-            {/* Search */}
-            <div className="glass-panel flex items-center gap-3 rounded-xl px-4 py-2.5">
-              <Search size={16} className="text-gray-500 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Search by name, tagline, or tech stack..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-sm text-gray-200 w-full placeholder-gray-500"
-              />
-            </div>
+          {/* Data source */}
+          <div>
+            <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
+              Source:{" "}
+              <span style={{ color: useMock ? STATUS.warning : STATUS.success, fontWeight: 600 }}>
+                {useMock ? "Demo Fallback" : "Live API"}
+              </span>
+            </Body>
+            <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
+              {activeProfiles.length} profiles loaded
+            </Body>
+          </div>
+        </Card>
 
-            {/* Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+        {/* ── Main Panel ── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* Search */}
+          <TextInput
+            aria-label="Search profiles"
+            darkMode={darkMode}
+            placeholder="Search by name, tagline, or tech stack..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            type="search"
+          />
+
+          {/* Loading */}
+          {isLoading && (
+            <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+              <Spinner darkMode={darkMode} />
+            </div>
+          )}
+
+          {/* Cards */}
+          {!isLoading && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
               {filteredProfiles.length === 0 ? (
-                <div className="col-span-full flex flex-col items-center justify-center py-20 text-center space-y-3">
-                  <LayoutGrid size={30} className="text-gray-500" />
-                  <p className="text-sm text-gray-500">No profiles match the current filters</p>
+                <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: "12px" }}>
+                  <Icon glyph="Apps" fill={mutedColor} size={32} />
+                  <Body darkMode={darkMode} style={{ color: mutedColor }}>
+                    No profiles match the current filters
+                  </Body>
                 </div>
               ) : (
                 filteredProfiles.map((p, i) => {
-                  const initials = p.full_name ? p.full_name.split(" ").map((n) => n[0]).join("").toUpperCase() : "?";
+                  const initials = p.full_name
+                    ? p.full_name.split(" ").map((n) => n[0]).join("").toUpperCase()
+                    : "?";
                   return (
                     <Link
                       href={`/profiles/${p.profile_id}`}
                       key={p.profile_id}
-                      className={`glass-card glass-card-hover group block rounded-xl p-4 flex flex-col justify-between h-[200px] transition-all anim-fadeInUp anim-delay-${Math.min(i + 1, 8)}`}
+                      style={{ textDecoration: "none" }}
+                      className={`anim-fadeInUp anim-delay-${Math.min(i + 1, 8)}`}
                     >
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
+                      <Card
+                        darkMode={darkMode}
+                        style={{
+                          padding: "16px",
+                          cursor: "pointer",
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          minHeight: "190px",
+                          transition: "border-color 0.15s ease",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                           <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                            style={{ background: "linear-gradient(135deg, rgba(240,165,0,0.25), rgba(240,24,112,0.2))", border: "1px solid rgba(240,165,0,0.2)" }}
+                            style={{
+                              width: "40px", height: "40px", borderRadius: "10px",
+                              background: darkMode ? palette.gray.dark2 : palette.gray.light2,
+                              border: `1px solid ${darkMode ? palette.gray.dark1 : palette.gray.light1}`,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "13px", fontWeight: 700, color: textColor, flexShrink: 0,
+                            }}
                           >
                             {initials}
                           </div>
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-sm text-white group-hover:text-[#f0a500] transition-colors truncate">{p.full_name}</h3>
-                            <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{p.tagline}</p>
+                          <div style={{ minWidth: 0 }}>
+                            <H3
+                              darkMode={darkMode}
+                              style={{ fontSize: "14px", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                            >
+                              {p.full_name}
+                            </H3>
+                            <Body
+                              darkMode={darkMode}
+                              style={{ fontSize: "11px", color: mutedColor, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                            >
+                              {p.tagline}
+                            </Body>
                           </div>
                         </div>
-                        <p className="text-xs text-gray-500">{p.department || "Technical Team"}</p>
-                      </div>
 
-                      <div className="section-header pt-3 space-y-2 !mb-0">
-                        <div className="flex flex-wrap gap-1">
+                        <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginBottom: "12px" }}>
+                          {p.department || "Technical Team"}
+                        </Body>
+
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "12px" }}>
                           {p.skills?.slice(0, 3).map((sk) => (
-                            <span key={sk.name} className="glass-panel text-[10px] px-2 py-0.5 rounded text-gray-400">
-                              {sk.name}
-                            </span>
+                            <Chip key={sk.name} darkMode={darkMode} label={sk.name} variant="gray" />
                           ))}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={availabilityBadgeStyle(p.availability)}>
-                            {p.availability}
-                          </span>
-                          <span className="text-xs text-gray-500 group-hover:text-[#f0a500] transition-colors">
+
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <AvailabilityBadge av={p.availability} />
+                          <Body darkMode={darkMode} style={{ fontSize: "11px", color: BRAND.primary }}>
                             View →
-                          </span>
+                          </Body>
                         </div>
-                      </div>
+                      </Card>
                     </Link>
                   );
                 })
               )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -250,11 +320,13 @@ function DirectoryContent() {
 
 export default function DirectoryPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
-        Loading member directory...
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Spinner />
+        </div>
+      }
+    >
       <DirectoryContent />
     </Suspense>
   );
