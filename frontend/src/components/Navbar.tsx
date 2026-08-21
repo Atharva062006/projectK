@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import IconButton from "@leafygreen-ui/icon-button";
 import { Menu, MenuItem, MenuSeparator } from "@leafygreen-ui/menu";
 import LeafyGreenProvider from "@leafygreen-ui/leafygreen-provider";
@@ -107,17 +107,17 @@ export default function Navbar() {
                     fontSize: "13px",
                     fontWeight: isActive ? 600 : 400,
                     color: isActive
-                      ? palette.green.base
+                      ? "#E8693F"
                       : darkMode
                       ? palette.gray.light1
                       : palette.gray.dark1,
                     background: isActive
-                      ? "rgba(0, 237, 100, 0.08)"
+                      ? "rgba(232, 105, 63, 0.08)"
                       : "transparent",
                     textDecoration: "none",
                     transition: "all 0.15s ease",
                     borderBottom: isActive
-                      ? `2px solid ${palette.green.base}`
+                      ? "2px solid #E8693F"
                       : "2px solid transparent",
                   }}
                 >
@@ -154,7 +154,7 @@ export default function Navbar() {
                           width: "18px",
                           height: "18px",
                           borderRadius: "50%",
-                          background: `linear-gradient(135deg, ${palette.green.base}, ${palette.blue.base})`,
+                          background: "linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -198,9 +198,9 @@ export default function Navbar() {
                       fontSize: "9px",
                       padding: "2px 6px",
                       borderRadius: "4px",
-                      background: "rgba(0, 237, 100, 0.10)",
-                      border: "1px solid rgba(0, 237, 100, 0.25)",
-                      color: palette.green.base,
+                      background: "rgba(232, 105, 63, 0.10)",
+                      border: "1px solid rgba(232, 105, 63, 0.28)",
+                      color: "#E8693F",
                       textTransform: "uppercase",
                       fontWeight: 700,
                       letterSpacing: "0.05em",

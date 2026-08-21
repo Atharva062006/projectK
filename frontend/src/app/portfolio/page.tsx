@@ -6,7 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import ResponseBox from "@/components/ResponseBox";
 
 import Card from "@leafygreen-ui/card";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { TextInput } from "@leafygreen-ui/text-input";
 import { TextArea } from "@leafygreen-ui/text-area";
 import { Select, Option, OptionGroup } from "@leafygreen-ui/select";
@@ -53,6 +53,7 @@ export default function PortfolioPage() {
 
   const textColor = darkMode ? palette.white : palette.black;
   const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
+  const borderColor = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
 
   const loadData = async () => {
     try {
@@ -73,6 +74,7 @@ export default function PortfolioPage() {
   if (!token) {
     return (
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* Single Card for isolated auth-required state */}
         <Card darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: BRAND.primaryBg, border: `1px solid ${BRAND.primaryBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             <Icon glyph="Lock" fill={BRAND.primary} size={20} />
@@ -133,7 +135,7 @@ export default function PortfolioPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "48px" }}>
-      {/* Header */}
+      {/* Header — plain div with inline completion stat, no Card */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", paddingBottom: "20px", borderBottom: `1px solid ${SURFACE.border}` }}>
         <div>
           <H1 darkMode={darkMode}>Workspace Dashboard</H1>
@@ -142,24 +144,24 @@ export default function PortfolioPage() {
           </Body>
         </div>
         {profile && (
-          <Card darkMode={darkMode} style={{ padding: "16px", display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div>
-              <Overline darkMode={darkMode}>Quality Index</Overline>
-              <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Profile Completion</Body>
+              <Overline darkMode={darkMode}>Profile Quality</Overline>
+              <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Completion</Body>
             </div>
             <div style={{ textAlign: "right" }}>
               <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0 }}>{profile.completion_percentage}%</H2>
               <div style={{ width: "112px", height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden", marginTop: "6px" }}>
-                <div style={{ height: "100%", borderRadius: "99px", width: `${profile.completion_percentage}%`, background: palette.green.base }} />
+                <div style={{ height: "100%", borderRadius: "99px", width: `${profile.completion_percentage}%`, background: "linear-gradient(90deg, #F0A500, #E8693F, #F0387A)" }} />
               </div>
             </div>
-          </Card>
+          </div>
         )}
       </div>
 
       <ResponseBox result={result} />
 
-      {/* Analytics */}
+      {/* Analytics — standalone stat tiles (no outer wrapper = valid) */}
       {profile?.analytics && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
           {[
@@ -180,7 +182,7 @@ export default function PortfolioPage() {
 
       {/* Editor grid */}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px", alignItems: "start" }}>
-        {/* Core Details */}
+        {/* Core Details — standalone Card (an isolated editor surface) */}
         <Card darkMode={darkMode} style={{ padding: "24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
             <Icon glyph="Person" fill={BRAND.primary} size={14} />
@@ -224,7 +226,7 @@ export default function PortfolioPage() {
 
         {/* Right column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Resume Upload */}
+          {/* Resume Upload — standalone Card (isolated action surface) */}
           <Card darkMode={darkMode} style={{ padding: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
               <Icon glyph="File" fill={BRAND.primary} size={14} />
@@ -258,7 +260,7 @@ export default function PortfolioPage() {
             )}
           </Card>
 
-          {/* Skills */}
+          {/* Skills — standalone Card (isolated action surface) */}
           <Card darkMode={darkMode} style={{ padding: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
               <Icon glyph="Code" fill={BRAND.primary} size={14} />
@@ -308,15 +310,15 @@ export default function PortfolioPage() {
         </div>
       </div>
 
-      {/* Projects */}
-      <Card darkMode={darkMode} style={{ padding: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
+      {/* ── Projects section — no outer Card wrapper ── */}
+      <div style={{ paddingTop: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px", paddingTop: "16px", borderTop: `1px solid ${SURFACE.border}` }}>
           <Icon glyph="Laptop" fill={BRAND.primary} size={14} />
           <Overline darkMode={darkMode}>Projects Showcase Manager</Overline>
         </div>
 
-        {/* Add Project Form */}
-        <Card darkMode={darkMode} style={{ padding: "16px", marginBottom: "20px" }}>
+        {/* Add Project form — plain section, no nested Card */}
+        <div style={{ marginBottom: "24px", padding: "20px", borderRadius: "8px", border: `1px solid ${borderColor}` }}>
           <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Add Project</Overline>
           <form onSubmit={handleAddProject} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -330,9 +332,9 @@ export default function PortfolioPage() {
               Add Project
             </Button>
           </form>
-        </Card>
+        </div>
 
-        {/* Existing projects */}
+        {/* Existing projects — individual Cards per project (distinct content objects) */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
           {profile?.projects && profile.projects.length > 0 ? (
             profile.projects.map((p) => (
@@ -368,7 +370,7 @@ export default function PortfolioPage() {
             </Body>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

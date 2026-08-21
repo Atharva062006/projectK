@@ -7,7 +7,7 @@ import ResponseBox from "@/components/ResponseBox";
 
 import Card from "@leafygreen-ui/card";
 import { TextInput } from "@leafygreen-ui/text-input";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import Badge from "@leafygreen-ui/badge";
 import { H1, H2, H3, Body, Overline } from "@leafygreen-ui/typography";
 import Icon from "@leafygreen-ui/icon";
@@ -199,9 +199,10 @@ function PitchViewerContent() {
               </div>
             </div>
           ) : (
-            <Card darkMode={true} style={{ padding: "32px", textAlign: "center" }}>
+            <div style={{ padding: "48px 32px", textAlign: "center" }}>
+              <Icon glyph="Apps" fill={palette.gray.base} size={28} style={{ display: "block", margin: "0 auto 12px" }} />
               <Body darkMode={true} style={{ color: palette.gray.light1 }}>No profiles selected in this pitch presentation.</Body>
-            </Card>
+            </div>
           )}
         </div>
       )}

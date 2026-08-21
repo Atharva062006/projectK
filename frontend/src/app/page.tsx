@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import Card from "@leafygreen-ui/card";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import Badge from "@leafygreen-ui/badge";
 import {
   H1,
@@ -101,12 +101,37 @@ export default function LandingPage() {
   const { darkMode } = useTheme();
   const textColor = darkMode ? palette.white : palette.black;
   const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
+  const borderColor = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const sectionBg = darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "32px", paddingBottom: "48px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "56px", paddingBottom: "64px" }}>
 
-      {/* ── HERO ── */}
-      <Card darkMode={darkMode} style={{ textAlign: "center", padding: "48px 32px", position: "relative", overflow: "hidden" }}>
+      {/* ── HERO — full-bleed, no Card ── */}
+      <div
+        style={{
+          textAlign: "center",
+          padding: "72px 32px 64px",
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "0 0 16px 16px",
+          background: darkMode
+            ? "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 165, 0, 0.10) 0%, rgba(240, 56, 122, 0.06) 60%, transparent 100%)"
+            : "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 165, 0, 0.08) 0%, rgba(240, 56, 122, 0.04) 60%, transparent 100%)",
+        }}
+      >
+        {/* Dot-grid overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `radial-gradient(circle, ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px)`,
+            backgroundSize: "24px 24px",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+
         <div style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
             <Badge darkMode={darkMode} variant="lightgray">
@@ -137,7 +162,7 @@ export default function LandingPage() {
             PROJECT K
           </H1>
 
-          <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "24px", lineHeight: "1.7" }}>
+          <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "32px", lineHeight: "1.7", fontSize: "16px" }}>
             A structured portfolio database of members and alumni. Discover skill-based talent,
             download verified resumes, and connect with developers.
           </Body>
@@ -162,26 +187,44 @@ export default function LandingPage() {
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* ── STATS ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+      {/* ── STATS — single horizontal strip, Dividers between items ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "stretch",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: 0,
+          borderTop: `1px solid ${borderColor}`,
+          borderBottom: `1px solid ${borderColor}`,
+          padding: "8px 0",
+        }}
+      >
         {STATS.map((s, i) => (
-          <Card
+          <div
             key={i}
-            darkMode={darkMode}
             className={`anim-fadeInUp anim-delay-${i + 1}`}
-            style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "12px" }}
+            style={{
+              flex: "1 1 180px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "8px",
+              padding: "28px 24px",
+              borderRight: i < STATS.length - 1 ? `1px solid ${borderColor}` : "none",
+            }}
           >
-            <Icon glyph={s.glyph as never} fill={BRAND.primary} size={24} />
+            <Icon glyph={s.glyph as never} fill={BRAND.primary} size={20} />
             <H2 darkMode={darkMode} style={{ color: textColor, margin: 0 }}>{s.value}</H2>
-            <Label htmlFor="metric-label" darkMode={darkMode} style={{ color: mutedColor }}>{s.label}</Label>
-          </Card>
+            <Label htmlFor={`stat-${i}`} darkMode={darkMode} style={{ color: mutedColor, textAlign: "center" }}>{s.label}</Label>
+          </div>
         ))}
       </div>
 
-      {/* ── DOMAINS ── */}
-      <Card darkMode={darkMode} style={{ padding: "28px" }}>
+      {/* ── DOMAINS — no outer Card, items are hover-styled divs ── */}
+      <div>
         <div
           style={{
             display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -214,13 +257,23 @@ export default function LandingPage() {
               style={{ textDecoration: "none" }}
               className={`anim-fadeInUp anim-delay-${i + 2}`}
             >
-              <Card
-                darkMode={darkMode}
+              <div
                 style={{
-                  padding: "16px",
+                  padding: "20px",
+                  borderRadius: "8px",
+                  border: `1px solid ${borderColor}`,
                   cursor: "pointer",
-                  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                  transition: "background 0.18s ease, border-color 0.18s ease",
                   height: "100%",
+                  background: "transparent",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.background = BRAND.primaryBg;
+                  (e.currentTarget as HTMLDivElement).style.borderColor = BRAND.primaryBorder;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.background = "transparent";
+                  (e.currentTarget as HTMLDivElement).style.borderColor = borderColor;
                 }}
               >
                 <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "8px", color: textColor }}>
@@ -229,14 +282,14 @@ export default function LandingPage() {
                 <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
                   {d.tech}
                 </Body>
-              </Card>
+              </div>
             </Link>
           ))}
         </div>
-      </Card>
+      </div>
 
-      {/* ── TESTIMONIALS ── */}
-      <Card darkMode={darkMode} style={{ padding: "28px" }}>
+      {/* ── TESTIMONIALS — no outer Card; individual Cards are fine ── */}
+      <div>
         <div style={{ marginBottom: "20px" }}>
           <Overline darkMode={darkMode}>Alumni Success</Overline>
           <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
@@ -273,10 +326,10 @@ export default function LandingPage() {
             </Card>
           ))}
         </div>
-      </Card>
+      </div>
 
-      {/* ── FAQ ── */}
-      <Card darkMode={darkMode} style={{ padding: "28px" }}>
+      {/* ── FAQ — no outer Card; ExpandableCards flow directly ── */}
+      <div>
         <div style={{ marginBottom: "20px" }}>
           <Overline darkMode={darkMode}>Frequently Asked Questions</Overline>
           <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
@@ -296,87 +349,90 @@ export default function LandingPage() {
             </ExpandableCard>
           ))}
         </div>
-      </Card>
+      </div>
 
-      {/* ── FOOTER ── */}
-      <footer>
-        <Card darkMode={darkMode} style={{ padding: "28px" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-              gap: "24px",
-              marginBottom: "24px",
-            }}
-          >
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                <Image src="/okc_main_logo.png" alt="OKC" width={20} height={20} style={{ objectFit: "contain" }} />
-                <Subtitle darkMode={darkMode} style={{ fontSize: "12px", letterSpacing: "0.05em" }}>
-                  OYSTER KODE CLUB
-                </Subtitle>
-              </div>
-              <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, lineHeight: "1.6" }}>
-                Official portfolio ecosystem showcasing engineering talent built by our active student club.
-              </Body>
+      {/* ── FOOTER — plain footer with top border; no Card ── */}
+      <footer
+        style={{
+          paddingTop: "32px",
+          borderTop: `1px solid ${borderColor}`,
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: "24px",
+            marginBottom: "24px",
+          }}
+        >
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+              <Image src="/okc_main_logo.png" alt="OKC" width={20} height={20} style={{ objectFit: "contain" }} />
+              <Subtitle darkMode={darkMode} style={{ fontSize: "12px", letterSpacing: "0.05em" }}>
+                OYSTER KODE CLUB
+              </Subtitle>
             </div>
-
-            <div>
-              <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Browse</Overline>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {[["Web Systems", "/directory?search=Next.js"], ["Data Systems", "/directory?search=Python"], ["VLSI & Hardware", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
-                  <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Portal</Overline>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {[["Member Directory", "/directory"], ["Pitch Showcase", "/pitches"], ["Join Portal", "/auth"], ["Admin Panel", "/admin"]].map(([label, href]) => (
-                  <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Contact</Overline>
-              <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
-                Questions or sponsorships?
-              </Body>
-              <Body darkMode={darkMode} style={{ fontSize: "13px", color: BRAND.primary, marginTop: "4px" }}>
-                contact@oysterkode.club
-              </Body>
-            </div>
+            <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, lineHeight: "1.6" }}>
+              Official portfolio ecosystem showcasing engineering talent built by our active student club.
+            </Body>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "8px",
-              paddingTop: "16px",
-              borderTop: `1px solid ${SURFACE.border}`,
-            }}
-          >
-            <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
-              © {new Date().getFullYear()} Oyster Kode Club. All Rights Reserved.
-            </Body>
-            <div style={{ display: "flex", gap: "16px" }}>
-              {["Privacy", "Terms"].map((l) => (
-                <Link key={l} href="#" style={{ fontSize: "11px", color: mutedColor, textDecoration: "none" }}>
-                  {l}
+          <div>
+            <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Browse</Overline>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {[["Web Systems", "/directory?search=Next.js"], ["Data Systems", "/directory?search=Python"], ["VLSI & Hardware", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
+                <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
+                  {label}
                 </Link>
               ))}
             </div>
           </div>
-        </Card>
+
+          <div>
+            <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Portal</Overline>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {[["Member Directory", "/directory"], ["Pitch Showcase", "/pitches"], ["Join Portal", "/auth"], ["Admin Panel", "/admin"]].map(([label, href]) => (
+                <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Contact</Overline>
+            <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
+              Questions or sponsorships?
+            </Body>
+            <Body darkMode={darkMode} style={{ fontSize: "13px", color: BRAND.primary, marginTop: "4px" }}>
+              contact@oysterkode.club
+            </Body>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "8px",
+            paddingTop: "16px",
+            borderTop: `1px solid ${borderColor}`,
+          }}
+        >
+          <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
+            © {new Date().getFullYear()} Oyster Kode Club. All Rights Reserved.
+          </Body>
+          <div style={{ display: "flex", gap: "16px" }}>
+            {["Privacy", "Terms"].map((l) => (
+              <Link key={l} href="#" style={{ fontSize: "11px", color: mutedColor, textDecoration: "none" }}>
+                {l}
+              </Link>
+            ))}
+          </div>
+        </div>
       </footer>
     </div>
   );

@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import ResponseBox from "@/components/ResponseBox";
 
 import Card from "@leafygreen-ui/card";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { TextInput } from "@leafygreen-ui/text-input";
 import { PasswordInput } from "@leafygreen-ui/password-input";
 import { Select, Option } from "@leafygreen-ui/select";

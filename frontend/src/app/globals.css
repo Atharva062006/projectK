@@ -20,8 +20,8 @@
 }
 
 ::selection {
-  background: rgba(0, 237, 100, 0.25);
-  color: #e8edeb;
+  background: rgba(232, 105, 63, 0.28);
+  color: #E8EDEB;
 }
 
 /* ── 2. Page background (LeafyGreen dark — var for easy swap) ─────────── */
@@ -33,11 +33,14 @@
   --text-primary: #E8EDEB;
   --text-secondary: #89979B;
   --text-muted: #5C6C75;
-  /* Brand accent — swap this one variable to change the accent everywhere */
-  --brand: #00ED64;
-  --brand-muted: #00A35C;
-  --brand-bg: rgba(0, 237, 100, 0.08);
-  --brand-border: rgba(0, 237, 100, 0.25);
+  /* OKC Club gradient: Amber → Orange → Hot Pink */
+  --brand-start: #F0A500;
+  --brand:       #E8693F;
+  --brand-end:   #F0387A;
+  --brand-gradient: linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%);
+  --brand-muted: #C04A28;
+  --brand-bg:    rgba(232, 105, 63, 0.08);
+  --brand-border: rgba(232, 105, 63, 0.28);
 }
 
 html {
@@ -119,6 +122,11 @@ a {
   }
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* ── 6. Utility animation classes ──────────────────────────────────────── */
 .anim-floatDown {
   animation: floatDown 0.4s ease forwards;
@@ -142,19 +150,106 @@ a {
 .anim-delay-7 { animation-delay: 0.35s; opacity: 0; }
 .anim-delay-8 { animation-delay: 0.40s; opacity: 0; }
 
-/* ── 7. LeafyGreen component overrides (minimal) ───────────────────────── */
+/* ── 7. LeafyGreen component overrides ─────────────────────────────────── */
 
-/* Ensure LG portal overlays render above everything */
+/* Modal backdrop above everything */
 [data-leafygreen-ui="modal-backdrop"] {
   z-index: 9000 !important;
 }
 
-/* Make LG cards match our page background feel */
+/* Cards match page surface */
 [class*="leafygreen-ui-card"] {
   background-color: var(--bg-card) !important;
 }
 
-/* Fix LG select/combobox dropdown z-index in sticky header contexts */
+/* Select/combobox dropdown z-index */
 [data-leafygreen-ui="popover-container"] {
   z-index: 1000;
+}
+
+/* ── 8. OKC Brand color overrides — replace LG green everywhere ─────────── */
+
+/*
+ * Strategy: LG uses Emotion (CSS-in-JS) which injects styles with high
+ * specificity but NOT !important. We use targeted attribute + class
+ * selectors to override focus rings, borders, and tints.
+ */
+
+/* --- Focus rings (blue focus outline LG uses is fine; swap green glow) --- */
+:focus-visible {
+  outline: 2px solid #E8693F !important;
+  outline-offset: 2px;
+}
+
+/* --- Checkbox & Radio — checked state fill -------------------------------- */
+/* LG checkboxes use SVG fill; we tint the wrapper border */
+[data-leafygreen-ui="checkbox-wrapper"] input:checked + [class*="check"] {
+  background: var(--brand-gradient) !important;
+  border-color: var(--brand) !important;
+}
+
+/* --- Text Input / Text Area / Password Input — focus border -------------- */
+[class*="leafygreen-ui"][class*="input-container"]:focus-within,
+[class*="leafygreen-ui"][class*="text-input"]:focus-within {
+  box-shadow: 0 0 0 3px var(--brand-border) !important;
+  border-color: var(--brand) !important;
+}
+
+/* --- Select — focus + selected option tick -------------------------------- */
+[class*="leafygreen-ui"][class*="select"]:focus-within {
+  box-shadow: 0 0 0 3px var(--brand-border) !important;
+}
+
+/* --- Tabs — active tab indicator underline -------------------------------- */
+[class*="leafygreen-ui"][class*="tab"][aria-selected="true"] {
+  color: var(--brand) !important;
+}
+/* The animated underline bar LG renders as a separate div */
+[class*="leafygreen-ui"][class*="tab-indicator"],
+[class*="leafygreen-ui"][class*="tabIndicator"] {
+  background: var(--brand-gradient) !important;
+}
+
+/* --- Chip — selected/active state ---------------------------------------- */
+[class*="leafygreen-ui"][class*="chip"][aria-pressed="true"],
+[class*="leafygreen-ui"][class*="chip"][data-active="true"] {
+  background: var(--brand-bg) !important;
+  border-color: var(--brand-border) !important;
+  color: var(--brand) !important;
+}
+
+/* --- Badge — green variant tint ------------------------------------------ */
+[class*="leafygreen-ui"][class*="badge"][data-variant="green"] {
+  background: var(--brand-bg) !important;
+  color: var(--brand) !important;
+}
+
+/* --- Typography links ----------------------------------------------------- */
+[class*="leafygreen-ui"] a,
+[class*="leafygreen-ui"][class*="link"] {
+  color: var(--brand) !important;
+}
+[class*="leafygreen-ui"] a:hover,
+[class*="leafygreen-ui"][class*="link"]:hover {
+  color: var(--brand-end) !important;
+}
+
+/* --- Spinner / LoadingIndicator ------------------------------------------ */
+[class*="leafygreen-ui"][class*="spinner"] circle,
+[class*="leafygreen-ui"][class*="loading"] circle {
+  stroke: var(--brand) !important;
+}
+
+/* --- ExpandableCard open indicator --------------------------------------- */
+[class*="leafygreen-ui"][class*="expandable"][open] > summary,
+[class*="leafygreen-ui"][class*="expandable"] > [data-open="true"] {
+  border-left: 3px solid var(--brand) !important;
+}
+
+/* --- Scrollbar thumb → brand tint ---------------------------------------- */
+::-webkit-scrollbar-thumb {
+  background: rgba(232, 105, 63, 0.18);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 105, 63, 0.35);
 }

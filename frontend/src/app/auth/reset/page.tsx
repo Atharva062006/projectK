@@ -7,7 +7,7 @@ import ResponseBox from "@/components/ResponseBox";
 
 import Card from "@leafygreen-ui/card";
 import { PasswordInput } from "@leafygreen-ui/password-input";
-import Button from "@leafygreen-ui/button";
+import Button from "@/components/OKCButton";
 import { H2, Body } from "@leafygreen-ui/typography";
 import Icon from "@leafygreen-ui/icon";
 import { palette } from "@leafygreen-ui/palette";

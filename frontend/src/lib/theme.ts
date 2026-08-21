@@ -8,35 +8,41 @@
  * Current palette: MongoDB LeafyGreen (dark mode defaults)
  */
 
-// ─── Brand accent (currently LG green; swap here if needed) ────────────────
+// ─── Brand accent — OKC club gradient: Amber → Orange → Magenta ────────────
 export const BRAND = {
-  /** Primary interactive color */
-  primary: "#00ED64",
+  /** Gradient start — amber/gold */
+  gradientStart: "#F0A500",
+  /** Gradient mid — orange (primary interactive color) */
+  primary: "#E8693F",
+  /** Gradient end — hot pink / magenta */
+  gradientEnd: "#F0387A",
+  /** Full CSS gradient string */
+  gradient: "linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%)",
   /** Slightly muted primary for hover states */
-  primaryMuted: "#00A35C",
+  primaryMuted: "#C04A28",
   /** Very subtle tinted background for highlight surfaces */
-  primaryBg: "rgba(0, 237, 100, 0.08)",
+  primaryBg: "rgba(232, 105, 63, 0.08)",
   /** Border for highlighted surfaces */
-  primaryBorder: "rgba(0, 237, 100, 0.25)",
+  primaryBorder: "rgba(232, 105, 63, 0.28)",
 } as const;
 
 // ─── Semantic status colors (LG-aligned) ───────────────────────────────────
 export const STATUS = {
-  success: "#00ED64",
-  successBg: "rgba(0, 237, 100, 0.10)",
-  successBorder: "rgba(0, 237, 100, 0.25)",
+  success: "#4CAF7D",
+  successBg: "rgba(76, 175, 125, 0.10)",
+  successBorder: "rgba(76, 175, 125, 0.25)",
 
-  warning: "#FFC010",
-  warningBg: "rgba(255, 192, 16, 0.10)",
-  warningBorder: "rgba(255, 192, 16, 0.25)",
+  warning: "#F0A500",
+  warningBg: "rgba(240, 165, 0, 0.10)",
+  warningBorder: "rgba(240, 165, 0, 0.25)",
 
-  error: "#CF4A22",
-  errorBg: "rgba(207, 74, 34, 0.10)",
-  errorBorder: "rgba(207, 74, 34, 0.25)",
+  error: "#F0387A",
+  errorBg: "rgba(240, 56, 122, 0.10)",
+  errorBorder: "rgba(240, 56, 122, 0.25)",
 
-  info: "#016BF8",
-  infoBg: "rgba(1, 107, 248, 0.10)",
-  infoBorder: "rgba(1, 107, 248, 0.25)",
+  info: "#E8693F",
+  infoBg: "rgba(232, 105, 63, 0.10)",
+  infoBorder: "rgba(232, 105, 63, 0.25)",
 } as const;
 
 // ─── Surface/background layers (LG dark palette) ───────────────────────────
