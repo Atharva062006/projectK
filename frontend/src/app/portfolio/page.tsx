@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -152,7 +153,12 @@ export default function PortfolioPage() {
             <div style={{ textAlign: "right" }}>
               <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0 }}>{profile.completion_percentage}%</H2>
               <div style={{ width: "112px", height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden", marginTop: "6px" }}>
-                <div style={{ height: "100%", borderRadius: "99px", width: `${profile.completion_percentage}%`, background: "linear-gradient(90deg, #F0A500, #E8693F, #F0387A)" }} />
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${profile.completion_percentage}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  style={{ height: "100%", borderRadius: "99px", background: BRAND.gradient }}
+                />
               </div>
             </div>
           </div>

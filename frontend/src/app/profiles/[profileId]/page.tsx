@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -324,7 +325,12 @@ export default function ProfileDetailPage() {
       <div style={{ padding: "20px 0", display: "flex", alignItems: "center", gap: "16px" }}>
         <Label htmlFor="completion-bar" darkMode={darkMode} style={{ color: mutedColor, flexShrink: 0 }}>Profile Quality</Label>
         <div style={{ flex: 1, height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden" }}>
-          <div style={{ height: "100%", borderRadius: "99px", width: `${profile.completion_percentage}%`, background: "linear-gradient(90deg, #F0A500, #E8693F, #F0387A)", transition: "width 0.5s ease" }} />
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${profile.completion_percentage}%` }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            style={{ height: "100%", borderRadius: "99px", background: BRAND.gradient }}
+          />
         </div>
         <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0, fontSize: "18px" }}>{profile.completion_percentage}%</H2>
       </div>

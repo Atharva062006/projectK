@@ -2,6 +2,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -54,12 +55,352 @@ function AvailabilityChip({ av }: { av: string }) {
   return <Chip darkMode={darkMode} label={av} variant={variantMap[av] ?? "gray"} />;
 }
 
+/**
+ * MemberShowcaseCard — High-fidelity card matching reference design
+ * Left: Normal State | Right: Hover State with frosted glass & glow
+ */
+function MemberShowcaseCard({
+  profile,
+  darkMode,
+  textColor,
+  mutedColor,
+}: {
+  profile: ProfileCard;
+  darkMode: boolean;
+  textColor: string;
+  mutedColor: string;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const initials = profile.full_name
+    ? profile.full_name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "?";
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -6, scale: 1.01 }}
+      transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      style={{
+        borderRadius: "20px",
+        background: darkMode ? "#14171A" : "#F0F2F5",
+        border: `1px solid ${isHovered ? BRAND.primaryBorder : "rgba(255,255,255,0.08)"}`,
+        overflow: "hidden",
+        position: "relative",
+        boxShadow: isHovered
+          ? `0 20px 40px rgba(0, 0, 0, 0.5), 0 0 24px ${BRAND.primaryBg}`
+          : darkMode
+          ? "0 4px 20px rgba(0,0,0,0.25)"
+          : "0 4px 20px rgba(0,0,0,0.06)",
+        transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "340px",
+      }}
+    >
+      {/* ── Full-Card Mesh & Ambient Backdrop (Toned down & refined) ── */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: darkMode
+            ? "radial-gradient(circle at 30% 20%, rgba(230, 139, 24, 0.18), transparent 65%), radial-gradient(circle at 80% 70%, rgba(236, 56, 119, 0.16), transparent 65%), #14171A"
+            : "radial-gradient(circle at 30% 20%, rgba(230, 139, 24, 0.12), transparent 65%), radial-gradient(circle at 80% 70%, rgba(236, 56, 119, 0.10), transparent 65%), #F8F9FA",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      >
+        {/* Subtle Dot Grid Overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `radial-gradient(circle, ${darkMode ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px)`,
+            backgroundSize: "16px 16px",
+            opacity: isHovered ? 0.6 : 0.25,
+            transition: "opacity 0.35s ease",
+          }}
+        />
+      </div>
+
+      <Link
+        href={`/profiles/${profile.profile_id}`}
+        style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%", position: "relative", zIndex: 1 }}
+      >
+        {/* ── Top Visual / Avatar Area ── */}
+        <div
+          style={{
+            position: "relative",
+            height: "155px",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {/* Top Badges Overlay */}
+          <div
+            style={{
+              position: "absolute",
+              top: "12px",
+              left: "12px",
+              right: "12px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              zIndex: 2,
+            }}
+          >
+            <span
+              style={{
+                fontSize: "10px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                padding: "3px 8px",
+                borderRadius: "6px",
+                background: darkMode ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                color: BRAND.primary,
+                border: `1px solid ${BRAND.primaryBorder}`,
+              }}
+            >
+              {profile.role_category}
+            </span>
+
+            <AvailabilityChip av={profile.availability} />
+          </div>
+
+          {/* Large Center Avatar */}
+          <motion.div
+            animate={{ scale: isHovered ? 1.06 : 1 }}
+            transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+            style={{
+              width: "72px",
+              height: "72px",
+              borderRadius: "50%",
+              background: BRAND.gradient,
+              padding: "2px",
+              boxShadow: isHovered
+                ? `0 0 18px ${BRAND.glow}, 0 6px 14px rgba(0,0,0,0.3)`
+                : "0 3px 10px rgba(0,0,0,0.18)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "50%",
+                background: darkMode ? "#181C1F" : "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "22px",
+                fontWeight: 800,
+                color: textColor,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {initials}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── Solid Bottom Card Panel that SLIDES DOWN on hover ── */}
+        <motion.div
+          initial={false}
+          animate={{
+            y: isHovered ? "105%" : "0%",
+            opacity: isHovered ? 0 : 1,
+          }}
+          transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "58%",
+            background: darkMode ? "#1C2023" : "#FFFFFF",
+            borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+
+        {/* ── Progressive Blur Backdrop Layer (Revealed as the solid panel slides down) ── */}
+        <motion.div
+          initial={false}
+          animate={{
+            opacity: isHovered ? 1 : 0,
+          }}
+          transition={{ duration: 0.32, ease: "easeOut" }}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "72%",
+            background: darkMode
+              ? "linear-gradient(to top, rgba(14, 17, 20, 0.90) 0%, rgba(14, 17, 20, 0.65) 45%, rgba(14, 17, 20, 0.12) 80%, transparent 100%)"
+              : "linear-gradient(to top, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.65) 45%, rgba(255, 255, 255, 0.12) 80%, transparent 100%)",
+            backdropFilter: "blur(20px) saturate(160%)",
+            WebkitBackdropFilter: "blur(20px) saturate(160%)",
+            maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+            WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        />
+
+        {/* ── Crisp Text Content Area (Sits directly on top of the blur) ── */}
+        <div
+          style={{
+            marginTop: "auto",
+            padding: "20px 20px 18px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            position: "relative",
+            zIndex: 3,
+            background: "transparent",
+          }}
+        >
+          {/* Name + Verified Badge */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <H3
+              darkMode={darkMode}
+              style={{
+                fontSize: "16px",
+                fontWeight: 700,
+                margin: 0,
+                color: textColor,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {profile.full_name}
+            </H3>
+            {/* Green Verified Badge */}
+            <span
+              title="Verified Member"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                background: "#00A35C",
+                color: "#FFFFFF",
+                fontSize: "10px",
+                fontWeight: 800,
+                flexShrink: 0,
+              }}
+            >
+              ✓
+            </span>
+          </div>
+
+          {/* Tagline */}
+          <Body
+            darkMode={darkMode}
+            style={{
+              fontSize: "12px",
+              color: mutedColor,
+              margin: 0,
+              lineHeight: "1.45",
+              height: "36px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {profile.tagline || "Active Engineering Member"}
+          </Body>
+
+          {/* Skill Pills */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", minHeight: "22px" }}>
+            {profile.skills?.slice(0, 3).map((sk) => (
+              <Badge key={sk.name} darkMode={darkMode} variant="lightgray">
+                {sk.name}
+              </Badge>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: "1px", background: SURFACE.border, margin: "4px 0" }} />
+
+          {/* Footer stats & Action CTA (Matching Reference Button) */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "auto",
+              paddingTop: "2px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "11px", color: mutedColor }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <Icon glyph="Person" size={12} /> {profile.department}
+              </span>
+            </div>
+
+            {/* Reference-styled Follow/View Profile Pill Button */}
+            <motion.div
+              animate={{
+                background: isHovered ? BRAND.gradient : darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+                color: isHovered ? "#FFFFFF" : textColor,
+                boxShadow: isHovered ? `0 4px 14px ${BRAND.glow}` : "none",
+              }}
+              transition={{ duration: 0.22 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 12px",
+                borderRadius: "99px",
+                fontSize: "11px",
+                fontWeight: 600,
+                border: `1px solid ${isHovered ? "transparent" : darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
+                cursor: "pointer",
+              }}
+            >
+              <span>View Profile</span>
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>+</span>
+            </motion.div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
 function DirectoryContent() {
   const { darkMode } = useTheme();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("search") || "";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -119,7 +460,7 @@ function DirectoryContent() {
         style={{
           display: "grid",
           gridTemplateColumns: "240px 1fr",
-          gap: "20px",
+          gap: "24px",
           alignItems: "start",
         }}
       >
@@ -210,118 +551,224 @@ function DirectoryContent() {
         </Card>
 
         {/* ── Main Panel ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Search */}
-          <TextInput data-okc-theme="true"
-            aria-label="Search profiles"
-            darkMode={darkMode}
-            placeholder="Search by name, tagline, or tech stack..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            type="search"
-          />
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* Search + View Mode Switcher Header */}
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <div style={{ flex: 1 }}>
+              <TextInput data-okc-theme="true"
+                aria-label="Search profiles"
+                darkMode={darkMode}
+                placeholder="Search by name, tagline, or tech stack..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                type="search"
+              />
+            </div>
+
+            {/* View Mode Toggle (Grid / List) */}
+            <div
+              style={{
+                display: "flex",
+                background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)",
+                padding: "3px",
+                borderRadius: "8px",
+                border: `1px solid ${SURFACE.border}`,
+                gap: "2px",
+                flexShrink: 0,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                title="Bento Showcase View"
+                style={{
+                  border: "none",
+                  background: viewMode === "grid" ? (darkMode ? "#1C2023" : "#FFFFFF") : "transparent",
+                  color: viewMode === "grid" ? BRAND.primary : mutedColor,
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  boxShadow: viewMode === "grid" ? "0 2px 6px rgba(0,0,0,0.2)" : "none",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <Icon glyph="Menu" size={14} /> Grid
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                title="Compact List View"
+                style={{
+                  border: "none",
+                  background: viewMode === "list" ? (darkMode ? "#1C2023" : "#FFFFFF") : "transparent",
+                  color: viewMode === "list" ? BRAND.primary : mutedColor,
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  boxShadow: viewMode === "list" ? "0 2px 6px rgba(0,0,0,0.2)" : "none",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <Icon glyph="Folder" size={14} /> List
+              </button>
+            </div>
+          </div>
 
           {/* Loading */}
           {isLoading && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+            <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
               <Spinner darkMode={darkMode} />
             </div>
           )}
 
-          {/* Profile results — hover-based divs, no Card per item ── */}
+          {/* ── Profile Results (Bento Grid vs Compact List) ── */}
           {!isLoading && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
-              {filteredProfiles.length === 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: "12px" }}>
-                  <Icon glyph="Apps" fill={mutedColor} size={32} />
-                  <Body darkMode={darkMode} style={{ color: mutedColor }}>
-                    No profiles match the current filters
-                  </Body>
-                </div>
-              ) : (
-                filteredProfiles.map((p, i) => {
-                  const initials = p.full_name
-                    ? p.full_name.split(" ").map((n) => n[0]).join("").toUpperCase()
-                    : "?";
-                  const isHovered = hoveredId === p.profile_id;
-                  return (
-                    <Link
-                      href={`/profiles/${p.profile_id}`}
-                      key={p.profile_id}
-                      style={{ textDecoration: "none" }}
-                      className={`anim-fadeInUp anim-delay-${Math.min(i + 1, 8)}`}
-                    >
-                      <div
-                        onMouseEnter={() => setHoveredId(p.profile_id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "16px",
-                          padding: "16px",
-                          borderRadius: "8px",
-                          background: isHovered ? hoverBg : "transparent",
-                          transition: "background 0.15s ease",
-                          cursor: "pointer",
-                          borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-                        }}
-                      >
-                        {/* Avatar */}
-                        <div
-                          style={{
-                            width: "44px", height: "44px", borderRadius: "10px",
-                            background: darkMode ? palette.gray.dark2 : palette.gray.light2,
-                            border: `1px solid ${darkMode ? palette.gray.dark1 : palette.gray.light1}`,
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: "13px", fontWeight: 700, color: textColor, flexShrink: 0,
-                          }}
+            <div>
+              <AnimatePresence mode="popLayout">
+                {filteredProfiles.length === 0 ? (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: "12px" }}
+                  >
+                    <Icon glyph="Apps" fill={mutedColor} size={32} />
+                    <Body darkMode={darkMode} style={{ color: mutedColor }}>
+                      No profiles match the current filters
+                    </Body>
+                  </motion.div>
+                ) : viewMode === "grid" ? (
+                  /* ── Bento Grid matching Reference Image ── */
+                  <motion.div
+                    key="grid"
+                    layout
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                      gap: "20px",
+                    }}
+                  >
+                    {filteredProfiles.map((p) => (
+                      <MemberShowcaseCard
+                        key={p.profile_id}
+                        profile={p}
+                        darkMode={darkMode}
+                        textColor={textColor}
+                        mutedColor={mutedColor}
+                      />
+                    ))}
+                  </motion.div>
+                ) : (
+                  /* ── Compact List View ── */
+                  <motion.div
+                    key="list"
+                    layout
+                    style={{ display: "flex", flexDirection: "column", gap: "0" }}
+                  >
+                    {filteredProfiles.map((p, i) => {
+                      const initials = p.full_name
+                        ? p.full_name.split(" ").map((n) => n[0]).join("").toUpperCase()
+                        : "?";
+                      const isHovered = hoveredId === p.profile_id;
+                      return (
+                        <motion.div
+                          layout
+                          key={p.profile_id}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.97 }}
+                          transition={{ duration: 0.22, delay: Math.min(i * 0.03, 0.2) }}
                         >
-                          {initials}
-                        </div>
-
-                        {/* Name + tagline */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <H3
-                            darkMode={darkMode}
-                            style={{ fontSize: "14px", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                          <Link
+                            href={`/profiles/${p.profile_id}`}
+                            style={{ textDecoration: "none", display: "block" }}
                           >
-                            {p.full_name}
-                          </H3>
-                          <Body
-                            darkMode={darkMode}
-                            style={{ fontSize: "12px", color: mutedColor, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                          >
-                            {p.tagline}
-                          </Body>
-                        </div>
+                            <div
+                              onMouseEnter={() => setHoveredId(p.profile_id)}
+                              onMouseLeave={() => setHoveredId(null)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "16px",
+                                padding: "16px",
+                                borderRadius: "8px",
+                                background: isHovered ? hoverBg : "transparent",
+                                transition: "background 0.15s ease",
+                                cursor: "pointer",
+                                borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+                              }}
+                            >
+                              {/* Avatar */}
+                              <div
+                                style={{
+                                  width: "44px", height: "44px", borderRadius: "10px",
+                                  background: darkMode ? palette.gray.dark2 : palette.gray.light2,
+                                  border: `1px solid ${darkMode ? palette.gray.dark1 : palette.gray.light1}`,
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  fontSize: "13px", fontWeight: 700, color: textColor, flexShrink: 0,
+                                }}
+                              >
+                                {initials}
+                              </div>
 
-                        {/* Skill Badges */}
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", flexShrink: 0, maxWidth: "200px" }}>
-                          {p.skills?.slice(0, 3).map((sk) => (
-                            <Badge key={sk.name} darkMode={darkMode} variant="lightgray">{sk.name}</Badge>
-                          ))}
-                        </div>
+                              {/* Name + tagline */}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <H3
+                                  darkMode={darkMode}
+                                  style={{ fontSize: "14px", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                                >
+                                  {p.full_name}
+                                </H3>
+                                <Body
+                                  darkMode={darkMode}
+                                  style={{ fontSize: "12px", color: mutedColor, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                                >
+                                  {p.tagline}
+                                </Body>
+                              </div>
 
-                        {/* Availability chip */}
-                        <div style={{ flexShrink: 0 }}>
-                          <AvailabilityChip av={p.availability} />
-                        </div>
+                              {/* Skill Badges */}
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", flexShrink: 0, maxWidth: "200px" }}>
+                                {p.skills?.slice(0, 3).map((sk) => (
+                                  <Badge key={sk.name} darkMode={darkMode} variant="lightgray">{sk.name}</Badge>
+                                ))}
+                              </div>
 
-                        {/* Arrow hint on hover */}
-                        <Body
-                          darkMode={darkMode}
-                          style={{
-                            fontSize: "13px", color: BRAND.primary, flexShrink: 0,
-                            opacity: isHovered ? 1 : 0, transition: "opacity 0.15s ease",
-                          }}
-                        >
-                          →
-                        </Body>
-                      </div>
-                    </Link>
-                  );
-                })
-              )}
+                              {/* Availability chip */}
+                              <div style={{ flexShrink: 0 }}>
+                                <AvailabilityChip av={p.availability} />
+                              </div>
+
+                              {/* Arrow hint on hover */}
+                              <Body
+                                darkMode={darkMode}
+                                style={{
+                                  fontSize: "13px", color: BRAND.primary, flexShrink: 0,
+                                  opacity: isHovered ? 1 : 0, transition: "opacity 0.15s ease",
+                                }}
+                              >
+                                →
+                              </Body>
+                            </div>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>

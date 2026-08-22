@@ -33,14 +33,18 @@
   --text-primary: #E8EDEB;
   --text-secondary: #89979B;
   --text-muted: #5C6C75;
-  /* OKC Club gradient: Amber → Orange → Hot Pink */
-  --brand-start: #F0A500;
-  --brand:       #E8693F;
-  --brand-end:   #F0387A;
-  --brand-gradient: linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%);
-  --brand-muted: #C04A28;
-  --brand-bg:    rgba(232, 105, 63, 0.08);
-  --brand-border: rgba(232, 105, 63, 0.28);
+  /* OKC Club 4-color Palette: Zest → Burnt Sienna → Mandy → French Rose */
+  --brand-zest:   #E68B18;
+  --brand-sienna: #EB6348;
+  --brand-mandy:  #EC535A;
+  --brand-rose:   #EC3877;
+  --brand-start:  #E68B18;
+  --brand:        #EB6348;
+  --brand-end:    #EC3877;
+  --brand-gradient: linear-gradient(135deg, #E68B18 0%, #EB6348 35%, #EC535A 70%, #EC3877 100%);
+  --brand-muted:  #C44B30;
+  --brand-bg:     rgba(235, 99, 72, 0.08);
+  --brand-border: rgba(235, 99, 72, 0.28);
 }
 
 html {
@@ -67,9 +71,10 @@ body {
   height: 650px;
   background: radial-gradient(
     ellipse 100% 80% at 50% 0%,
-    rgba(240, 165, 0, 0.20) 0%,
-    rgba(232, 105, 63, 0.14) 35%,
-    rgba(240, 56, 122, 0.07) 65%,
+    rgba(230, 139, 24, 0.20) 0%,
+    rgba(235, 99, 72, 0.14) 35%,
+    rgba(236, 83, 90, 0.09) 60%,
+    rgba(236, 56, 119, 0.06) 80%,
     transparent 100%
   );
   pointer-events: none;
@@ -218,6 +223,70 @@ a {
   border-color: var(--border-subtle) !important;
 }
 
+/* Menu Dropdowns, Popovers & Sub-menus */
+ul[role="menu"],
+[role="menu"],
+[data-leafygreen-ui="popover"],
+[data-leafygreen-ui="popover"] > div,
+div:has(> ul[role="menu"]) {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55) !important;
+}
+
+[role="menuitem"] {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+[role="menuitem"]:hover,
+[role="menuitem"][data-highlighted="true"],
+[role="menuitem"]:focus {
+  background-color: var(--brand-bg) !important;
+  color: var(--brand) !important;
+}
+
+[role="menuitem"][data-variant="destructive"],
+[class*="leafygreen-ui"][class*="destructive"] {
+  color: var(--brand-end) !important;
+}
+[role="menuitem"][data-variant="destructive"]:hover,
+[class*="leafygreen-ui"][class*="destructive"]:hover {
+  background-color: rgba(236, 56, 119, 0.12) !important;
+  color: var(--brand-end) !important;
+}
+
+[role="separator"] {
+  background-color: var(--border-subtle) !important;
+}
+
+/* Custom Unified Menu Items */
+.okc-menu-item:hover {
+  background-color: var(--brand-bg) !important;
+  color: var(--brand) !important;
+}
+
+.okc-menu-item:hover svg {
+  fill: var(--brand) !important;
+}
+
+.okc-menu-item-destructive:hover {
+  background-color: rgba(236, 56, 119, 0.12) !important;
+  color: var(--brand-end) !important;
+}
+
+.okc-menu-item-destructive:hover svg {
+  fill: var(--brand-end) !important;
+}
+
+/* Flat Nav Links */
+.okc-nav-link:hover {
+  background-color: var(--brand-bg) !important;
+  color: var(--brand) !important;
+}
+
 /* Select/combobox dropdown z-index */
 [data-leafygreen-ui="popover-container"] {
   z-index: 1000;
@@ -233,7 +302,7 @@ a {
 
 /* --- Focus rings (blue focus outline LG uses is fine; swap green glow) --- */
 :focus-visible {
-  outline: 2px solid #E8693F !important;
+  outline: 2px solid var(--brand) !important;
   outline-offset: 2px;
 }
 

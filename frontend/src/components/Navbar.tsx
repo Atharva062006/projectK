@@ -1,23 +1,40 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
 import Button from "@/components/OKCButton";
 import IconButton from "@leafygreen-ui/icon-button";
-import { Menu, MenuItem, MenuSeparator } from "@leafygreen-ui/menu";
 import LeafyGreenProvider from "@leafygreen-ui/leafygreen-provider";
 import Icon from "@leafygreen-ui/icon";
 import { palette } from "@leafygreen-ui/palette";
+import { BRAND } from "@/lib/theme";
 
 export default function Navbar() {
   const { user, profileId, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
 
   const initials = user?.username
     ? user.username
@@ -32,9 +49,6 @@ export default function Navbar() {
     { href: "/pitches", label: "Pitches" },
   ];
 
-  const navBg = darkMode
-    ? "rgba(12, 14, 15, 0.92)"
-    : "rgba(255, 255, 255, 0.95)";
   const navBorder = darkMode
     ? "rgba(255,255,255,0.08)"
     : "rgba(0,0,0,0.08)";
@@ -42,7 +56,10 @@ export default function Navbar() {
   return (
     <LeafyGreenProvider darkMode={darkMode}>
       <div style={{ position: "sticky", top: 0, zIndex: 999, padding: "20px 24px 16px", pointerEvents: "none" }}>
-        <nav
+        <motion.nav
+          initial={{ y: -18, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
           style={{
             maxWidth: "1080px",
             margin: "0 auto",
@@ -97,32 +114,33 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* ── Center: Nav Links ── */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          {/* ── Center: Nav Links (Clean, Flat design) ── */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
+                  className="okc-nav-link"
                   style={{
-                    padding: "4px 12px",
-                    borderRadius: "6px",
+                    padding: "6px 14px",
+                    borderRadius: "8px",
                     fontSize: "13px",
-                    fontWeight: isActive ? 600 : 400,
+                    fontWeight: isActive ? 600 : 500,
                     color: isActive
-                      ? "#E8693F"
+                      ? BRAND.primary
                       : darkMode
                       ? palette.gray.light1
                       : palette.gray.dark1,
                     background: isActive
-                      ? "rgba(232, 105, 63, 0.08)"
+                      ? darkMode
+                        ? "rgba(255, 255, 255, 0.08)"
+                        : "rgba(0, 0, 0, 0.06)"
                       : "transparent",
                     textDecoration: "none",
                     transition: "all 0.15s ease",
-                    borderBottom: isActive
-                      ? "2px solid #E8693F"
-                      : "2px solid transparent",
+                    border: "none",
                   }}
                 >
                   {link.label}
@@ -144,123 +162,195 @@ export default function Navbar() {
 
             {/* Auth */}
             {user ? (
-              <Menu
-                open={menuOpen}
-                setOpen={setMenuOpen}
-                darkMode={darkMode}
-                trigger={
-                  <Button
-                    darkMode={darkMode}
-                    size="xsmall"
-                    leftGlyph={
-                      <span
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          borderRadius: "50%",
-                          background: "linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "9px",
-                          fontWeight: 700,
-                          color: "#fff",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {initials}
-                      </span>
-                    }
-                    rightGlyph={<Icon glyph="CaretDown" />}
-                  >
-                    <span style={{ maxWidth: "80px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {user.username}
-                    </span>
-                  </Button>
-                }
-              >
-                <div
+              <div style={{ position: "relative" }} ref={menuRef}>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setMenuOpen(!menuOpen)}
                   style={{
-                    padding: "8px 12px 6px",
-                    borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-                    marginBottom: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "4px 10px 4px 6px",
+                    borderRadius: "99px",
+                    border: `1px solid ${menuOpen ? BRAND.primaryBorder : darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)"}`,
+                    background: menuOpen ? BRAND.primaryBg : darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                    cursor: "pointer",
+                    color: darkMode ? palette.white : palette.black,
+                    transition: "all 0.15s ease",
                   }}
                 >
-                  <p style={{ fontSize: "10px", color: palette.gray.base, margin: 0 }}>Signed in as</p>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      color: darkMode ? palette.white : palette.black,
-                      margin: "2px 0 4px",
-                    }}
-                  >
-                    {user.username}
-                  </p>
                   <span
                     style={{
-                      fontSize: "9px",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      background: "rgba(232, 105, 63, 0.10)",
-                      border: "1px solid rgba(232, 105, 63, 0.28)",
-                      color: "#E8693F",
-                      textTransform: "uppercase",
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      background: BRAND.gradient,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "10px",
                       fontWeight: 700,
-                      letterSpacing: "0.05em",
+                      color: "#fff",
+                      flexShrink: 0,
                     }}
                   >
-                    {user.role}
+                    {initials}
                   </span>
-                </div>
-
-                {(user.role === "member" || user.role === "alumni") && (
-                  <>
-                    {profileId && (
-                      <MenuItem
-                        as={Link}
-                        href={`/profiles/${profileId}`}
-                        glyph={<Icon glyph="Person" />}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        View Showcase
-                      </MenuItem>
-                    )}
-                    <MenuItem
-                      as={Link}
-                      href="/portfolio"
-                      glyph={<Icon glyph="Edit" />}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Edit Portfolio
-                    </MenuItem>
-                  </>
-                )}
-
-                {user.role === "admin" && (
-                  <MenuItem
-                    as={Link}
-                    href="/admin"
-                    glyph={<Icon glyph="Settings" />}
-                    onClick={() => setMenuOpen(false)}
+                  <span style={{ fontSize: "12px", fontWeight: 600, maxWidth: "80px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {user.username}
+                  </span>
+                  <motion.span
+                    animate={{ rotate: menuOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ display: "flex", alignItems: "center", color: darkMode ? palette.gray.light1 : palette.gray.dark1 }}
                   >
-                    Admin Dashboard
-                  </MenuItem>
-                )}
+                    <Icon glyph="CaretDown" size={12} />
+                  </motion.span>
+                </motion.button>
 
-                <MenuSeparator />
+                <AnimatePresence>
+                  {menuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                      transition={{ duration: 0.18, ease: [0.25, 1, 0.5, 1] }}
+                      style={{
+                        position: "absolute",
+                        top: "calc(100% + 8px)",
+                        right: 0,
+                        minWidth: "210px",
+                        background: darkMode ? "#181C1F" : "#FFFFFF",
+                        border: `1px solid ${darkMode ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)"}`,
+                        borderRadius: "14px",
+                        boxShadow: darkMode ? "0 12px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)" : "0 12px 32px rgba(0,0,0,0.12)",
+                        padding: "6px",
+                        zIndex: 1000,
+                        overflow: "hidden",
+                      }}
+                    >
+                      {/* User info Header */}
+                      <div style={{ padding: "8px 10px 8px" }}>
+                        <p style={{ fontSize: "10px", color: palette.gray.base, margin: 0 }}>Signed in as</p>
+                        <p style={{ fontSize: "13px", fontWeight: 700, color: darkMode ? palette.white : palette.black, margin: "2px 0 6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {user.username}
+                        </p>
+                        <span
+                          style={{
+                            fontSize: "9px",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            background: BRAND.primaryBg,
+                            border: `1px solid ${BRAND.primaryBorder}`,
+                            color: BRAND.primary,
+                            textTransform: "uppercase",
+                            fontWeight: 700,
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          {user.role}
+                        </span>
+                      </div>
 
-                <MenuItem
-                  glyph={<Icon glyph="LogOut" />}
-                  variant="destructive"
-                  onClick={() => {
-                    logout();
-                    setMenuOpen(false);
-                  }}
-                >
-                  Sign Out
-                </MenuItem>
-              </Menu>
+                      <div style={{ height: "1px", background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "4px 0" }} />
+
+                      {/* Links */}
+                      {(user.role === "member" || user.role === "alumni") && (
+                        <>
+                          {profileId && (
+                            <Link
+                              href={`/profiles/${profileId}`}
+                              onClick={() => setMenuOpen(false)}
+                              className="okc-menu-item"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "8px 10px",
+                                borderRadius: "8px",
+                                fontSize: "13px",
+                                color: darkMode ? palette.gray.light1 : palette.gray.dark2,
+                                textDecoration: "none",
+                                transition: "all 0.15s ease",
+                              }}
+                            >
+                              <Icon glyph="Person" size={14} />
+                              <span>View Showcase</span>
+                            </Link>
+                          )}
+                          <Link
+                            href="/portfolio"
+                            onClick={() => setMenuOpen(false)}
+                            className="okc-menu-item"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "8px 10px",
+                              borderRadius: "8px",
+                              fontSize: "13px",
+                              color: darkMode ? palette.gray.light1 : palette.gray.dark2,
+                              textDecoration: "none",
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <Icon glyph="Edit" size={14} />
+                            <span>Edit Portfolio</span>
+                          </Link>
+                        </>
+                      )}
+
+                      {user.role === "admin" && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setMenuOpen(false)}
+                          className="okc-menu-item"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            fontSize: "13px",
+                            color: darkMode ? palette.gray.light1 : palette.gray.dark2,
+                            textDecoration: "none",
+                            transition: "all 0.15s ease",
+                          }}
+                        >
+                          <Icon glyph="Settings" size={14} />
+                          <span>Admin Dashboard</span>
+                        </Link>
+                      )}
+
+                      <div style={{ height: "1px", background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "4px 0" }} />
+
+                      {/* Sign Out */}
+                      <div
+                        onClick={() => {
+                          logout();
+                          setMenuOpen(false);
+                        }}
+                        className="okc-menu-item-destructive"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          padding: "8px 10px",
+                          borderRadius: "8px",
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          color: "#EC3877",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <Icon glyph="LogOut" size={14} fill="#EC3877" />
+                        <span>Sign Out</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
               <Button
                 as={Link}
@@ -269,13 +359,13 @@ export default function Navbar() {
                 variant="primary"
                 size="xsmall"
               >
-                Login
+                Sign In
               </Button>
             )}
           </div>
         </div>
-        </nav>
-      </div>
+      </motion.nav>
+    </div>
     </LeafyGreenProvider>
   );
 }
