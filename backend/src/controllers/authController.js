@@ -5,6 +5,7 @@ import {
     requestPasswordResetService,
     resetPasswordService
 } from "../services/authService.js"; // Import service functions
+import { googleAuthService } from "../services/googleAuthService.js";
 
 // Register user
 export const registerUser = async (req, res) => {
@@ -88,6 +89,28 @@ export const resetPassword = async (req, res) => {
         return handleResponse(res, 200, result.message);
     } catch (error) {
         const statusCode = error.message.includes("token") ? 400 : 500;
+        return handleResponse(res, statusCode, error.message);
+    }
+};
+
+// Google Login Controller
+export const googleLogin = async (req, res) => {
+    const { idToken } = req.body;
+    if (!idToken) {
+        return handleResponse(res, 400, "Google ID token is required");
+    }
+
+    try {
+        const { user, token } = await googleAuthService(idToken);
+        delete user.password_hash;
+        return handleResponse(res, 200, "Google login successful", { user, token });
+    } catch (error) {
+        let statusCode = 500;
+        if (error.message.includes("Google token") || error.message.includes("required")) {
+            statusCode = 400;
+        } else if (error.message.includes("pending admin approval")) {
+            statusCode = 403;
+        }
         return handleResponse(res, statusCode, error.message);
     }
 };

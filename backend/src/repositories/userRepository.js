@@ -12,6 +12,36 @@ export const createUser = async (username, email, passwordHash, role = "member",
     return result.rows[0];
 };
 
+// # Finds a user in the database by their Google ID.
+export const findUserByGoogleId = async (googleId) => {
+    const result = await pool.query("SELECT * FROM users WHERE google_id = $1", [googleId]);
+    return result.rows[0];
+};
+
+// # Creates a new Google authenticated user record (without password hash).
+export const createGoogleUser = async (username, email, googleId, role = "member", isApproved = true) => {
+    const result = await pool.query(
+        "INSERT INTO users (username, email, google_id, role, is_approved) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [username, email, googleId, role, isApproved]
+    );
+    return result.rows[0];
+};
+
+// # Links Google ID to an existing email user account.
+export const linkGoogleId = async (userId, googleId) => {
+    const result = await pool.query(
+        "UPDATE users SET google_id = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2 RETURNING *",
+        [googleId, userId]
+    );
+    return result.rows[0];
+};
+
+// # Finds a user by their username.
+export const findUserByUsername = async (username) => {
+    const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+    return result.rows[0];
+};
+
 // # Finds a user in the database by their unique email address.
 export const findUserByEmail = async (email) => {
     // # Query users table filtering by email column

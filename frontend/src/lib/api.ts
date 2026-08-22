@@ -38,6 +38,7 @@ export const api = {
   auth: {
     register: (body: object) => request("/auth/register", { method: "POST", body: JSON.stringify(body) }),
     login: (body: object) => request<{ token: string; user: object }>("/auth/login", { method: "POST", body: JSON.stringify(body) }),
+    googleLogin: (idToken: string) => request<{ token: string; user: object }>("/auth/google", { method: "POST", body: JSON.stringify({ idToken }) }),
     requestReset: (email: string) => request("/auth/request-reset", { method: "POST", body: JSON.stringify({ email }) }),
     resetPassword: (token: string, newPassword: string) => request("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, newPassword }) }),
   },
