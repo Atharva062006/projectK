@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 import Card from "@leafygreen-ui/card";
 import Button from "@/components/OKCButton";
@@ -20,6 +21,12 @@ import { ExpandableCard } from "@leafygreen-ui/expandable-card";
 import { palette } from "@leafygreen-ui/palette";
 import { useTheme } from "@/context/ThemeContext";
 import { BRAND, STATUS, SURFACE, availabilityStyle } from "@/lib/theme";
+import {
+  staggerContainer,
+  fadeInUp,
+  fadeInScale,
+  floatingHero,
+} from "@/lib/animations";
 
 interface Testimonial {
   name: string;
@@ -64,37 +71,37 @@ const FAQS: FAQItem[] = [
   {
     question: "What is Project K?",
     answer:
-      "Project K is the official member portfolio showcase of Oyster Kode Club. It serves as a structured, searchable, and verified directory of our active members and alumni.",
+      "Project K is the official talent discovery and portfolio ecosystem of Oyster Kode Club. It gives verified members and alumni dedicated showcase profiles featuring engineering projects, live demos, and downloadable resumes.",
   },
   {
     question: "Who can create a profile on this platform?",
     answer:
-      "Only verified members and alumni of the Oyster Kode Club can create and customize their bento portfolios. External visitors can sign up as recruiters or guests to search and view profiles.",
+      "Only active members and confirmed alumni of Oyster Kode Club who have an approved account can build and maintain a public portfolio profile.",
   },
   {
     question: "How are member accounts approved?",
     answer:
-      "When a new member or alumni registers, their account is flagged as 'Pending Approval'. The club administration verifies their membership records before activating the account.",
+      "Club administrators review registrations to verify current club membership or alumni credentials before public portfolio visibility is enabled.",
   },
   {
     question: "Can recruiters download member resumes directly?",
     answer:
-      "Yes. Registered recruiters and authenticated guests can download resumes directly from detailed member profiles. The platform logs each download and click for internal analytics.",
+      "Yes. Every public member profile includes direct links to download verified PDF resumes uploaded by the candidate.",
   },
 ];
 
 const STATS = [
-  { glyph: "MultiDirectionArrow", value: "150+", label: "Registered Talent Profiles" },
-  { glyph: "University", value: "50+", label: "Active Alumni Network" },
-  { glyph: "Code", value: "12+", label: "Core Domains & Tech Tracks" },
-  { glyph: "Shell", value: "180+", label: "Open Source Repositories" },
+  { value: "40+", label: "Verified Members", glyph: "Person" },
+  { value: "25+", label: "Completed Projects", glyph: "Laptop" },
+  { value: "8+", label: "Alumni at Big Tech", glyph: "Building" },
+  { value: "100%", label: "Student-Led", glyph: "Sparkle" },
 ];
 
 const DOMAINS = [
-  { title: "Web Development", tech: "React, Next.js, Node.js, TypeScript", href: "/directory?search=Next.js" },
-  { title: "AI & ML Pipelines", tech: "Python, PyTorch, Data Analysis", href: "/directory?search=Python" },
-  { title: "Systems & Hardware", tech: "Verilog, C/C++, Embedded Systems", href: "/directory?search=VLSI" },
-  { title: "Cloud & DevOps", tech: "Docker, AWS, Kubernetes, CI/CD", href: "/directory?search=Docker" },
+  { title: "Full Stack & Web Systems", tech: "React · Next.js · Node.js · PostgreSQL", href: "/directory?search=Next.js" },
+  { title: "AI & Machine Learning", tech: "PyTorch · Python · LLMs · OpenCV", href: "/directory?search=Python" },
+  { title: "Hardware & VLSI", tech: "Verilog · VHDL · FPGA · Embedded C", href: "/directory?search=VLSI" },
+  { title: "Cloud & DevOps", tech: "Docker · AWS · Kubernetes · CI/CD", href: "/directory?search=Docker" },
 ];
 
 export default function LandingPage() {
@@ -102,7 +109,6 @@ export default function LandingPage() {
   const textColor = darkMode ? palette.white : palette.black;
   const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
   const borderColor = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
-  const sectionBg = darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "56px", paddingBottom: "64px" }}>
@@ -115,9 +121,22 @@ export default function LandingPage() {
           position: "relative",
         }}
       >
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-            <div style={{ position: "relative" }}>
+        <motion.div
+          variants={staggerContainer(0.1, 0.1)}
+          initial="initial"
+          animate="animate"
+          style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}
+        >
+          <motion.div
+            variants={fadeInScale}
+            style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}
+          >
+            <motion.div
+              variants={floatingHero}
+              initial="initial"
+              animate="animate"
+              style={{ position: "relative" }}
+            >
               <Image
                 src="/okc_main_logo.png"
                 alt="OKC Logo"
@@ -125,26 +144,33 @@ export default function LandingPage() {
                 height={80}
                 style={{ objectFit: "contain", position: "relative", zIndex: 1 }}
               />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <H1
-            darkMode={darkMode}
-            style={{
-              color: textColor,
-              marginBottom: "16px",
-              letterSpacing: "-0.02em",
-            }}
+          <motion.div variants={fadeInUp}>
+            <H1
+              darkMode={darkMode}
+              style={{
+                color: textColor,
+                marginBottom: "16px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              PROJECT K
+            </H1>
+          </motion.div>
+
+          <motion.div variants={fadeInUp}>
+            <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "32px", lineHeight: "1.7", fontSize: "16px" }}>
+              A structured portfolio database of members and alumni. Discover skill-based talent,
+              download verified resumes, and connect with developers.
+            </Body>
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}
           >
-            PROJECT K
-          </H1>
-
-          <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "32px", lineHeight: "1.7", fontSize: "16px" }}>
-            A structured portfolio database of members and alumni. Discover skill-based talent,
-            download verified resumes, and connect with developers.
-          </Body>
-
-          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
             <Button
               as={Link}
               href="/directory"
@@ -162,12 +188,16 @@ export default function LandingPage() {
             >
               Join Portal
             </Button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* ── STATS — single horizontal strip, Dividers between items ── */}
-      <div
+      {/* ── STATS — staggered scroll reveal strip ── */}
+      <motion.div
+        variants={staggerContainer(0.08)}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true, margin: "-40px" }}
         style={{
           display: "flex",
           alignItems: "stretch",
@@ -180,9 +210,9 @@ export default function LandingPage() {
         }}
       >
         {STATS.map((s, i) => (
-          <div
+          <motion.div
             key={i}
-            className={`anim-fadeInUp anim-delay-${i + 1}`}
+            variants={fadeInScale}
             style={{
               flex: "1 1 180px",
               display: "flex",
@@ -196,11 +226,11 @@ export default function LandingPage() {
             <Icon glyph={s.glyph as never} fill={BRAND.primary} size={20} />
             <H2 darkMode={darkMode} style={{ color: textColor, margin: 0 }}>{s.value}</H2>
             <Label htmlFor={`stat-${i}`} darkMode={darkMode} style={{ color: mutedColor, textAlign: "center" }}>{s.label}</Label>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* ── DOMAINS — no outer Card, items are hover-styled divs ── */}
+      {/* ── DOMAINS — staggered interactive grid ── */}
       <div>
         <div
           style={{
@@ -226,46 +256,59 @@ export default function LandingPage() {
           </Button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
+        <motion.div
+          variants={staggerContainer(0.06)}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, margin: "-40px" }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}
+        >
           {DOMAINS.map((d, i) => (
-            <Link
+            <motion.div
               key={i}
-              href={d.href}
-              style={{ textDecoration: "none" }}
-              className={`anim-fadeInUp anim-delay-${i + 2}`}
+              variants={fadeInUp}
+              whileHover={{ y: -4, transition: { duration: 0.18 } }}
+              whileTap={{ scale: 0.98 }}
             >
-              <div
-                style={{
-                  padding: "20px",
-                  borderRadius: "8px",
-                  border: `1px solid ${borderColor}`,
-                  cursor: "pointer",
-                  transition: "background 0.18s ease, border-color 0.18s ease",
-                  height: "100%",
-                  background: "transparent",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = BRAND.primaryBg;
-                  (e.currentTarget as HTMLDivElement).style.borderColor = BRAND.primaryBorder;
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = "transparent";
-                  (e.currentTarget as HTMLDivElement).style.borderColor = borderColor;
-                }}
+              <Link
+                href={d.href}
+                style={{ textDecoration: "none", display: "block", height: "100%" }}
               >
-                <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "8px", color: textColor }}>
-                  {d.title}
-                </H3>
-                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
-                  {d.tech}
-                </Body>
-              </div>
-            </Link>
+                <div
+                  style={{
+                    padding: "20px",
+                    borderRadius: "8px",
+                    border: `1px solid ${borderColor}`,
+                    cursor: "pointer",
+                    transition: "background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease",
+                    height: "100%",
+                    background: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.background = BRAND.primaryBg;
+                    (e.currentTarget as HTMLDivElement).style.borderColor = BRAND.primaryBorder;
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 4px 20px ${BRAND.primaryBg}`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.background = "transparent";
+                    (e.currentTarget as HTMLDivElement).style.borderColor = borderColor;
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                  }}
+                >
+                  <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "8px", color: textColor }}>
+                    {d.title}
+                  </H3>
+                  <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
+                    {d.tech}
+                  </Body>
+                </div>
+              </Link>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
-      {/* ── TESTIMONIALS — no outer Card; individual Cards are fine ── */}
+      {/* ── TESTIMONIALS — staggered cards with hover lift ── */}
       <div>
         <div style={{ marginBottom: "20px" }}>
           <Overline darkMode={darkMode}>Alumni Success</Overline>
@@ -274,38 +317,49 @@ export default function LandingPage() {
           </Body>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+        <motion.div
+          variants={staggerContainer(0.1)}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, margin: "-40px" }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}
+        >
           {TESTIMONIALS.map((t, i) => (
-            <Card data-okc-theme="true"
+            <motion.div
               key={i}
-              darkMode={darkMode}
-              className={`anim-fadeInUp anim-delay-${i + 2}`}
-              style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}
+              variants={fadeInUp}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              style={{ display: "flex", height: "100%" }}
             >
-              <Body
+              <Card data-okc-theme="true"
                 darkMode={darkMode}
-                style={{ fontStyle: "italic", color: mutedColor, lineHeight: "1.7", flex: 1 }}
+                style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}
               >
-                &ldquo;{t.quote}&rdquo;
-              </Body>
+                <Body
+                  darkMode={darkMode}
+                  style={{ fontStyle: "italic", color: mutedColor, lineHeight: "1.7", flex: 1 }}
+                >
+                  &ldquo;{t.quote}&rdquo;
+                </Body>
 
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "12px", borderTop: `1px solid ${SURFACE.border}` }}>
-                <div>
-                  <Subtitle darkMode={darkMode} style={{ fontSize: "13px", color: textColor, margin: 0 }}>
-                    {t.name}
-                  </Subtitle>
-                  <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginTop: "2px" }}>
-                    {t.role} @ {t.company}
-                  </Body>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "12px", borderTop: `1px solid ${SURFACE.border}` }}>
+                  <div>
+                    <Subtitle darkMode={darkMode} style={{ fontSize: "13px", color: textColor, margin: 0 }}>
+                      {t.name}
+                    </Subtitle>
+                    <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginTop: "2px" }}>
+                      {t.role} @ {t.company}
+                    </Body>
+                  </div>
+                  <Badge darkMode={darkMode} variant="lightgray">{t.gradYear}</Badge>
                 </div>
-                <Badge darkMode={darkMode} variant="lightgray">{t.gradYear}</Badge>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
-      {/* ── FAQ — no outer Card; ExpandableCards flow directly ── */}
+      {/* ── FAQ — staggered scroll reveal ── */}
       <div>
         <div style={{ marginBottom: "20px" }}>
           <Overline darkMode={darkMode}>Frequently Asked Questions</Overline>
@@ -314,18 +368,25 @@ export default function LandingPage() {
           </Body>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <motion.div
+          variants={staggerContainer(0.07)}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, margin: "-40px" }}
+          style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+        >
           {FAQS.map((faq, i) => (
-            <ExpandableCard data-okc-theme="true"
-              key={i}
-              darkMode={darkMode}
-              title={faq.question}
-              flagText="FAQ"
-            >
-              <Body darkMode={darkMode} style={{ color: mutedColor }}>{faq.answer}</Body>
-            </ExpandableCard>
+            <motion.div key={i} variants={fadeInUp}>
+              <ExpandableCard data-okc-theme="true"
+                darkMode={darkMode}
+                title={faq.question}
+                flagText="FAQ"
+              >
+                <Body darkMode={darkMode} style={{ color: mutedColor }}>{faq.answer}</Body>
+              </ExpandableCard>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* ── FOOTER — plain footer with top border; no Card ── */}

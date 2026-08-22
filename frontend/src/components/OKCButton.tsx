@@ -2,16 +2,18 @@
 /**
  * OKCButton — Branded Button wrapper for Project K
  *
- * variant="primary"  → OKC amber→orange→magenta gradient (native <button>/<a>)
+ * variant="primary"  → OKC amber→orange→magenta gradient with Framer Motion tactile press/hover physics
  * all other variants → delegates to @leafygreen-ui/button unchanged
  */
 import React from "react";
 import LGButton from "@leafygreen-ui/button";
+import { motion } from "framer-motion";
+import { BRAND } from "@/lib/theme";
 
-// ── Gradient constants ──────────────────────────────────────────────────────
-const G  = "linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%)";
-const GH = "linear-gradient(135deg, #D98F00 0%, #C4512B 50%, #CC2866 100%)";
-const GLOW = "rgba(232, 105, 63, 0.35)";
+// ── Gradient constants mapped to central theme ──────────────────────────────
+const G    = BRAND.gradient;
+const GH   = BRAND.gradientHover;
+const GLOW = BRAND.glow;
 
 // ── Size map ────────────────────────────────────────────────────────────────
 const SZ: Record<string, { height: string; fontSize: string; padding: string; textTransform?: string; letterSpacing?: string }> = {
@@ -73,7 +75,7 @@ export default function OKCButton(props: any) {
     );
   }
 
-  /* Primary: gradient native element */
+  /* Primary: gradient native element with Framer Motion tactile feedback */
   const sz = SZ[size] ?? SZ.default;
   const isDisabled = disabled || isLoading;
 
@@ -143,42 +145,44 @@ export default function OKCButton(props: any) {
     </>
   );
 
-  /* Render as <a> when href given or as="a" */
+  /* Render as motion.a when href given or as="a" */
   const isLink = href != null || Tag === "a";
   if (isLink) {
-    const El = Tag || "a";
     return (
-      <El
+      <motion.a
         href={href}
         target={target}
         rel={rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)}
         style={baseStyle}
         className={className}
         title={title}
+        whileHover={isDisabled ? undefined : { scale: 1.02 }}
+        whileTap={isDisabled ? undefined : { scale: 0.97 }}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         {...rest}
       >
         {inner}
-      </El>
+      </motion.a>
     );
   }
 
-  const El = Tag || "button";
   return (
-    <El
-      type={El === "button" ? type : undefined}
-      disabled={El === "button" ? isDisabled : undefined}
+    <motion.button
+      type={type}
+      disabled={isDisabled}
       aria-disabled={isDisabled || undefined}
       onClick={isDisabled ? undefined : onClick}
       style={baseStyle}
       className={className}
       title={title}
+      whileHover={isDisabled ? undefined : { scale: 1.02 }}
+      whileTap={isDisabled ? undefined : { scale: 0.97 }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
       {...rest}
     >
       {inner}
-    </El>
+    </motion.button>
   );
 }
