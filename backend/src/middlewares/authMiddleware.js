@@ -23,6 +23,28 @@ export const authenticateJWT = (req, res, next) => {
 };
 
 
+export const optionalAuthJWT = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    let token = null;
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+    } else if (req.query && req.query.token) {
+        token = req.query.token;
+    }
+
+    if (token) {
+        try {
+            const jwtSecret = process.env.JWT_SECRET || "fallback_secure_secret_key_123";
+            const decoded = jwt.verify(token, jwtSecret);
+            req.user = decoded;
+        } catch {
+            // Non-blocking: continue as unauthenticated
+        }
+    }
+    next();
+};
+
 export const authorizeRoles = (...allowedRoles) => {
     return (req, res, next) => {
         if (!req.user || !allowedRoles.includes(req.user.role)) {

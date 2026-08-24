@@ -1,11 +1,11 @@
-/* globals.css — Project K
+/* globals.css — Apple Design System for Project K
  *
- * LeafyGreen UI handles all component styling via Emotion CSS-in-JS.
- * This file only defines:
- *   1. Tailwind base layer (kept for layout utilities like flex, grid, max-w)
- *   2. Page-level background (LeafyGreen dark slate)
- *   3. Scroll & selection resets
- *   4. Keyframe animations referenced by page components
+ * Strict adherence to appledesign.md:
+ * - Single Brand Accent: Action Blue (#0066cc)
+ * - Typography: SF Pro Display / Text hierarchy with signature Apple tight tracking
+ * - Surfaces: Pure White (#ffffff), Parchment (#f5f5f7), Near-Black (#272729), Pure Black (#000000)
+ * - Micro-interaction: transform: scale(0.95) on button press
+ * - Zero decorative shadows: single shadow reserved for product/portrait imagery
  * ─────────────────────────────────────────────────────────────────────── */
 
 @import "tailwindcss";
@@ -20,82 +20,151 @@
 }
 
 ::selection {
-  background: rgba(232, 105, 63, 0.28);
-  color: #E8EDEB;
+  background: rgba(0, 102, 204, 0.20);
+  color: #1d1d1f;
 }
 
-/* ── 2. Page background (LeafyGreen dark — var for easy swap) ─────────── */
+/* ── 2. Apple Design Tokens ────────────────────────────────────────────── */
 :root {
-  --bg-page: #0C0E0F;
-  --bg-card: #1C2023;
-  --bg-elevated: #21282D;
-  --border-subtle: rgba(255, 255, 255, 0.10);
-  --text-primary: #E8EDEB;
-  --text-secondary: #89979B;
-  --text-muted: #5C6C75;
-  /* OKC Club 4-color Palette: Zest → Burnt Sienna → Mandy → French Rose */
-  --brand-zest:   #E68B18;
-  --brand-sienna: #EB6348;
-  --brand-mandy:  #EC535A;
-  --brand-rose:   #EC3877;
-  --brand-start:  #E68B18;
-  --brand:        #EB6348;
-  --brand-end:    #EC3877;
-  --brand-gradient: linear-gradient(135deg, #E68B18 0%, #EB6348 35%, #EC535A 70%, #EC3877 100%);
-  --brand-muted:  #C44B30;
-  --brand-bg:     rgba(235, 99, 72, 0.08);
-  --brand-border: rgba(235, 99, 72, 0.28);
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+
+  --color-canvas: #ffffff;
+  --color-canvas-parchment: #f5f5f7;
+  --color-surface-pearl: #fafafc;
+  --color-surface-tile-1: #272729;
+  --color-surface-tile-2: #2a2a2c;
+  --color-surface-tile-3: #252527;
+  --color-surface-black: #000000;
+
+  --color-ink: #1d1d1f;
+  --color-body: #1d1d1f;
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #86868b;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #6e6e73;
+
+  --color-hairline: #e0e0e0;
+  --color-hairline-dark: rgba(255, 255, 255, 0.12);
+  --color-divider-soft: rgba(0, 0, 0, 0.04);
+
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
 }
 
 html {
-  background-color: var(--bg-page);
-  color: var(--text-primary);
+  background-color: var(--color-canvas-parchment);
+  color: var(--color-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   min-height: 100vh;
-  background-color: var(--bg-page);
-  color: var(--text-primary);
+  background-color: var(--color-canvas-parchment);
+  color: var(--color-ink);
   overflow-x: hidden;
   position: relative;
-  /* Smooth scrolling */
-  scroll-behavior: smooth;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
 }
 
-/* ── Top Ambient Glow & Dot Grid (Edge to Edge, behind Navbar) ──────────── */
-.top-ambient-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 650px;
-  background: radial-gradient(
-    ellipse 100% 80% at 50% 0%,
-    rgba(230, 139, 24, 0.20) 0%,
-    rgba(235, 99, 72, 0.14) 35%,
-    rgba(236, 83, 90, 0.09) 60%,
-    rgba(236, 56, 119, 0.06) 80%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 0;
+/* ── 3. Typography System ──────────────────────────────────────────────── */
+.apple-hero-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
 }
 
-.top-dot-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 550px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
-  pointer-events: none;
-  z-index: 0;
+.apple-display-lg {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
+  letter-spacing: -0.28px;
 }
 
-/* ── 3. Scrollbar styling (subtle, LG-aligned) ─────────────────────────── */
+.apple-display-md {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.374px;
+}
+
+.apple-lead {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.196px;
+}
+
+.apple-tagline {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.231px;
+}
+
+.apple-body {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+}
+
+.apple-body-strong {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.374px;
+}
+
+.apple-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+}
+
+.apple-caption-strong {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+}
+
+.apple-fine-print {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.12px;
+}
+
+.apple-dense-link {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 2.2;
+  letter-spacing: 0;
+}
+
+/* ── 4. Apple Focus Ring ───────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-primary-focus) !important;
+  outline-offset: 2px;
+}
+
+/* ── 5. Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -104,29 +173,25 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.28);
 }
 
-/* ── 4. Typography base ────────────────────────────────────────────────── */
-a {
-  color: inherit;
-  text-decoration: none;
+/* ── 6. Utility Animation Classes ──────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* ── 5. Keyframe animations (referenced by page components) ────────────── */
-@keyframes floatDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.anim-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.anim-fadeInUp {
+  animation: fadeInUp 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 @keyframes fadeInUp {
@@ -138,243 +203,4 @@ a {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* ── 6. Utility animation classes ──────────────────────────────────────── */
-.anim-floatDown {
-  animation: floatDown 0.4s ease forwards;
-}
-
-.anim-fadeInUp {
-  animation: fadeInUp 0.4s ease forwards;
-}
-
-.anim-scaleIn {
-  animation: scaleIn 0.3s ease forwards;
-}
-
-/* Staggered delay helpers */
-.anim-delay-1 { animation-delay: 0.05s; opacity: 0; }
-.anim-delay-2 { animation-delay: 0.10s; opacity: 0; }
-.anim-delay-3 { animation-delay: 0.15s; opacity: 0; }
-.anim-delay-4 { animation-delay: 0.20s; opacity: 0; }
-.anim-delay-5 { animation-delay: 0.25s; opacity: 0; }
-.anim-delay-6 { animation-delay: 0.30s; opacity: 0; }
-.anim-delay-7 { animation-delay: 0.35s; opacity: 0; }
-.anim-delay-8 { animation-delay: 0.40s; opacity: 0; }
-
-/* ── 7. LeafyGreen component overrides ─────────────────────────────────── */
-
-/* Modal backdrop above everything */
-[data-leafygreen-ui="modal-backdrop"] {
-  z-index: 9000 !important;
-}
-
-/* Cards, Modals, ExpandableCards, and Popovers match page surface and borders */
-[data-okc-theme="true"],
-[class*="leafygreen-ui-card"],
-[class*="leafygreen-ui"][class*="expandable"],
-[class*="leafygreen-ui"][class*="popover"],
-[class*="leafygreen-ui"][class*="modal"] {
-  background-color: var(--bg-card) !important;
-  border-color: var(--border-subtle) !important;
-}
-
-/* Base Text Input, Text Areas, Selects */
-[data-okc-theme="true"] input,
-[data-okc-theme="true"] textarea,
-[data-okc-theme="true"] [role="button"],
-[data-okc-theme="true"] [role="listbox"],
-[data-okc-theme="true"] [role="option"],
-[data-okc-theme="true"] > div > div, /* Catch inner LG input wrappers */
-[class*="leafygreen-ui"][class*="input-container"],
-[class*="leafygreen-ui"][class*="input-container"] > div,
-[class*="leafygreen-ui"][class*="input-container"] > input,
-[class*="leafygreen-ui"][class*="input-container"] > textarea,
-[class*="leafygreen-ui"][class*="text-input"],
-[class*="leafygreen-ui"][class*="select-button"],
-[class*="leafygreen-ui"][class*="menu-item"] {
-  background-color: var(--bg-card) !important;
-  border-color: var(--border-subtle) !important;
-}
-
-/* Menu Dropdowns, Popovers & Sub-menus */
-ul[role="menu"],
-[role="menu"],
-[data-leafygreen-ui="popover"],
-[data-leafygreen-ui="popover"] > div,
-div:has(> ul[role="menu"]) {
-  background-color: var(--bg-card) !important;
-  border-color: var(--border-subtle) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55) !important;
-}
-
-[role="menuitem"] {
-  background-color: transparent !important;
-  color: var(--text-primary) !important;
-  transition: background 0.15s ease, color 0.15s ease !important;
-}
-
-[role="menuitem"]:hover,
-[role="menuitem"][data-highlighted="true"],
-[role="menuitem"]:focus {
-  background-color: var(--brand-bg) !important;
-  color: var(--brand) !important;
-}
-
-[role="menuitem"][data-variant="destructive"],
-[class*="leafygreen-ui"][class*="destructive"] {
-  color: var(--brand-end) !important;
-}
-[role="menuitem"][data-variant="destructive"]:hover,
-[class*="leafygreen-ui"][class*="destructive"]:hover {
-  background-color: rgba(236, 56, 119, 0.12) !important;
-  color: var(--brand-end) !important;
-}
-
-[role="separator"] {
-  background-color: var(--border-subtle) !important;
-}
-
-/* Custom Unified Menu Items */
-.okc-menu-item:hover {
-  background-color: var(--brand-bg) !important;
-  color: var(--brand) !important;
-}
-
-.okc-menu-item:hover svg {
-  fill: var(--brand) !important;
-}
-
-.okc-menu-item-destructive:hover {
-  background-color: rgba(236, 56, 119, 0.12) !important;
-  color: var(--brand-end) !important;
-}
-
-.okc-menu-item-destructive:hover svg {
-  fill: var(--brand-end) !important;
-}
-
-/* Flat Nav Links */
-.okc-nav-link:hover {
-  background-color: var(--brand-bg) !important;
-  color: var(--brand) !important;
-}
-
-/* Select/combobox dropdown z-index */
-[data-leafygreen-ui="popover-container"] {
-  z-index: 1000;
-}
-
-/* ── 8. OKC Brand color overrides — replace LG green everywhere ─────────── */
-
-/*
- * Strategy: LG uses Emotion (CSS-in-JS) which injects styles with high
- * specificity but NOT !important. We use targeted attribute + class
- * selectors to override focus rings, borders, and tints.
- */
-
-/* --- Focus rings (blue focus outline LG uses is fine; swap green glow) --- */
-:focus-visible {
-  outline: 2px solid var(--brand) !important;
-  outline-offset: 2px;
-}
-
-/* --- Checkbox & Radio — checked state fill -------------------------------- */
-/* LG checkboxes use SVG fill; we tint the wrapper border */
-[data-leafygreen-ui="checkbox-wrapper"] input:checked + [class*="check"] {
-  background: var(--brand-gradient) !important;
-  border-color: var(--brand) !important;
-}
-
-/* --- Text Input / Text Area / Password Input — focus border -------------- */
-[class*="leafygreen-ui"][class*="input-container"]:focus-within,
-[class*="leafygreen-ui"][class*="text-input"]:focus-within {
-  box-shadow: 0 0 0 3px var(--brand-border) !important;
-  border-color: var(--brand) !important;
-}
-
-/* --- Select — focus + selected option tick -------------------------------- */
-[class*="leafygreen-ui"][class*="select"]:focus-within {
-  box-shadow: 0 0 0 3px var(--brand-border) !important;
-}
-
-/* --- Tabs — active tab indicator underline -------------------------------- */
-[class*="leafygreen-ui"][class*="tab"][aria-selected="true"] {
-  color: var(--brand) !important;
-}
-/* The animated underline bar LG renders as a separate div */
-[class*="leafygreen-ui"][class*="tab-indicator"],
-[class*="leafygreen-ui"][class*="tabIndicator"] {
-  background: var(--brand-gradient) !important;
-}
-
-/* --- Chip — selected/active state ---------------------------------------- */
-[class*="leafygreen-ui"][class*="chip"][aria-pressed="true"],
-[class*="leafygreen-ui"][class*="chip"][data-active="true"] {
-  background: var(--brand-bg) !important;
-  border-color: var(--brand-border) !important;
-  color: var(--brand) !important;
-}
-
-/* --- Badge — green variant tint ------------------------------------------ */
-[class*="leafygreen-ui"][class*="badge"][data-variant="green"] {
-  background: var(--brand-bg) !important;
-  color: var(--brand) !important;
-}
-
-/* --- Typography links ----------------------------------------------------- */
-[class*="leafygreen-ui"] a,
-[class*="leafygreen-ui"][class*="link"] {
-  color: var(--brand) !important;
-}
-[class*="leafygreen-ui"] a:hover,
-[class*="leafygreen-ui"][class*="link"]:hover {
-  color: var(--brand-end) !important;
-}
-
-/* --- Spinner / LoadingIndicator ------------------------------------------ */
-[class*="leafygreen-ui"][class*="spinner"] circle,
-[class*="leafygreen-ui"][class*="loading"] circle {
-  stroke: var(--brand) !important;
-}
-
-/* --- ExpandableCard open indicator --------------------------------------- */
-[class*="leafygreen-ui"][class*="expandable"][open] > summary,
-[class*="leafygreen-ui"][class*="expandable"] > [data-open="true"] {
-  border-left: 3px solid var(--brand) !important;
-}
-
-/* --- Scrollbar thumb → brand tint ---------------------------------------- */
-::-webkit-scrollbar-thumb {
-  background: rgba(232, 105, 63, 0.18);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(232, 105, 63, 0.35);
 }

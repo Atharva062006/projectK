@@ -1,112 +1,106 @@
 import type React from "react";
 
 /**
- * theme.ts — Centralized design tokens for Project K
+ * theme.ts — Strict Apple Design System Tokens (appledesign.md)
  *
- * All brand-level color decisions live here.
- * You can effortlessly toggle or revert palettes by changing ACTIVE_PALETTE.
+ * Single Brand Accent Color: Action Blue (#0066cc)
+ * No decorative gradients. Pure photographic and structural clarity.
  */
 
-// ─── Palette Presets ────────────────────────────────────────────────────────
-export const PALETTES = {
-  /**
-   * Official 4-color club palette:
-   * • Zest:         #E68B18 (Golden Amber)
-   * • Burnt Sienna: #EB6348 (Warm Orange)
-   * • Mandy:        #EC535A (Coral Rose)
-   * • French Rose:  #EC3877 (Hot Magenta)
-   */
-  OKC_OFFICIAL: {
-    zest: "#E68B18",
-    burntSienna: "#EB6348",
-    mandy: "#EC535A",
-    frenchRose: "#EC3877",
+export const APPLE_COLORS = {
+  // Brand & Accent
+  primary: "#0066cc",          // Action Blue: universal interactive color
+  primaryFocus: "#0071e3",     // Focus Blue: keyboard focus ring outline
+  primaryOnDark: "#2997ff",    // Sky Link Blue: in-copy links on dark surfaces
 
-    gradientStart: "#E68B18",
-    primary: "#EB6348",
-    accent: "#EC535A",
-    gradientEnd: "#EC3877",
+  // Surface Canvas
+  canvas: "#ffffff",           // Pure White: content, utility cards, store tiles
+  canvasParchment: "#f5f5f7",  // Parchment: signature Apple off-white alternating canvas & footer
+  surfacePearl: "#fafafc",     // Pearl Button: fill for secondary ghost/capsule buttons
+  surfaceTile1: "#272729",     // Near-Black Tile 1: primary dark-tile surface
+  surfaceTile2: "#2a2a2c",     // Near-Black Tile 2: micro-step lighter dark tile
+  surfaceTile3: "#252527",     // Near-Black Tile 3: dark tile 3 / player frame
+  surfaceBlack: "#000000",     // Pure Black: global nav bar, void overlays
+  surfaceChipTranslucent: "rgba(210, 210, 215, 0.64)", // Translucent chip gray over photography
 
-    gradient: "linear-gradient(135deg, #E68B18 0%, #EB6348 35%, #EC535A 70%, #EC3877 100%)",
-    gradientHover: "linear-gradient(135deg, #D47B0E 0%, #D65136 35%, #D64249 70%, #D42866 100%)",
-    glow: "rgba(235, 99, 72, 0.35)",
+  // Text Ink
+  ink: "#1d1d1f",              // Near-Black Ink: headlines & body on light surfaces
+  body: "#1d1d1f",             // Default body copy tone
+  bodyOnDark: "#ffffff",       // Text on dark tiles & global nav
+  bodyMuted: "#86868b",        // Secondary copy on light/dark surfaces
+  inkMuted80: "#333333",       // Secondary text on Pearl Button surfaces
+  inkMuted48: "#6e6e73",       // Secondary labels, captions, and legal fine-print
 
-    primaryMuted: "#C44B30",
-    primaryBg: "rgba(235, 99, 72, 0.08)",
-    primaryBorder: "rgba(235, 99, 72, 0.28)",
-  },
-
-  /**
-   * Previous High-Contrast Triad preset (easy 1-click revert)
-   */
-  PREVIOUS_TRIAD: {
-    zest: "#F0A500",
-    burntSienna: "#E8693F",
-    mandy: "#E8693F",
-    frenchRose: "#F0387A",
-
-    gradientStart: "#F0A500",
-    primary: "#E8693F",
-    accent: "#E8693F",
-    gradientEnd: "#F0387A",
-
-    gradient: "linear-gradient(135deg, #F0A500 0%, #E8693F 50%, #F0387A 100%)",
-    gradientHover: "linear-gradient(135deg, #D98F00 0%, #C4512B 50%, #CC2866 100%)",
-    glow: "rgba(232, 105, 63, 0.35)",
-
-    primaryMuted: "#C04A28",
-    primaryBg: "rgba(232, 105, 63, 0.08)",
-    primaryBorder: "rgba(232, 105, 63, 0.28)",
-  },
+  // Hairlines & Dividers
+  hairline: "#e0e0e0",         // 1px hairline border on utility cards
+  hairlineDark: "rgba(255, 255, 255, 0.12)",
+  dividerSoft: "rgba(0, 0, 0, 0.04)",
+  borderSubtle: "rgba(0, 0, 0, 0.08)",
 } as const;
 
-/**
- * ⚡ ACTIVE PALETTE SELECTOR:
- * Change this single reference to switch or revert the theme everywhere!
- */
-export const ACTIVE_PALETTE = PALETTES.OKC_OFFICIAL;
+export const APPLE_RADII = {
+  none: "0px",
+  xs: "5px",
+  sm: "8px",     // Dark utility buttons, thumbnail frames
+  md: "11px",    // Pearl Button capsules
+  lg: "18px",    // Utility cards, portrait visual cards, project frames
+  pill: "9999px",// Blue pill CTAs, search inputs, tag chips
+  full: "50%",   // Circular control chips
+} as const;
 
-// ─── Active Brand Exports ───────────────────────────────────────────────────
+export const APPLE_SHADOW = {
+  // The SINGLE drop-shadow in the entire Apple design system (reserved for product/portrait imagery)
+  product: "rgba(0, 0, 0, 0.22) 3px 5px 30px 0px",
+  productLight: "0 12px 32px rgba(0, 0, 0, 0.08)",
+} as const;
+
+// Backward-compatible BRAND export mapping cleanly to Apple design language
 export const BRAND = {
-  ...ACTIVE_PALETTE,
+  primary: APPLE_COLORS.primary,
+  primaryFocus: APPLE_COLORS.primaryFocus,
+  primaryOnDark: APPLE_COLORS.primaryOnDark,
+  primaryBg: "rgba(0, 102, 204, 0.08)",
+  primaryBorder: "rgba(0, 102, 204, 0.28)",
+  glow: "rgba(0, 102, 204, 0.25)",
+  gradient: APPLE_COLORS.primary, // Apple uses solid Action Blue
+  gradientHover: "#005bb5",
+  ink: APPLE_COLORS.ink,
+  muted: APPLE_COLORS.inkMuted48,
 } as const;
 
-// ─── Semantic Status Colors ─────────────────────────────────────────────────
 export const STATUS = {
-  success: "#4CAF7D",
-  successBg: "rgba(76, 175, 125, 0.10)",
-  successBorder: "rgba(76, 175, 125, 0.25)",
+  success: "#1d8348",
+  successBg: "rgba(46, 133, 64, 0.08)",
+  successBorder: "rgba(46, 133, 64, 0.20)",
 
-  warning: BRAND.zest,
-  warningBg: "rgba(230, 139, 24, 0.10)",
-  warningBorder: "rgba(230, 139, 24, 0.25)",
+  warning: "#b76e00",
+  warningBg: "rgba(183, 110, 0, 0.08)",
+  warningBorder: "rgba(183, 110, 0, 0.20)",
 
-  error: BRAND.frenchRose,
-  errorBg: "rgba(236, 56, 119, 0.10)",
-  errorBorder: "rgba(236, 56, 119, 0.25)",
+  error: "#d70015",
+  errorBg: "rgba(215, 0, 21, 0.08)",
+  errorBorder: "rgba(215, 0, 21, 0.20)",
 
-  info: BRAND.primary,
-  infoBg: BRAND.primaryBg,
-  infoBorder: BRAND.primaryBorder,
+  info: APPLE_COLORS.primary,
+  infoBg: "rgba(0, 102, 204, 0.08)",
+  infoBorder: "rgba(0, 102, 204, 0.20)",
 } as const;
 
-// ─── Surface/Background Layers ──────────────────────────────────────────────
 export const SURFACE = {
-  page: "#0C0E0F",
-  card: "#1C2023",
-  elevated: "#21282D",
-  input: "#1C2023",
-  border: "rgba(255, 255, 255, 0.10)",
+  page: APPLE_COLORS.canvasParchment,
+  card: APPLE_COLORS.canvas,
+  elevated: APPLE_COLORS.surfacePearl,
+  input: APPLE_COLORS.canvas,
+  border: APPLE_COLORS.hairline,
 } as const;
 
-// ─── Text Colors ────────────────────────────────────────────────────────────
 export const TEXT = {
-  primary: "#E8EDEB",
-  secondary: "#89979B",
-  muted: "#5C6C75",
+  primary: APPLE_COLORS.ink,
+  secondary: APPLE_COLORS.inkMuted48,
+  muted: APPLE_COLORS.inkMuted48,
+  onDark: APPLE_COLORS.bodyOnDark,
 } as const;
 
-// ─── Availability Badge Helper ──────────────────────────────────────────────
 export function availabilityStyle(av?: string): React.CSSProperties {
   if (av === "Available")
     return { background: STATUS.successBg, border: `1px solid ${STATUS.successBorder}`, color: STATUS.success };
