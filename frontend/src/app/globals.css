@@ -24,27 +24,24 @@
   color: #E8EDEB;
 }
 
-/* ── 2. Page background (LeafyGreen dark — var for easy swap) ─────────── */
+/* ── 2. Page background & Restrained Theme Variables ───────────────────── */
 :root {
   --bg-page: #0C0E0F;
-  --bg-card: #1C2023;
-  --bg-elevated: #21282D;
-  --border-subtle: rgba(255, 255, 255, 0.10);
-  --text-primary: #E8EDEB;
-  --text-secondary: #89979B;
-  --text-muted: #5C6C75;
-  /* OKC Club 4-color Palette: Zest → Burnt Sienna → Mandy → French Rose */
-  --brand-zest:   #E68B18;
-  --brand-sienna: #EB6348;
-  --brand-mandy:  #EC535A;
-  --brand-rose:   #EC3877;
+  --bg-card: #181C1F;
+  --bg-elevated: #21262A;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --text-primary: #EDEDED;
+  --text-secondary: #A1A7B0;
+  --text-muted: #8B939E;
+
+  /* Restrained Warm Amber/Orange Brand Accent */
   --brand-start:  #E68B18;
   --brand:        #EB6348;
-  --brand-end:    #EC3877;
-  --brand-gradient: linear-gradient(135deg, #E68B18 0%, #EB6348 35%, #EC535A 70%, #EC3877 100%);
+  --brand-end:    #E68B18;
+  --brand-gradient: linear-gradient(135deg, #E68B18 0%, #EB6348 100%);
   --brand-muted:  #C44B30;
   --brand-bg:     rgba(235, 99, 72, 0.08);
-  --brand-border: rgba(235, 99, 72, 0.28);
+  --brand-border: rgba(235, 99, 72, 0.24);
 }
 
 html {
@@ -62,19 +59,17 @@ body {
   scroll-behavior: smooth;
 }
 
-/* ── Top Ambient Glow & Dot Grid (Edge to Edge, behind Navbar) ──────────── */
+/* ── Top Ambient Glow & Dot Grid (Subdued, Non-Flashy) ───────────────────── */
 .top-ambient-glow {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 650px;
+  height: 380px;
   background: radial-gradient(
-    ellipse 100% 80% at 50% 0%,
-    rgba(230, 139, 24, 0.20) 0%,
-    rgba(235, 99, 72, 0.14) 35%,
-    rgba(236, 83, 90, 0.09) 60%,
-    rgba(236, 56, 119, 0.06) 80%,
+    ellipse 80% 60% at 50% 0%,
+    rgba(235, 99, 72, 0.04) 0%,
+    rgba(230, 139, 24, 0.02) 50%,
     transparent 100%
   );
   pointer-events: none;
@@ -86,11 +81,11 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 550px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  height: 400px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -250,12 +245,12 @@ div:has(> ul[role="menu"]) {
 
 [role="menuitem"][data-variant="destructive"],
 [class*="leafygreen-ui"][class*="destructive"] {
-  color: var(--brand-end) !important;
+  color: #E5484D !important;
 }
 [role="menuitem"][data-variant="destructive"]:hover,
 [class*="leafygreen-ui"][class*="destructive"]:hover {
-  background-color: rgba(236, 56, 119, 0.12) !important;
-  color: var(--brand-end) !important;
+  background-color: rgba(229, 72, 77, 0.12) !important;
+  color: #E5484D !important;
 }
 
 [role="separator"] {
@@ -265,26 +260,26 @@ div:has(> ul[role="menu"]) {
 /* Custom Unified Menu Items */
 .okc-menu-item:hover {
   background-color: var(--brand-bg) !important;
-  color: var(--brand) !important;
+  color: var(--text-primary) !important;
 }
 
 .okc-menu-item:hover svg {
-  fill: var(--brand) !important;
+  fill: var(--text-primary) !important;
 }
 
 .okc-menu-item-destructive:hover {
-  background-color: rgba(236, 56, 119, 0.12) !important;
-  color: var(--brand-end) !important;
+  background-color: rgba(229, 72, 77, 0.12) !important;
+  color: #E5484D !important;
 }
 
 .okc-menu-item-destructive:hover svg {
-  fill: var(--brand-end) !important;
+  fill: #E5484D !important;
 }
 
 /* Flat Nav Links */
 .okc-nav-link:hover {
   background-color: var(--brand-bg) !important;
-  color: var(--brand) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Select/combobox dropdown z-index */
@@ -292,47 +287,38 @@ div:has(> ul[role="menu"]) {
   z-index: 1000;
 }
 
-/* ── 8. OKC Brand color overrides — replace LG green everywhere ─────────── */
+/* ── 8. OKC Brand color overrides — restrained action focus ─────────── */
 
-/*
- * Strategy: LG uses Emotion (CSS-in-JS) which injects styles with high
- * specificity but NOT !important. We use targeted attribute + class
- * selectors to override focus rings, borders, and tints.
- */
-
-/* --- Focus rings (blue focus outline LG uses is fine; swap green glow) --- */
 :focus-visible {
   outline: 2px solid var(--brand) !important;
   outline-offset: 2px;
 }
 
 /* --- Checkbox & Radio — checked state fill -------------------------------- */
-/* LG checkboxes use SVG fill; we tint the wrapper border */
 [data-leafygreen-ui="checkbox-wrapper"] input:checked + [class*="check"] {
-  background: var(--brand-gradient) !important;
+  background: var(--brand) !important;
   border-color: var(--brand) !important;
 }
 
 /* --- Text Input / Text Area / Password Input — focus border -------------- */
 [class*="leafygreen-ui"][class*="input-container"]:focus-within,
 [class*="leafygreen-ui"][class*="text-input"]:focus-within {
-  box-shadow: 0 0 0 3px var(--brand-border) !important;
+  box-shadow: 0 0 0 2px var(--brand-border) !important;
   border-color: var(--brand) !important;
 }
 
 /* --- Select — focus + selected option tick -------------------------------- */
 [class*="leafygreen-ui"][class*="select"]:focus-within {
-  box-shadow: 0 0 0 3px var(--brand-border) !important;
+  box-shadow: 0 0 0 2px var(--brand-border) !important;
 }
 
 /* --- Tabs — active tab indicator underline -------------------------------- */
 [class*="leafygreen-ui"][class*="tab"][aria-selected="true"] {
-  color: var(--brand) !important;
+  color: var(--text-primary) !important;
 }
-/* The animated underline bar LG renders as a separate div */
 [class*="leafygreen-ui"][class*="tab-indicator"],
 [class*="leafygreen-ui"][class*="tabIndicator"] {
-  background: var(--brand-gradient) !important;
+  background: var(--brand) !important;
 }
 
 /* --- Chip — selected/active state ---------------------------------------- */
@@ -340,23 +326,13 @@ div:has(> ul[role="menu"]) {
 [class*="leafygreen-ui"][class*="chip"][data-active="true"] {
   background: var(--brand-bg) !important;
   border-color: var(--brand-border) !important;
-  color: var(--brand) !important;
-}
-
-/* --- Badge — green variant tint ------------------------------------------ */
-[class*="leafygreen-ui"][class*="badge"][data-variant="green"] {
-  background: var(--brand-bg) !important;
-  color: var(--brand) !important;
+  color: var(--text-primary) !important;
 }
 
 /* --- Typography links ----------------------------------------------------- */
-[class*="leafygreen-ui"] a,
-[class*="leafygreen-ui"][class*="link"] {
-  color: var(--brand) !important;
-}
 [class*="leafygreen-ui"] a:hover,
 [class*="leafygreen-ui"][class*="link"]:hover {
-  color: var(--brand-end) !important;
+  color: var(--brand) !important;
 }
 
 /* --- Spinner / LoadingIndicator ------------------------------------------ */
@@ -365,16 +341,16 @@ div:has(> ul[role="menu"]) {
   stroke: var(--brand) !important;
 }
 
-/* --- ExpandableCard open indicator --------------------------------------- */
+/* --- ExpandableCard open indicator (subtle neutral border) ---------------- */
 [class*="leafygreen-ui"][class*="expandable"][open] > summary,
 [class*="leafygreen-ui"][class*="expandable"] > [data-open="true"] {
-  border-left: 3px solid var(--brand) !important;
+  border-left: 2px solid var(--brand) !important;
 }
 
-/* --- Scrollbar thumb → brand tint ---------------------------------------- */
+/* --- Scrollbar thumb → neutral slate ------------------------------------- */
 ::-webkit-scrollbar-thumb {
-  background: rgba(232, 105, 63, 0.18);
+  background: rgba(255, 255, 255, 0.12);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(232, 105, 63, 0.35);
+  background: rgba(255, 255, 255, 0.22);
 }

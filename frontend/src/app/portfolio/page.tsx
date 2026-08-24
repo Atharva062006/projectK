@@ -77,8 +77,8 @@ export default function PortfolioPage() {
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* Single Card for isolated auth-required state */}
         <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
-          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: BRAND.primaryBg, border: `1px solid ${BRAND.primaryBorder}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-            <Icon glyph="Lock" fill={BRAND.primary} size={20} />
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)", border: `1px solid ${SURFACE.border}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            <Icon glyph="Lock" fill={mutedColor} size={20} />
           </div>
           <H2 darkMode={darkMode} style={{ marginBottom: "8px" }}>Authentication Required</H2>
           <Body darkMode={darkMode} style={{ color: mutedColor }}>You must be logged in to manage your portfolio.</Body>
@@ -147,11 +147,11 @@ export default function PortfolioPage() {
         {profile && (
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div>
-              <Overline darkMode={darkMode}>Profile Quality</Overline>
+              <Overline darkMode={darkMode} style={{ color: mutedColor }}>Profile Quality</Overline>
               <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>Completion</Body>
             </div>
             <div style={{ textAlign: "right" }}>
-              <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0 }}>{profile.completion_percentage}%</H2>
+              <H2 darkMode={darkMode} style={{ color: textColor, margin: 0, fontWeight: 700 }}>{profile.completion_percentage}%</H2>
               <div style={{ width: "112px", height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden", marginTop: "6px" }}>
                 <motion.div
                   initial={{ width: 0 }}
@@ -177,10 +177,10 @@ export default function PortfolioPage() {
           ].map((s, i) => (
             <Card data-okc-theme="true" key={i} darkMode={darkMode} style={{ padding: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <Overline darkMode={darkMode}>{s.label}</Overline>
+                <Overline darkMode={darkMode} style={{ color: mutedColor }}>{s.label}</Overline>
                 <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>{s.sub}</Body>
               </div>
-              <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0 }}>{s.value}</H2>
+              <H2 darkMode={darkMode} style={{ color: textColor, margin: 0, fontWeight: 700 }}>{s.value}</H2>
             </Card>
           ))}
         </div>
@@ -191,41 +191,45 @@ export default function PortfolioPage() {
         {/* Core Details — standalone Card (an isolated editor surface) */}
         <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
-            <Icon glyph="Person" fill={BRAND.primary} size={14} />
-            <Overline darkMode={darkMode}>Core Profile Settings</Overline>
+            <Icon glyph="Person" fill={mutedColor} size={14} />
+            <Overline darkMode={darkMode} style={{ color: mutedColor }}>Core Profile Settings</Overline>
           </div>
           <form onSubmit={handleProfileSave} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <TextInput data-okc-theme="true" darkMode={darkMode} label="Full Name" value={pf.full_name} onChange={(e) => setPf({ ...pf, full_name: e.target.value })} required />
               <TextInput data-okc-theme="true" darkMode={darkMode} label="Tagline / Title" placeholder="e.g. Full Stack Developer" value={pf.tagline} onChange={(e) => setPf({ ...pf, tagline: e.target.value })} />
-              <TextInput data-okc-theme="true" darkMode={darkMode} label="Department" placeholder="e.g. Core Team" value={pf.department} onChange={(e) => setPf({ ...pf, department: e.target.value })} />
-              <TextInput data-okc-theme="true" darkMode={darkMode} label="Graduation Year" type="number" placeholder="2026" value={pf.yr_of_graduation} onChange={(e) => setPf({ ...pf, yr_of_graduation: e.target.value })} />
-              <TextInput data-okc-theme="true" darkMode={darkMode} label="College / Institution" value={pf.college} onChange={(e) => setPf({ ...pf, college: e.target.value })} />
-              <TextInput data-okc-theme="true" darkMode={darkMode} label="Location" placeholder="e.g. Bangalore, India" value={pf.location} onChange={(e) => setPf({ ...pf, location: e.target.value })} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="College / University" placeholder="e.g. University of Engineering" value={pf.college} onChange={(e) => setPf({ ...pf, college: e.target.value })} />
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="Location" placeholder="e.g. San Francisco, CA" value={pf.location} onChange={(e) => setPf({ ...pf, location: e.target.value })} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              <Select data-okc-theme="true" darkMode={darkMode} label="Availability" value={pf.availability} onChange={(val) => setPf({ ...pf, availability: val })}>
+                <Option value="Available">Available</Option>
+                <Option value="Open to work">Open to work</Option>
+                <Option value="Busy">Busy</Option>
+              </Select>
+              <Select data-okc-theme="true" darkMode={darkMode} label="Department" value={pf.department} onChange={(val) => setPf({ ...pf, department: val })}>
+                <Option value="Core Team">Core Team</Option>
+                <Option value="Technical Team">Technical Team</Option>
+                <Option value="Other Members">Other Members</Option>
+                <Option value="Alumni">Alumni</Option>
+              </Select>
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="Grad Year" type="number" placeholder="2025" value={pf.yr_of_graduation} onChange={(e) => setPf({ ...pf, yr_of_graduation: e.target.value })} />
+            </div>
+            <TextArea data-okc-theme="true" darkMode={darkMode} label="Biography" placeholder="Tell us about yourself..." value={pf.bio} onChange={(e) => setPf({ ...pf, bio: e.target.value })} rows={3} />
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="Phone Number" placeholder="+1 (555) 000-0000" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="Portfolio URL" placeholder="https://mywebsite.dev" value={contact.portfolio_url} onChange={(e) => setContact({ ...contact, portfolio_url: e.target.value })} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="LinkedIn Profile" placeholder="https://linkedin.com/in/..." value={contact.linkedin} onChange={(e) => setContact({ ...contact, linkedin: e.target.value })} />
+              <TextInput data-okc-theme="true" darkMode={darkMode} label="GitHub Profile" placeholder="https://github.com/..." value={contact.github} onChange={(e) => setContact({ ...contact, github: e.target.value })} />
             </div>
 
-            <TextArea data-okc-theme="true" darkMode={darkMode} label="Biography / Core Focus" placeholder="Write a brief overview of your projects and interests..." value={pf.bio} onChange={(e) => setPf({ ...pf, bio: e.target.value })} rows={3} />
-
-            <Select data-okc-theme="true" darkMode={darkMode} label="Availability Status" value={pf.availability} onChange={(val) => setPf({ ...pf, availability: val })}>
-              <Option value="">Choose status...</Option>
-              <Option value="Available">Available</Option>
-              <Option value="Busy">Busy</Option>
-              <Option value="Open to work">Open to work</Option>
-            </Select>
-
-            {/* Social Links */}
-            <div style={{ paddingTop: "16px", borderTop: `1px solid ${SURFACE.border}` }}>
-              <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Social Connections</Overline>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <TextInput data-okc-theme="true" darkMode={darkMode} label="Phone" placeholder="+91..." value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
-                <TextInput data-okc-theme="true" darkMode={darkMode} label="GitHub Link" placeholder="https://github.com/..." value={contact.github} onChange={(e) => setContact({ ...contact, github: e.target.value })} />
-                <TextInput data-okc-theme="true" darkMode={darkMode} label="LinkedIn Link" placeholder="https://linkedin.com/in/..." value={contact.linkedin} onChange={(e) => setContact({ ...contact, linkedin: e.target.value })} />
-                <TextInput data-okc-theme="true" darkMode={darkMode} label="Portfolio Link" placeholder="https://..." value={contact.portfolio_url} onChange={(e) => setContact({ ...contact, portfolio_url: e.target.value })} />
-              </div>
-            </div>
-
-            <Button type="submit" darkMode={darkMode} variant="primary" isLoading={loading} loadingText="Saving..." leftGlyph={<Icon glyph="Save" />} style={{ width: "100%" }}>
-              Save Profile Details
+            <Button type="submit" darkMode={darkMode} variant="primary" isLoading={loading} style={{ alignSelf: "flex-start", marginTop: "8px" }}>
+              Save Profile Settings
             </Button>
           </form>
         </Card>
@@ -235,19 +239,19 @@ export default function PortfolioPage() {
           {/* Resume Upload — standalone Card (isolated action surface) */}
           <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-              <Icon glyph="File" fill={BRAND.primary} size={14} />
-              <Overline darkMode={darkMode}>Curriculum Vitae</Overline>
+              <Icon glyph="File" fill={mutedColor} size={14} />
+              <Overline darkMode={darkMode} style={{ color: mutedColor }}>Curriculum Vitae</Overline>
             </div>
             <form onSubmit={handleUploadResume} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <div
                 style={{ position: "relative", border: `2px dashed ${SURFACE.border}`, borderRadius: "12px", padding: "28px 20px", textAlign: "center", cursor: "pointer", transition: "border-color 0.15s ease" }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = BRAND.primaryBorder)}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = darkMode ? "rgba(255,255,255,0.24)" : "rgba(0,0,0,0.24)")}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = SURFACE.border)}
               >
                 <input type="file" accept=".pdf" ref={fileRef} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} required />
                 <Icon glyph="Upload" fill={mutedColor} size={24} style={{ margin: "0 auto 8px", display: "block" }} />
                 <Body darkMode={darkMode} style={{ color: mutedColor, fontSize: "13px" }}>Select PDF resume</Body>
-                <Body darkMode={darkMode} style={{ color: SURFACE.border, fontSize: "11px", marginTop: "4px" }}>Maximum file size: 5MB</Body>
+                <Body darkMode={darkMode} style={{ color: mutedColor, fontSize: "11px", marginTop: "4px" }}>Maximum file size: 5MB</Body>
               </div>
               <Button type="submit" darkMode={darkMode} variant="default" isLoading={loading} style={{ width: "100%" }}>
                 Upload PDF Resume
@@ -269,8 +273,8 @@ export default function PortfolioPage() {
           {/* Skills — standalone Card (isolated action surface) */}
           <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-              <Icon glyph="Code" fill={BRAND.primary} size={14} />
-              <Overline darkMode={darkMode}>Manage Skills</Overline>
+              <Icon glyph="Code" fill={mutedColor} size={14} />
+              <Overline darkMode={darkMode} style={{ color: mutedColor }}>Manage Skills</Overline>
             </div>
             <form onSubmit={handleAddSkill} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <Select data-okc-theme="true" darkMode={darkMode} label="Skill" value={selectedSkillId} onChange={(val) => setSelectedSkillId(val)} placeholder="Select skill...">
@@ -319,8 +323,8 @@ export default function PortfolioPage() {
       {/* ── Projects section — no outer Card wrapper ── */}
       <div style={{ paddingTop: "8px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px", paddingTop: "16px", borderTop: `1px solid ${SURFACE.border}` }}>
-          <Icon glyph="Laptop" fill={BRAND.primary} size={14} />
-          <Overline darkMode={darkMode}>Projects Showcase Manager</Overline>
+          <Icon glyph="Laptop" fill={mutedColor} size={14} />
+          <Overline darkMode={darkMode} style={{ color: mutedColor }}>Projects Showcase Manager</Overline>
         </div>
 
         {/* Add Project form — plain section, no nested Card */}

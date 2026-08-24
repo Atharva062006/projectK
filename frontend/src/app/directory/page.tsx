@@ -107,30 +107,16 @@ function MemberShowcaseCard({
         minHeight: "340px",
       }}
     >
-      {/* ── Full-Card Mesh & Ambient Backdrop (Toned down & refined) ── */}
+      {/* ── Full-Card Ambient Backdrop (Clean Dark Surface) ── */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: darkMode
-            ? "radial-gradient(circle at 30% 20%, rgba(230, 139, 24, 0.18), transparent 65%), radial-gradient(circle at 80% 70%, rgba(236, 56, 119, 0.16), transparent 65%), #14171A"
-            : "radial-gradient(circle at 30% 20%, rgba(230, 139, 24, 0.12), transparent 65%), radial-gradient(circle at 80% 70%, rgba(236, 56, 119, 0.10), transparent 65%), #F8F9FA",
+          background: darkMode ? "#181C1F" : "#FFFFFF",
           pointerEvents: "none",
           zIndex: 0,
         }}
-      >
-        {/* Subtle Dot Grid Overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${darkMode ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px)`,
-            backgroundSize: "16px 16px",
-            opacity: isHovered ? 0.6 : 0.25,
-            transition: "opacity 0.35s ease",
-          }}
-        />
-      </div>
+      />
 
       <Link
         href={`/profiles/${profile.profile_id}`}
@@ -160,19 +146,18 @@ function MemberShowcaseCard({
               zIndex: 2,
             }}
           >
+            {/* Subdued Neutral Gray Role Badge */}
             <span
               style={{
                 fontSize: "10px",
-                fontWeight: 700,
+                fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "0.04em",
                 padding: "3px 8px",
                 borderRadius: "6px",
-                background: darkMode ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                color: BRAND.primary,
-                border: `1px solid ${BRAND.primaryBorder}`,
+                background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)",
+                color: mutedColor,
+                border: `1px solid ${darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
               }}
             >
               {profile.role_category}
@@ -183,17 +168,18 @@ function MemberShowcaseCard({
 
           {/* Large Center Avatar */}
           <motion.div
-            animate={{ scale: isHovered ? 1.06 : 1 }}
-            transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+            animate={{ scale: isHovered ? 1.05 : 1 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             style={{
               width: "72px",
               height: "72px",
               borderRadius: "50%",
-              background: BRAND.gradient,
+              background: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)"}`,
               padding: "2px",
               boxShadow: isHovered
-                ? `0 0 18px ${BRAND.glow}, 0 6px 14px rgba(0,0,0,0.3)`
-                : "0 3px 10px rgba(0,0,0,0.18)",
+                ? "0 6px 16px rgba(0,0,0,0.3)"
+                : "0 2px 8px rgba(0,0,0,0.12)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -206,12 +192,12 @@ function MemberShowcaseCard({
                 width: "100%",
                 height: "100%",
                 borderRadius: "50%",
-                background: darkMode ? "#181C1F" : "#FFFFFF",
+                background: darkMode ? "#14171A" : "#F4F6F8",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "22px",
-                fontWeight: 800,
+                fontWeight: 700,
                 color: textColor,
                 letterSpacing: "-0.02em",
               }}
@@ -471,14 +457,14 @@ function DirectoryContent() {
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Icon glyph="Filter" fill={BRAND.primary} size={14} />
-              <Overline darkMode={darkMode}>Filters</Overline>
+              <Icon glyph="Filter" fill={mutedColor} size={14} />
+              <Overline darkMode={darkMode} style={{ color: mutedColor }}>Filters</Overline>
             </div>
             <Button
               darkMode={darkMode}
               variant="default"
               size="xsmall"
-              leftGlyph={<Icon glyph={isLoading ? "Refresh" : "Refresh"} />}
+              leftGlyph={<Icon glyph="Refresh" />}
               onClick={fetchProfiles}
               title="Refresh data"
             />
@@ -583,8 +569,8 @@ function DirectoryContent() {
                 title="Bento Showcase View"
                 style={{
                   border: "none",
-                  background: viewMode === "grid" ? (darkMode ? "#1C2023" : "#FFFFFF") : "transparent",
-                  color: viewMode === "grid" ? BRAND.primary : mutedColor,
+                  background: viewMode === "grid" ? (darkMode ? "#21262A" : "#FFFFFF") : "transparent",
+                  color: viewMode === "grid" ? textColor : mutedColor,
                   padding: "6px 10px",
                   borderRadius: "6px",
                   cursor: "pointer",
@@ -605,8 +591,8 @@ function DirectoryContent() {
                 title="Compact List View"
                 style={{
                   border: "none",
-                  background: viewMode === "list" ? (darkMode ? "#1C2023" : "#FFFFFF") : "transparent",
-                  color: viewMode === "list" ? BRAND.primary : mutedColor,
+                  background: viewMode === "list" ? (darkMode ? "#21262A" : "#FFFFFF") : "transparent",
+                  color: viewMode === "list" ? textColor : mutedColor,
                   padding: "6px 10px",
                   borderRadius: "6px",
                   cursor: "pointer",

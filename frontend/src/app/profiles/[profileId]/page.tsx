@@ -9,7 +9,7 @@ import Card from "@leafygreen-ui/card";
 import Badge from "@leafygreen-ui/badge";
 import Button from "@/components/OKCButton";
 import { Chip } from "@leafygreen-ui/chip";
-import { H1, H2, H3, Body, Overline, Label } from "@leafygreen-ui/typography";
+import { H1, H2, H3, Subtitle, Body, Overline, Label } from "@leafygreen-ui/typography";
 import Icon from "@leafygreen-ui/icon";
 import { Spinner } from "@leafygreen-ui/loading-indicator";
 import { Banner } from "@leafygreen-ui/banner";
@@ -141,16 +141,14 @@ export default function ProfileDetailPage() {
         </Button>
       </div>
 
-      {/* ── HEADER — avatar + name + tagline + meta, no Card ── */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: "24px", marginBottom: "32px" }}>
-        {/* Avatar circle */}
         <div
           style={{
             width: "80px", height: "80px", borderRadius: "20px", flexShrink: 0,
-            background: SURFACE.elevated,
-            border: `1px solid ${BRAND.primaryBorder}`,
+            background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)",
+            border: `1px solid ${darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)"}`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "24px", fontWeight: 700, color: BRAND.primary,
+            fontSize: "24px", fontWeight: 700, color: textColor,
           }}
         >
           {initials}
@@ -170,41 +168,39 @@ export default function ProfileDetailPage() {
             {profile.tagline || "Oyster Kode Club Active Member"}
           </Body>
 
-          {/* Meta row */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
             {profile.email && (
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="Envelope" fill={BRAND.primary} size={12} />
+                <Icon glyph="Envelope" fill={mutedColor} size={12} />
                 <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.email}</Body>
               </div>
             )}
             {(profile.contact?.phone || profile.phone) && (
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="Phone" fill={BRAND.primary} size={12} />
+                <Icon glyph="Phone" fill={mutedColor} size={12} />
                 <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.contact?.phone || profile.phone}</Body>
               </div>
             )}
             {profile.college && (
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="University" fill={BRAND.primary} size={12} />
+                <Icon glyph="University" fill={mutedColor} size={12} />
                 <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.college}</Body>
               </div>
             )}
             {profile.location && (
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="Map" fill={BRAND.primary} size={12} />
+                <Icon glyph="Map" fill={mutedColor} size={12} />
                 <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.location}</Body>
               </div>
             )}
             {profile.yr_of_graduation && (
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="GraduationCap" fill={BRAND.primary} size={12} />
+                <Icon glyph="GraduationCap" fill={mutedColor} size={12} />
                 <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>Class of {profile.yr_of_graduation}</Body>
               </div>
             )}
           </div>
 
-          {/* Social buttons */}
           <div style={{ display: "flex", gap: "8px", marginTop: "14px" }}>
             {profile.contact?.github && (
               <Button as="a" href={profile.contact.github} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<GithubIcon />}>GitHub</Button>
@@ -221,9 +217,8 @@ export default function ProfileDetailPage() {
 
       <SectionDivider darkMode={darkMode} />
 
-      {/* ── ABOUT — plain section, no Card ── */}
       <div style={{ padding: "28px 0" }}>
-        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>About</Overline>
+        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px", color: mutedColor }}>About</Overline>
         <Body darkMode={darkMode} style={{ color: mutedColor, lineHeight: "1.75", fontSize: "14px" }}>
           {profile.bio || "No biography added yet."}
         </Body>
@@ -231,9 +226,8 @@ export default function ProfileDetailPage() {
 
       <SectionDivider darkMode={darkMode} />
 
-      {/* ── SKILLS — plain section, no Card ── */}
       <div style={{ padding: "28px 0" }}>
-        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Skills</Overline>
+        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px", color: mutedColor }}>Skills</Overline>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
           {profile.skills && profile.skills.length > 0 ? (
             profile.skills.map((sk) => (
@@ -247,33 +241,39 @@ export default function ProfileDetailPage() {
 
       <SectionDivider darkMode={darkMode} />
 
-      {/* ── PROJECTS — section label + individual Cards (distinct content objects) ── */}
       <div style={{ padding: "28px 0" }}>
-        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "16px" }}>Projects</Overline>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
+        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "16px", color: mutedColor }}>Projects</Overline>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
           {profile.projects && profile.projects.length > 0 ? (
             profile.projects.map((proj) => (
               <Card data-okc-theme="true"
                 key={proj.project_id}
                 darkMode={darkMode}
-                style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}
+                style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}
               >
-                <div>
-                  <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "6px" }}>{proj.title}</H3>
-                  <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                    {proj.description}
-                  </Body>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "8px", borderTop: `1px solid ${SURFACE.border}` }}>
-                  <Body darkMode={darkMode} style={{ fontSize: "10px", color: mutedColor }}>{proj.tech_stack}</Body>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    {proj.github_link && (
-                      <Button as="a" href={proj.github_link} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<GithubIcon />}>GitHub</Button>
-                    )}
-                    {proj.demo_link && (
-                      <Button as="a" href={proj.demo_link} target="_blank" darkMode={darkMode} variant="primary" size="xsmall">Demo</Button>
-                    )}
+                <Subtitle darkMode={darkMode} style={{ fontSize: "15px", margin: 0 }}>
+                  {proj.title}
+                </Subtitle>
+
+                <Body darkMode={darkMode} style={{ color: mutedColor, fontSize: "13px", lineHeight: "1.6", flex: 1 }}>
+                  {proj.description || "No description provided."}
+                </Body>
+
+                {proj.tech_stack && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                    {proj.tech_stack.split(",").map((t, idx) => (
+                      <Badge key={idx} darkMode={darkMode} variant="lightgray">{t.trim()}</Badge>
+                    ))}
                   </div>
+                )}
+
+                <div style={{ display: "flex", gap: "8px", paddingTop: "8px", borderTop: `1px solid ${SURFACE.border}` }}>
+                  {proj.github_link && (
+                    <Button as="a" href={proj.github_link} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<GithubIcon />}>Code</Button>
+                  )}
+                  {proj.demo_link && (
+                    <Button as="a" href={proj.demo_link} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<Icon glyph="ArrowRight" />}>Live</Button>
+                  )}
                 </div>
               </Card>
             ))
@@ -287,14 +287,13 @@ export default function ProfileDetailPage() {
 
       <SectionDivider darkMode={darkMode} />
 
-      {/* ── ACHIEVEMENTS — plain section, no Card ── */}
       {profile.achievements && profile.achievements.length > 0 && (
         <>
           <div style={{ padding: "28px 0" }}>
-            <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Achievements</Overline>
+            <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px", color: mutedColor }}>Achievements</Overline>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
               {profile.achievements.map((ach, i) => (
-                <li key={i} style={{ borderLeft: `2px solid ${BRAND.primaryBorder}`, paddingLeft: "12px" }}>
+                <li key={i} style={{ borderLeft: `2px solid ${darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)"}`, paddingLeft: "12px" }}>
                   <Body darkMode={darkMode} style={{ fontSize: "13px", color: mutedColor, lineHeight: "1.6" }}>{ach}</Body>
                 </li>
               ))}
@@ -304,14 +303,13 @@ export default function ProfileDetailPage() {
         </>
       )}
 
-      {/* ── CERTIFICATIONS — plain section, no Card ── */}
       {profile.certifications && profile.certifications.length > 0 && (
         <>
           <div style={{ padding: "28px 0" }}>
-            <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Certifications</Overline>
+            <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px", color: mutedColor }}>Certifications</Overline>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
               {profile.certifications.map((cert, i) => (
-                <li key={i} style={{ borderLeft: `2px solid rgba(1,107,248,0.4)`, paddingLeft: "12px" }}>
+                <li key={i} style={{ borderLeft: `2px solid ${darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)"}`, paddingLeft: "12px" }}>
                   <Body darkMode={darkMode} style={{ fontSize: "13px", color: mutedColor, lineHeight: "1.6" }}>{cert}</Body>
                 </li>
               ))}
@@ -321,7 +319,6 @@ export default function ProfileDetailPage() {
         </>
       )}
 
-      {/* ── Profile Quality strip — inline, no Card ── */}
       <div style={{ padding: "20px 0", display: "flex", alignItems: "center", gap: "16px" }}>
         <Label htmlFor="completion-bar" darkMode={darkMode} style={{ color: mutedColor, flexShrink: 0 }}>Profile Quality</Label>
         <div style={{ flex: 1, height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden" }}>
@@ -332,12 +329,11 @@ export default function ProfileDetailPage() {
             style={{ height: "100%", borderRadius: "99px", background: BRAND.gradient }}
           />
         </div>
-        <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0, fontSize: "18px" }}>{profile.completion_percentage}%</H2>
+        <H2 darkMode={darkMode} style={{ color: textColor, margin: 0, fontSize: "18px", fontWeight: 700 }}>{profile.completion_percentage}%</H2>
       </div>
 
       <SectionDivider darkMode={darkMode} />
 
-      {/* ── RESUME CTA — ONE Card for this distinct action ── */}
       <Card data-okc-theme="true"
         darkMode={darkMode}
         style={{ padding: "24px", marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}

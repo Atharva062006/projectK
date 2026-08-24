@@ -85,8 +85,8 @@ function PitchViewerContent() {
       {/* Lookup */}
       <Card data-okc-theme="true" darkMode={true} style={{ padding: "24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-          <Icon glyph="Search" fill={BRAND.primary} size={14} />
-          <Overline darkMode={true}>Load Curated Pitch</Overline>
+          <Icon glyph="Search" fill={palette.gray.light1} size={14} />
+          <Overline darkMode={true} style={{ color: palette.gray.light1 }}>Load Curated Pitch</Overline>
         </div>
         <form onSubmit={handleSubmitLookup} style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
           <div style={{ flex: 1 }}>

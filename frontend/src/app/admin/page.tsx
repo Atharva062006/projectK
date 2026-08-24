@@ -131,13 +131,12 @@ export default function AdminPage() {
       <ResponseBox result={result} />
 
       <Tabs aria-label="Admin Tabs" darkMode={darkMode} value={tabIndex} onValueChange={(v) => setTabIndex(Number(v))}>
-
         {/* ── Approvals Queue — uses Table for dense enterprise layout ── */}
         <Tab name="Approvals Queue">
           <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Icon glyph="Clock" fill={BRAND.primary} size={14} />
-              <Overline darkMode={darkMode}>Pending Registrations ({pending.length})</Overline>
+              <Icon glyph="Clock" fill={mutedColor} size={14} />
+              <Overline darkMode={darkMode} style={{ color: mutedColor }}>Pending Registrations ({pending.length})</Overline>
             </div>
 
             {pending.length === 0 ? (
@@ -152,21 +151,19 @@ export default function AdminPage() {
                     <HeaderCell>Name</HeaderCell>
                     <HeaderCell>Email</HeaderCell>
                     <HeaderCell>Role</HeaderCell>
-                    <HeaderCell>Requested</HeaderCell>
-                    <HeaderCell>Profile ID</HeaderCell>
-                    <HeaderCell>Action</HeaderCell>
+                    <HeaderCell>Registered</HeaderCell>
+                    <HeaderCell>Actions</HeaderCell>
                   </HeaderRow>
                 </TableHead>
                 <TableBody>
-                  {pending.map((datum) => (
-                    <Row key={datum.user_id}>
-                      <Cell><Body darkMode={darkMode} style={{ fontWeight: 600, fontSize: "13px" }}>{datum.full_name || "New Registrant"}</Body></Cell>
-                      <Cell><Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{datum.email}</Body></Cell>
-                      <Cell><Badge darkMode={darkMode} variant="lightgray">{datum.role}</Badge></Cell>
-                      <Cell><Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{new Date(datum.created_at).toLocaleDateString()}</Body></Cell>
-                      <Cell><Body darkMode={darkMode} style={{ fontSize: "10px", color: SURFACE.border, userSelect: "all" }}>{datum.profile_id}</Body></Cell>
+                  {pending.map((p) => (
+                    <Row key={p.user_id}>
+                      <Cell><Body darkMode={darkMode} style={{ fontWeight: 600, fontSize: "13px" }}>{p.full_name}</Body></Cell>
+                      <Cell><Body darkMode={darkMode} style={{ fontSize: "13px" }}>{p.email}</Body></Cell>
+                      <Cell><Badge darkMode={darkMode} variant="lightgray">{p.role}</Badge></Cell>
+                      <Cell><Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{new Date(p.created_at).toLocaleDateString()}</Body></Cell>
                       <Cell>
-                        <Button darkMode={darkMode} variant="primary" size="small" onClick={() => handleApprove(datum.profile_id)}>
+                        <Button darkMode={darkMode} variant="primary" size="xsmall" onClick={() => handleApprove(p.profile_id)}>
                           Approve
                         </Button>
                       </Cell>
@@ -178,24 +175,26 @@ export default function AdminPage() {
           </div>
         </Tab>
 
-        {/* ── System Analytics ── */}
+        {/* ── System Analytics — standalone stat tiles + 2 Cards for charts ── */}
         <Tab name="System Analytics">
-          {analytics && (
+          {!analytics ? (
+            <div style={{ padding: "40px 0", textAlign: "center" }}><Body darkMode={darkMode} style={{ color: mutedColor }}>Loading telemetry...</Body></div>
+          ) : (
             <div style={{ paddingTop: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
-              {/* Stat tiles — standalone Cards (no outer wrapper) */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+              {/* Standalone stat tiles — valid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
                 {[
-                  { label: "Total Members", value: analytics.usersCount.member + analytics.usersCount.alumni, icon: "PersonGroup", color: BRAND.primary },
-                  { label: "Approved Users", value: analytics.approvalStatus.approved, icon: "CheckmarkWithCircle", color: STATUS.success },
-                  { label: "Showcase Views", value: analytics.totalViews, icon: "Charts", color: palette.blue.base },
-                  { label: "CV Downloads", value: analytics.totalDownloads, icon: "Download", color: BRAND.primary },
+                  { label: "Total Members", value: analytics.usersCount.member + analytics.usersCount.alumni, icon: "Person" },
+                  { label: "Active Profiles", value: analytics.approvalStatus.approved, icon: "Checkmark" },
+                  { label: "Showcase Views", value: analytics.totalViews, icon: "Charts" },
+                  { label: "CV Downloads", value: analytics.totalDownloads, icon: "Download" },
                 ].map((s, i) => (
                   <Card data-okc-theme="true" key={i} darkMode={darkMode} style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div>
-                      <Overline darkMode={darkMode}>{s.label}</Overline>
-                      <H2 darkMode={darkMode} style={{ marginTop: "8px" }}>{s.value}</H2>
+                      <Overline darkMode={darkMode} style={{ color: mutedColor }}>{s.label}</Overline>
+                      <H2 darkMode={darkMode} style={{ marginTop: "8px", color: textColor }}>{s.value}</H2>
                     </div>
-                    <Icon glyph={s.icon as never} fill={s.color} size={24} style={{ opacity: 0.5 }} />
+                    <Icon glyph={s.icon as never} fill={mutedColor} size={22} style={{ opacity: 0.5 }} />
                   </Card>
                 ))}
               </div>
@@ -204,8 +203,8 @@ export default function AdminPage() {
                 {/* Skill Trends — standalone Card */}
                 <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-                    <Icon glyph="Code" fill={BRAND.primary} size={14} />
-                    <Overline darkMode={darkMode}>Skill Distribution</Overline>
+                    <Icon glyph="Code" fill={mutedColor} size={14} />
+                    <Overline darkMode={darkMode} style={{ color: mutedColor }}>Skill Distribution</Overline>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     {analytics.skillTrends.length === 0 ? (
@@ -233,8 +232,8 @@ export default function AdminPage() {
                 {/* Popular Profiles — standalone Card */}
                 <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-                    <Icon glyph="Person" fill={BRAND.primary} size={14} />
-                    <Overline darkMode={darkMode}>Popular Profiles</Overline>
+                    <Icon glyph="Person" fill={mutedColor} size={14} />
+                    <Overline darkMode={darkMode} style={{ color: mutedColor }}>Popular Profiles</Overline>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     {analytics.topViewedProfiles.length === 0 ? (
@@ -243,7 +242,7 @@ export default function AdminPage() {
                       analytics.topViewedProfiles.slice(0, 5).map((p: any, i: number) => (
                         <div key={p.profile_id} style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: `1px solid ${SURFACE.border}` }}>
                           <Body darkMode={darkMode} style={{ fontSize: "13px" }}>{i + 1}. {p.full_name}</Body>
-                          <Badge darkMode={darkMode} variant="green">{p.views_count} views</Badge>
+                          <Badge darkMode={darkMode} variant="lightgray">{p.views_count} views</Badge>
                         </div>
                       ))
                     )}
@@ -261,8 +260,8 @@ export default function AdminPage() {
             {/* Create Pitch form — plain section, no Card wrapper */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-                <Icon glyph="Megaphone" fill={BRAND.primary} size={14} />
-                <Overline darkMode={darkMode}>Create Curated Talent Pitch</Overline>
+                <Icon glyph="Megaphone" fill={mutedColor} size={14} />
+                <Overline darkMode={darkMode} style={{ color: mutedColor }}>Create Curated Talent Pitch</Overline>
               </div>
               <form onSubmit={handleCreatePitch} style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px" }}>
                 <TextInput data-okc-theme="true" darkMode={darkMode} label="Pitch Title" placeholder="e.g. Next.js Developers for Startup Team" value={pitchTitle} onChange={(e) => setPitchTitle(e.target.value)} required />
@@ -304,8 +303,8 @@ export default function AdminPage() {
             {/* Curated Pitches list — Table, no outer Card */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                <Icon glyph="List" fill={BRAND.primary} size={14} />
-                <Overline darkMode={darkMode}>Curated Pitches ({pitches.length})</Overline>
+                <Icon glyph="List" fill={mutedColor} size={14} />
+                <Overline darkMode={darkMode} style={{ color: mutedColor }}>Curated Pitches ({pitches.length})</Overline>
               </div>
 
               {pitches.length === 0 ? (
