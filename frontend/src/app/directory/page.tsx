@@ -4,19 +4,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { useTheme } from "@/context/ThemeContext";
-
-import Card from "@leafygreen-ui/card";
-import Badge from "@leafygreen-ui/badge";
-import { TextInput } from "@leafygreen-ui/text-input";
-import { Checkbox } from "@leafygreen-ui/checkbox";
-import Button from "@/components/OKCButton";
-import { Chip } from "@leafygreen-ui/chip";
-import { Body, H3, Overline, Label } from "@leafygreen-ui/typography";
-import Icon from "@leafygreen-ui/icon";
-import { Spinner } from "@leafygreen-ui/loading-indicator";
-import { palette } from "@leafygreen-ui/palette";
-import { BRAND, SURFACE, STATUS, availabilityStyle } from "@/lib/theme";
+import { Search, RotateCw, LayoutGrid, List, ChevronDown, Check, UserCheck } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge, Chip } from "@/components/ui/Badge";
+import { Spinner } from "@/components/ui/Spinner";
+import { APPLE_COLORS, APPLE_RADII } from "@/lib/theme";
 
 interface ProfileCard {
   profile_id: string;
@@ -37,39 +30,38 @@ interface DirectoryGroups {
 }
 
 const MOCK_PROFILES: ProfileCard[] = [
-  { profile_id: "demo-1", full_name: "Atharva Kulkarni", tagline: "Full Stack Engineer & AI Enthusiast", availability: "Available", department: "Core Team", role_category: "Core Team", role: "member", skills: [{ name: "TypeScript", level: "Expert" }, { name: "Next.js", level: "Expert" }, { name: "PostgreSQL", level: "Intermediate" }] },
-  { profile_id: "demo-2", full_name: "Sneha Sharma", tagline: "UI/UX Designer & Frontend Developer", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Figma", level: "Expert" }, { name: "React.js", level: "Expert" }, { name: "HTML5/CSS3", level: "Expert" }] },
-  { profile_id: "demo-3", full_name: "Vikram Malhotra", tagline: "DevOps & Cloud Architect", availability: "Busy", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Docker", level: "Expert" }, { name: "Kubernetes", level: "Intermediate" }, { name: "AWS", level: "Expert" }] },
-  { profile_id: "demo-4", full_name: "Rohan Das", tagline: "ML Engineer | Embedded Systems Dev", availability: "Available", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Python", level: "Expert" }, { name: "C++", level: "Expert" }] },
+  { profile_id: "demo-1", full_name: "Alex Mercer", tagline: "Full Stack Engineer & AI Enthusiast", availability: "Available", department: "Core Team", role_category: "Core Team", role: "member", skills: [{ name: "TypeScript", level: "Expert" }, { name: "Next.js", level: "Expert" }, { name: "PostgreSQL", level: "Intermediate" }] },
+  { profile_id: "demo-2", full_name: "Samira Jones", tagline: "AI / Machine Learning Researcher", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Python", level: "Expert" }, { name: "PyTorch", level: "Expert" }] },
+  { profile_id: "demo-3", full_name: "Vikram Malhotra", tagline: "DevOps & Cloud Systems Architect", availability: "Busy", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Docker", level: "Expert" }, { name: "Kubernetes", level: "Intermediate" }, { name: "AWS", level: "Expert" }] },
+  { profile_id: "demo-4", full_name: "Elena Rostova", tagline: "Senior UX Engineer & Generative Artist", availability: "Available", department: "Core Team", role_category: "Core Team", role: "member", skills: [{ name: "Figma", level: "Expert" }, { name: "Three.js", level: "Expert" }, { name: "React", level: "Expert" }] },
   { profile_id: "demo-5", full_name: "Ananya Iyer", tagline: "Systems Engineer & VLSI Designer", availability: "Available", department: "Alumni", role_category: "Alumni", role: "alumni", skills: [{ name: "Verilog", level: "Expert" }, { name: "VLSI Design", level: "Intermediate" }] },
-  { profile_id: "demo-6", full_name: "Rahul Verma", tagline: "Backend Developer & Database Admin", availability: "Open to work", department: "Other Members", role_category: "Other Members", role: "member", skills: [{ name: "Node.js", level: "Expert" }, { name: "PostgreSQL", level: "Expert" }] },
+  { profile_id: "demo-6", full_name: "Marcus Thorne", tagline: "Backend Developer & Distributed Systems", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Go", level: "Expert" }, { name: "gRPC", level: "Expert" }, { name: "Redis", level: "Intermediate" }] },
 ];
 
-function AvailabilityChip({ av }: { av: string }) {
-  const { darkMode } = useTheme();
-  const variantMap: Record<string, "green" | "yellow" | "gray" | "red"> = {
-    Available: "green",
-    "Open to work": "yellow",
-    Busy: "red",
-  };
-  return <Chip darkMode={darkMode} label={av} variant={variantMap[av] ?? "gray"} />;
+function AvailabilityStatus({ av }: { av: string }) {
+  let dotColor = "#1d8348"; // Green
+  let textColor = "#1d8348";
+
+  if (av === "Busy") {
+    dotColor = "#d70015";
+    textColor = "#d70015";
+  } else if (av === "Open to work") {
+    dotColor = "#b76e00";
+    textColor = "#b76e00";
+  }
+
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: textColor }}>
+      <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: dotColor }} />
+      <span>{av}</span>
+    </div>
+  );
 }
 
 /**
- * MemberShowcaseCard — High-fidelity card matching reference design
- * Left: Normal State | Right: Hover State with frosted glass & glow
+ * MemberShowcaseCard — Apple Design System Card with preserved signature interactive hover physics
  */
-function MemberShowcaseCard({
-  profile,
-  darkMode,
-  textColor,
-  mutedColor,
-}: {
-  profile: ProfileCard;
-  darkMode: boolean;
-  textColor: string;
-  mutedColor: string;
-}) {
+function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const initials = profile.full_name
@@ -83,55 +75,26 @@ function MemberShowcaseCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      whileHover={{ y: -6, scale: 1.01 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      whileHover={{ y: -5, scale: 1.01 }}
       transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       style={{
-        borderRadius: "20px",
-        background: darkMode ? "#14171A" : "#F0F2F5",
-        border: `1px solid ${isHovered ? BRAND.primaryBorder : "rgba(255,255,255,0.08)"}`,
+        borderRadius: APPLE_RADII.lg,
+        backgroundColor: "#ffffff",
+        border: `1px solid ${isHovered ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
         overflow: "hidden",
         position: "relative",
-        boxShadow: isHovered
-          ? `0 20px 40px rgba(0, 0, 0, 0.5), 0 0 24px ${BRAND.primaryBg}`
-          : darkMode
-          ? "0 4px 20px rgba(0,0,0,0.25)"
-          : "0 4px 20px rgba(0,0,0,0.06)",
-        transition: "border-color 0.3s ease, box-shadow 0.3s ease",
         display: "flex",
         flexDirection: "column",
-        minHeight: "340px",
+        minHeight: "360px",
+        boxSizing: "border-box",
+        transition: "border-color 0.25s ease",
       }}
     >
-      {/* ── Full-Card Mesh & Ambient Backdrop (Toned down & refined) ── */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: darkMode
-            ? "radial-gradient(circle at 30% 20%, rgba(230, 139, 24, 0.18), transparent 65%), radial-gradient(circle at 80% 70%, rgba(236, 56, 119, 0.16), transparent 65%), #14171A"
-            : "radial-gradient(circle at 30% 20%, rgba(230, 139, 24, 0.12), transparent 65%), radial-gradient(circle at 80% 70%, rgba(236, 56, 119, 0.10), transparent 65%), #F8F9FA",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      >
-        {/* Subtle Dot Grid Overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${darkMode ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px)`,
-            backgroundSize: "16px 16px",
-            opacity: isHovered ? 0.6 : 0.25,
-            transition: "opacity 0.35s ease",
-          }}
-        />
-      </div>
-
       <Link
         href={`/profiles/${profile.profile_id}`}
         style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%", position: "relative", zIndex: 1 }}
@@ -140,20 +103,24 @@ function MemberShowcaseCard({
         <div
           style={{
             position: "relative",
-            height: "155px",
+            height: "160px",
             width: "100%",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            padding: "16px 16px 0",
+            backgroundColor: isHovered ? "#fafafc" : "#ffffff",
+            transition: "background-color 0.25s ease",
           }}
         >
-          {/* Top Badges Overlay */}
+          {/* Top Badges Bar */}
           <div
             style={{
               position: "absolute",
-              top: "12px",
-              left: "12px",
-              right: "12px",
+              top: "14px",
+              left: "16px",
+              right: "16px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -163,61 +130,49 @@ function MemberShowcaseCard({
             <span
               style={{
                 fontSize: "10px",
-                fontWeight: 700,
+                fontWeight: 600,
                 textTransform: "uppercase",
-                letterSpacing: "0.04em",
+                letterSpacing: "0.05em",
                 padding: "3px 8px",
-                borderRadius: "6px",
-                background: darkMode ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                color: BRAND.primary,
-                border: `1px solid ${BRAND.primaryBorder}`,
+                borderRadius: "4px",
+                backgroundColor: "#f5f5f7",
+                color: APPLE_COLORS.inkMuted80,
+                border: "1px solid rgba(0, 0, 0, 0.06)",
               }}
             >
               {profile.role_category}
             </span>
 
-            <AvailabilityChip av={profile.availability} />
+            <AvailabilityStatus av={profile.availability} />
           </div>
 
-          {/* Large Center Avatar */}
+          {/* Center Avatar */}
           <motion.div
             animate={{ scale: isHovered ? 1.06 : 1 }}
-            transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+            transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
             style={{
-              width: "72px",
-              height: "72px",
+              width: "76px",
+              height: "76px",
               borderRadius: "50%",
-              background: BRAND.gradient,
-              padding: "2px",
-              boxShadow: isHovered
-                ? `0 0 18px ${BRAND.glow}, 0 6px 14px rgba(0,0,0,0.3)`
-                : "0 3px 10px rgba(0,0,0,0.18)",
+              backgroundColor: "#f5f5f7",
+              border: `2px solid ${isHovered ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              position: "relative",
-              zIndex: 1,
+              marginTop: "16px",
+              transition: "border-color 0.25s ease",
             }}
           >
-            <div
+            <span
               style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                background: darkMode ? "#181C1F" : "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
                 fontSize: "22px",
-                fontWeight: 800,
-                color: textColor,
+                fontWeight: 600,
+                color: APPLE_COLORS.ink,
                 letterSpacing: "-0.02em",
               }}
             >
               {initials}
-            </div>
+            </span>
           </motion.div>
         </div>
 
@@ -234,97 +189,84 @@ function MemberShowcaseCard({
             bottom: 0,
             left: 0,
             right: 0,
-            height: "58%",
-            background: darkMode ? "#1C2023" : "#FFFFFF",
-            borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+            height: "56%",
+            backgroundColor: "#ffffff",
+            borderTop: `1px solid ${APPLE_COLORS.hairline}`,
             pointerEvents: "none",
             zIndex: 1,
           }}
         />
 
-        {/* ── Progressive Blur Backdrop Layer (Revealed as the solid panel slides down) ── */}
+        {/* ── Progressive Blur Layer revealed on hover ── */}
         <motion.div
           initial={false}
           animate={{
             opacity: isHovered ? 1 : 0,
           }}
-          transition={{ duration: 0.32, ease: "easeOut" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           style={{
             position: "absolute",
             bottom: 0,
             left: 0,
             right: 0,
-            height: "72%",
-            background: darkMode
-              ? "linear-gradient(to top, rgba(14, 17, 20, 0.90) 0%, rgba(14, 17, 20, 0.65) 45%, rgba(14, 17, 20, 0.12) 80%, transparent 100%)"
-              : "linear-gradient(to top, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.65) 45%, rgba(255, 255, 255, 0.12) 80%, transparent 100%)",
-            backdropFilter: "blur(20px) saturate(160%)",
-            WebkitBackdropFilter: "blur(20px) saturate(160%)",
-            maskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
-            WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+            height: "68%",
+            background: "linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.85) 60%, rgba(255, 255, 255, 0.1) 100%)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             pointerEvents: "none",
             zIndex: 2,
           }}
         />
 
-        {/* ── Crisp Text Content Area (Sits directly on top of the blur) ── */}
+        {/* ── Text Content & Action CTA ── */}
         <div
           style={{
             marginTop: "auto",
-            padding: "20px 20px 18px",
+            padding: "16px 20px 20px",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            alignItems: "center",
+            textAlign: "center",
+            gap: "8px",
             position: "relative",
             zIndex: 3,
-            background: "transparent",
           }}
         >
-          {/* Name + Verified Badge */}
+          {/* Full Name + Badge */}
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <H3
-              darkMode={darkMode}
+            <h3
               style={{
-                fontSize: "16px",
-                fontWeight: 700,
+                fontSize: "17px",
+                fontWeight: 600,
+                color: APPLE_COLORS.ink,
                 margin: 0,
-                color: textColor,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                letterSpacing: "-0.24px",
               }}
             >
               {profile.full_name}
-            </H3>
-            {/* Green Verified Badge */}
+            </h3>
             <span
-              title="Verified Member"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "16px",
-                height: "16px",
-                borderRadius: "50%",
-                background: "#00A35C",
-                color: "#FFFFFF",
-                fontSize: "10px",
-                fontWeight: 800,
-                flexShrink: 0,
+                fontSize: "9px",
+                fontWeight: 700,
+                padding: "2px 5px",
+                borderRadius: "3px",
+                backgroundColor: APPLE_COLORS.ink,
+                color: "#ffffff",
+                letterSpacing: "0.04em",
               }}
             >
-              ✓
+              OYSTER KODE
             </span>
           </div>
 
           {/* Tagline */}
-          <Body
-            darkMode={darkMode}
+          <p
             style={{
-              fontSize: "12px",
-              color: mutedColor,
+              fontSize: "13px",
+              color: APPLE_COLORS.inkMuted48,
               margin: 0,
-              lineHeight: "1.45",
+              lineHeight: 1.4,
               height: "36px",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -334,59 +276,48 @@ function MemberShowcaseCard({
             }}
           >
             {profile.tagline || "Active Engineering Member"}
-          </Body>
+          </p>
 
-          {/* Skill Pills */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", minHeight: "22px" }}>
+          {/* Skill Badges */}
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px", minHeight: "24px" }}>
             {profile.skills?.slice(0, 3).map((sk) => (
-              <Badge key={sk.name} darkMode={darkMode} variant="lightgray">
+              <span
+                key={sk.name}
+                style={{
+                  fontSize: "10px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  padding: "2px 8px",
+                  borderRadius: APPLE_RADII.pill,
+                  backgroundColor: "#f5f5f7",
+                  color: APPLE_COLORS.inkMuted80,
+                }}
+              >
                 {sk.name}
-              </Badge>
+              </span>
             ))}
           </div>
 
-          {/* Divider */}
-          <div style={{ height: "1px", background: SURFACE.border, margin: "4px 0" }} />
-
-          {/* Footer stats & Action CTA (Matching Reference Button) */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: "auto",
-              paddingTop: "2px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "11px", color: mutedColor }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <Icon glyph="Person" size={12} /> {profile.department}
-              </span>
-            </div>
-
-            {/* Reference-styled Follow/View Profile Pill Button */}
-            <motion.div
-              animate={{
-                background: isHovered ? BRAND.gradient : darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-                color: isHovered ? "#FFFFFF" : textColor,
-                boxShadow: isHovered ? `0 4px 14px ${BRAND.glow}` : "none",
-              }}
-              transition={{ duration: 0.22 }}
+          {/* Action Button: View Profile (Full Width Action Blue Pill) */}
+          <div style={{ width: "100%", marginTop: "12px" }}>
+            <div
               style={{
-                display: "inline-flex",
+                width: "100%",
+                height: "36px",
+                borderRadius: APPLE_RADII.pill,
+                backgroundColor: APPLE_COLORS.primary,
+                color: "#ffffff",
+                fontSize: "13px",
+                fontWeight: 500,
+                display: "flex",
                 alignItems: "center",
-                gap: "4px",
-                padding: "5px 12px",
-                borderRadius: "99px",
-                fontSize: "11px",
-                fontWeight: 600,
-                border: `1px solid ${isHovered ? "transparent" : darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-                cursor: "pointer",
+                justifyContent: "center",
+                transition: "background-color 0.18s ease",
               }}
             >
-              <span>View Profile</span>
-              <span style={{ fontSize: "12px", fontWeight: 700 }}>+</span>
-            </motion.div>
+              View Profile
+            </div>
           </div>
         </div>
       </Link>
@@ -395,7 +326,6 @@ function MemberShowcaseCard({
 }
 
 function DirectoryContent() {
-  const { darkMode } = useTheme();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("search") || "";
 
@@ -407,7 +337,7 @@ function DirectoryContent() {
   const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [useMock, setUseMock] = useState(false);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [pageLimit, setPageLimit] = useState(8);
 
   useEffect(() => {
     if (initialQuery) setSearchQuery(initialQuery);
@@ -420,355 +350,498 @@ function DirectoryContent() {
       if (res.ok && res.data) {
         const grouped = res.data as DirectoryGroups;
         const flattened: ProfileCard[] = [];
-        Object.values(grouped).forEach((list) => { if (Array.isArray(list)) flattened.push(...list); });
+        Object.values(grouped).forEach((list) => {
+          if (Array.isArray(list)) flattened.push(...list);
+        });
         setDbProfiles(flattened);
         setUseMock(flattened.length === 0);
-      } else setUseMock(true);
-    } catch { setUseMock(true); }
-    finally { setIsLoading(false); }
+      } else {
+        setUseMock(true);
+      }
+    } catch {
+      setUseMock(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  useEffect(() => { fetchProfiles(); }, []);
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
 
   const activeProfiles = useMock ? MOCK_PROFILES : dbProfiles;
   const categoriesList = ["Core Team", "Technical Team", "Other Members", "Alumni"];
   const availabilityOptions = ["Available", "Busy", "Open to work"];
-  const commonSkills = ["TypeScript", "Next.js", "Python", "Docker", "Figma", "C++"];
+  const commonSkills = ["TypeScript", "Next.js", "Python", "Docker", "Figma", "C++", "PyTorch", "Go"];
 
-  const toggleCategory = (cat: string) => setSelectedCategories((p) => p.includes(cat) ? p.filter((c) => c !== cat) : [...p, cat]);
-  const toggleAvailability = (av: string) => setSelectedAvailability((p) => p.includes(av) ? p.filter((a) => a !== av) : [...p, av]);
-  const toggleSkill = (sk: string) => setSelectedSkills((p) => p.includes(sk) ? p.filter((s) => s !== sk) : [...p, sk]);
+  const toggleCategory = (cat: string) =>
+    setSelectedCategories((p) => (p.includes(cat) ? p.filter((c) => c !== cat) : [...p, cat]));
+  const toggleAvailability = (av: string) =>
+    setSelectedAvailability((p) => (p.includes(av) ? p.filter((a) => a !== av) : [...p, av]));
+  const toggleSkill = (sk: string) =>
+    setSelectedSkills((p) => (p.includes(sk) ? p.filter((s) => s !== sk) : [...p, sk]));
+  const resetFilters = () => {
+    setSelectedCategories([]);
+    setSelectedAvailability([]);
+    setSelectedSkills([]);
+    setSearchQuery("");
+  };
 
   const filteredProfiles = activeProfiles.filter((p) => {
     if (searchQuery.trim()) {
       const s = searchQuery.toLowerCase();
-      if (!p.full_name?.toLowerCase().includes(s) && !p.tagline?.toLowerCase().includes(s) && !p.skills?.some((sk) => sk.name.toLowerCase().includes(s))) return false;
+      if (
+        !p.full_name?.toLowerCase().includes(s) &&
+        !p.tagline?.toLowerCase().includes(s) &&
+        !p.skills?.some((sk) => sk.name.toLowerCase().includes(s))
+      )
+        return false;
     }
     if (selectedCategories.length > 0 && !selectedCategories.includes(p.role_category)) return false;
     if (selectedAvailability.length > 0 && !selectedAvailability.includes(p.availability)) return false;
-    if (selectedSkills.length > 0 && !selectedSkills.every((sKey) => p.skills?.some((sk) => sk.name.toLowerCase() === sKey.toLowerCase()))) return false;
+    if (
+      selectedSkills.length > 0 &&
+      !selectedSkills.every((sKey) =>
+        p.skills?.some((sk) => sk.name.toLowerCase() === sKey.toLowerCase())
+      )
+    )
+      return false;
     return true;
   });
 
-  const textColor = darkMode ? palette.white : palette.black;
-  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
-  const hoverBg = darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)";
+  const visibleProfiles = filteredProfiles.slice(0, pageLimit);
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div style={{ maxWidth: "1120px", margin: "0 auto", padding: "32px 24px 80px", minHeight: "100vh" }}>
+      {/* ── Sub-header / Title Area (Screenshot 3 Reference) ── */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "28px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Search size={24} color={APPLE_COLORS.primary} />
+          <h1
+            className="apple-display-md"
+            style={{ color: APPLE_COLORS.primary, margin: 0, fontWeight: 600 }}
+          >
+            Directory
+          </h1>
+        </div>
+
+        <Button as={Link} href="/auth" variant="primary" size="default">
+          Join Club
+        </Button>
+      </div>
+
+      {/* ── Search Bar + View Switcher ── */}
+      <div style={{ display: "flex", gap: "16px", alignItems: "center", marginBottom: "32px" }}>
+        <div style={{ flex: 1 }}>
+          <Input
+            isSearch
+            placeholder="Search by name, tagline, or tech stack..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Grid / List Switcher */}
+        <div
+          style={{
+            display: "flex",
+            backgroundColor: "#ffffff",
+            border: `1px solid ${APPLE_COLORS.hairline}`,
+            borderRadius: APPLE_RADII.sm,
+            padding: "3px",
+            gap: "2px",
+            flexShrink: 0,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setViewMode("grid")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 12px",
+              borderRadius: "6px",
+              border: "none",
+              backgroundColor: viewMode === "grid" ? "#f5f5f7" : "transparent",
+              color: viewMode === "grid" ? APPLE_COLORS.ink : APPLE_COLORS.inkMuted48,
+              fontSize: "13px",
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            <LayoutGrid size={14} />
+            <span>Grid</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setViewMode("list")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 12px",
+              borderRadius: "6px",
+              border: "none",
+              backgroundColor: viewMode === "list" ? "#f5f5f7" : "transparent",
+              color: viewMode === "list" ? APPLE_COLORS.ink : APPLE_COLORS.inkMuted48,
+              fontSize: "13px",
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            <List size={14} />
+            <span>List</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Main Layout: Sidebar Filters + Members Grid ── */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "240px 1fr",
-          gap: "24px",
+          gap: "32px",
           alignItems: "start",
         }}
       >
-        {/* ── Sidebar Filters — one Card is acceptable here as a distinct elevated surface ── */}
-        <Card data-okc-theme="true"
-          darkMode={darkMode}
-          style={{ padding: "20px", position: "sticky", top: "72px", display: "flex", flexDirection: "column", gap: "20px" }}
+        {/* ── Left Sidebar: Filters ── */}
+        <aside
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: APPLE_RADII.lg,
+            border: `1px solid ${APPLE_COLORS.hairline}`,
+            padding: "24px",
+            position: "sticky",
+            top: "60px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
+          }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Icon glyph="Filter" fill={BRAND.primary} size={14} />
-              <Overline darkMode={darkMode}>Filters</Overline>
-            </div>
-            <Button
-              darkMode={darkMode}
-              variant="default"
-              size="xsmall"
-              leftGlyph={<Icon glyph={isLoading ? "Refresh" : "Refresh"} />}
-              onClick={fetchProfiles}
-              title="Refresh data"
-            />
-          </div>
-
-          {/* Role Categories */}
-          <div>
-            <Label htmlFor="category-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
-              Role Category
-            </Label>
-            {categoriesList.map((cat) => (
-              <Checkbox
-                key={cat}
-                darkMode={darkMode}
-                label={cat}
-                checked={selectedCategories.includes(cat)}
-                onChange={() => toggleCategory(cat)}
-                style={{ marginBottom: "6px" }}
-              />
-            ))}
-          </div>
-
-          {/* Availability */}
-          <div>
-            <Label htmlFor="availability-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
-              Availability
-            </Label>
-            {availabilityOptions.map((av) => (
-              <Checkbox
-                key={av}
-                darkMode={darkMode}
-                label={av}
-                checked={selectedAvailability.includes(av)}
-                onChange={() => toggleAvailability(av)}
-                style={{ marginBottom: "6px" }}
-              />
-            ))}
-          </div>
-
-          {/* Skills — Chip filter bar */}
-          <div>
-            <Label htmlFor="level-filter" darkMode={darkMode} style={{ display: "block", marginBottom: "8px", color: mutedColor }}>
-              Skills
-            </Label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              {commonSkills.map((sk) => (
-                <Chip
-                  key={sk}
-                  darkMode={darkMode}
-                  label={sk}
-                  variant={selectedSkills.includes(sk) ? "green" : "gray"}
-                  onClick={() => toggleSkill(sk)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Data source */}
-          <div>
-            <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
-              Source:{" "}
-              <span style={{ color: useMock ? STATUS.warning : STATUS.success, fontWeight: 600 }}>
-                {useMock ? "Demo Fallback" : "Live API"}
-              </span>
-            </Body>
-            <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
-              {activeProfiles.length} profiles loaded
-            </Body>
-          </div>
-        </Card>
-
-        {/* ── Main Panel ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Search + View Mode Switcher Header */}
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <div style={{ flex: 1 }}>
-              <TextInput data-okc-theme="true"
-                aria-label="Search profiles"
-                darkMode={darkMode}
-                placeholder="Search by name, tagline, or tech stack..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                type="search"
-              />
-            </div>
-
-            {/* View Mode Toggle (Grid / List) */}
-            <div
+            <span
               style={{
-                display: "flex",
-                background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)",
-                padding: "3px",
-                borderRadius: "8px",
-                border: `1px solid ${SURFACE.border}`,
-                gap: "2px",
-                flexShrink: 0,
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: APPLE_COLORS.inkMuted48,
               }}
             >
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                title="Bento Showcase View"
-                style={{
-                  border: "none",
-                  background: viewMode === "grid" ? (darkMode ? "#1C2023" : "#FFFFFF") : "transparent",
-                  color: viewMode === "grid" ? BRAND.primary : mutedColor,
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  boxShadow: viewMode === "grid" ? "0 2px 6px rgba(0,0,0,0.2)" : "none",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                <Icon glyph="Menu" size={14} /> Grid
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                title="Compact List View"
-                style={{
-                  border: "none",
-                  background: viewMode === "list" ? (darkMode ? "#1C2023" : "#FFFFFF") : "transparent",
-                  color: viewMode === "list" ? BRAND.primary : mutedColor,
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  boxShadow: viewMode === "list" ? "0 2px 6px rgba(0,0,0,0.2)" : "none",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                <Icon glyph="Folder" size={14} /> List
-              </button>
+              FILTERS
+            </span>
+            <button
+              type="button"
+              onClick={resetFilters}
+              title="Reset Filters"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "2px",
+                color: APPLE_COLORS.inkMuted48,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <RotateCw size={14} />
+            </button>
+          </div>
+
+          {/* Role Category Checkboxes */}
+          <div>
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: 600,
+                color: APPLE_COLORS.ink,
+                display: "block",
+                marginBottom: "12px",
+              }}
+            >
+              Role Category
+            </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {categoriesList.map((cat) => {
+                const checked = selectedCategories.includes(cat);
+                return (
+                  <label
+                    key={cat}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "13px",
+                      color: APPLE_COLORS.inkMuted80,
+                      cursor: "pointer",
+                      userSelect: "none",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleCategory(cat)}
+                      style={{
+                        accentColor: APPLE_COLORS.primary,
+                        cursor: "pointer",
+                        width: "15px",
+                        height: "15px",
+                      }}
+                    />
+                    <span>{cat}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
-          {/* Loading */}
-          {isLoading && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
-              <Spinner darkMode={darkMode} />
-            </div>
-          )}
-
-          {/* ── Profile Results (Bento Grid vs Compact List) ── */}
-          {!isLoading && (
-            <div>
-              <AnimatePresence mode="popLayout">
-                {filteredProfiles.length === 0 ? (
-                  <motion.div
-                    key="empty"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: "12px" }}
-                  >
-                    <Icon glyph="Apps" fill={mutedColor} size={32} />
-                    <Body darkMode={darkMode} style={{ color: mutedColor }}>
-                      No profiles match the current filters
-                    </Body>
-                  </motion.div>
-                ) : viewMode === "grid" ? (
-                  /* ── Bento Grid matching Reference Image ── */
-                  <motion.div
-                    key="grid"
-                    layout
+          {/* Availability Checkboxes */}
+          <div>
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: 600,
+                color: APPLE_COLORS.ink,
+                display: "block",
+                marginBottom: "12px",
+              }}
+            >
+              Availability
+            </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {availabilityOptions.map((av) => {
+                const checked = selectedAvailability.includes(av);
+                return (
+                  <label
+                    key={av}
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                      gap: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "13px",
+                      color: APPLE_COLORS.inkMuted80,
+                      cursor: "pointer",
+                      userSelect: "none",
                     }}
                   >
-                    {filteredProfiles.map((p) => (
-                      <MemberShowcaseCard
-                        key={p.profile_id}
-                        profile={p}
-                        darkMode={darkMode}
-                        textColor={textColor}
-                        mutedColor={mutedColor}
-                      />
-                    ))}
-                  </motion.div>
-                ) : (
-                  /* ── Compact List View ── */
-                  <motion.div
-                    key="list"
-                    layout
-                    style={{ display: "flex", flexDirection: "column", gap: "0" }}
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleAvailability(av)}
+                      style={{
+                        accentColor: APPLE_COLORS.primary,
+                        cursor: "pointer",
+                        width: "15px",
+                        height: "15px",
+                      }}
+                    />
+                    <span>{av}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Skills Pill Chips */}
+          <div>
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: 600,
+                color: APPLE_COLORS.ink,
+                display: "block",
+                marginBottom: "12px",
+              }}
+            >
+              Skills
+            </span>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {commonSkills.map((sk) => {
+                const isSelected = selectedSkills.includes(sk);
+                return (
+                  <button
+                    key={sk}
+                    type="button"
+                    onClick={() => toggleSkill(sk)}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: APPLE_RADII.pill,
+                      border: `1px solid ${isSelected ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
+                      backgroundColor: isSelected ? "rgba(0, 102, 204, 0.08)" : "#f5f5f7",
+                      color: isSelected ? APPLE_COLORS.primary : APPLE_COLORS.inkMuted80,
+                      fontSize: "12px",
+                      fontWeight: isSelected ? 600 : 400,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
                   >
-                    {filteredProfiles.map((p, i) => {
-                      const initials = p.full_name
-                        ? p.full_name.split(" ").map((n) => n[0]).join("").toUpperCase()
-                        : "?";
-                      const isHovered = hoveredId === p.profile_id;
-                      return (
-                        <motion.div
-                          layout
-                          key={p.profile_id}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.97 }}
-                          transition={{ duration: 0.22, delay: Math.min(i * 0.03, 0.2) }}
+                    {sk}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
+
+        {/* ── Right Content: Results ── */}
+        <div>
+          {isLoading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
+              <Spinner size={32} />
+            </div>
+          ) : filteredProfiles.length === 0 ? (
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                borderRadius: APPLE_RADII.lg,
+                border: `1px solid ${APPLE_COLORS.hairline}`,
+                padding: "64px 24px",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ fontSize: "16px", color: APPLE_COLORS.inkMuted48, margin: "0 0 16px" }}>
+                No members found matching your search criteria.
+              </p>
+              <Button variant="default" size="small" onClick={resetFilters}>
+                Clear All Filters
+              </Button>
+            </div>
+          ) : viewMode === "grid" ? (
+            /* ── Bento Grid of Member Cards ── */
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+              <motion.div
+                layout
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                  gap: "20px",
+                }}
+              >
+                {visibleProfiles.map((p) => (
+                  <MemberShowcaseCard key={p.profile_id} profile={p} />
+                ))}
+              </motion.div>
+
+              {/* Show more button */}
+              {filteredProfiles.length > visibleProfiles.length && (
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setPageLimit((p) => p + 8)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "10px 24px",
+                      backgroundColor: "#ffffff",
+                      borderRadius: APPLE_RADII.pill,
+                      border: `1px solid ${APPLE_COLORS.hairline}`,
+                      color: APPLE_COLORS.ink,
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+                      transition: "background-color 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fafafc")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+                  >
+                    <span>Show more</span>
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* ── List View Table ── */
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                borderRadius: APPLE_RADII.lg,
+                border: `1px solid ${APPLE_COLORS.hairline}`,
+                overflow: "hidden",
+              }}
+            >
+              {visibleProfiles.map((p, idx) => (
+                <Link
+                  key={p.profile_id}
+                  href={`/profiles/${p.profile_id}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "18px 24px",
+                    borderBottom:
+                      idx < visibleProfiles.length - 1
+                        ? `1px solid ${APPLE_COLORS.hairline}`
+                        : "none",
+                    textDecoration: "none",
+                    color: "inherit",
+                    transition: "background-color 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fafafc")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    <div
+                      style={{
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: "50%",
+                        backgroundColor: "#f5f5f7",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        color: APPLE_COLORS.ink,
+                      }}
+                    >
+                      {p.full_name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: "15px", fontWeight: 600, margin: "0 0 2px" }}>
+                        {p.full_name}
+                      </h4>
+                      <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
+                        {p.tagline}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      {p.skills?.slice(0, 2).map((sk) => (
+                        <span
+                          key={sk.name}
+                          style={{
+                            fontSize: "11px",
+                            padding: "2px 8px",
+                            borderRadius: APPLE_RADII.pill,
+                            backgroundColor: "#f5f5f7",
+                            color: APPLE_COLORS.inkMuted80,
+                          }}
                         >
-                          <Link
-                            href={`/profiles/${p.profile_id}`}
-                            style={{ textDecoration: "none", display: "block" }}
-                          >
-                            <div
-                              onMouseEnter={() => setHoveredId(p.profile_id)}
-                              onMouseLeave={() => setHoveredId(null)}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "16px",
-                                padding: "16px",
-                                borderRadius: "8px",
-                                background: isHovered ? hoverBg : "transparent",
-                                transition: "background 0.15s ease",
-                                cursor: "pointer",
-                                borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
-                              }}
-                            >
-                              {/* Avatar */}
-                              <div
-                                style={{
-                                  width: "44px", height: "44px", borderRadius: "10px",
-                                  background: darkMode ? palette.gray.dark2 : palette.gray.light2,
-                                  border: `1px solid ${darkMode ? palette.gray.dark1 : palette.gray.light1}`,
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                  fontSize: "13px", fontWeight: 700, color: textColor, flexShrink: 0,
-                                }}
-                              >
-                                {initials}
-                              </div>
-
-                              {/* Name + tagline */}
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <H3
-                                  darkMode={darkMode}
-                                  style={{ fontSize: "14px", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                                >
-                                  {p.full_name}
-                                </H3>
-                                <Body
-                                  darkMode={darkMode}
-                                  style={{ fontSize: "12px", color: mutedColor, marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                                >
-                                  {p.tagline}
-                                </Body>
-                              </div>
-
-                              {/* Skill Badges */}
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", flexShrink: 0, maxWidth: "200px" }}>
-                                {p.skills?.slice(0, 3).map((sk) => (
-                                  <Badge key={sk.name} darkMode={darkMode} variant="lightgray">{sk.name}</Badge>
-                                ))}
-                              </div>
-
-                              {/* Availability chip */}
-                              <div style={{ flexShrink: 0 }}>
-                                <AvailabilityChip av={p.availability} />
-                              </div>
-
-                              {/* Arrow hint on hover */}
-                              <Body
-                                darkMode={darkMode}
-                                style={{
-                                  fontSize: "13px", color: BRAND.primary, flexShrink: 0,
-                                  opacity: isHovered ? 1 : 0, transition: "opacity 0.15s ease",
-                                }}
-                              >
-                                →
-                              </Body>
-                            </div>
-                          </Link>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                          {sk.name}
+                        </span>
+                      ))}
+                    </div>
+                    <AvailabilityStatus av={p.availability} />
+                    <span style={{ color: APPLE_COLORS.primary, fontSize: "14px", fontWeight: 500 }}>
+                      →
+                    </span>
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </div>
@@ -781,8 +854,8 @@ export default function DirectoryPage() {
   return (
     <Suspense
       fallback={
-        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Spinner />
+        <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Spinner size={32} />
         </div>
       }
     >

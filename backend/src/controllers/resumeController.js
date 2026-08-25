@@ -45,7 +45,8 @@ export const downloadResume = async (req, res) => {
     }
 
     try {
-        const fileUrl = await downloadResumeService(profileId, req.user.user_id);
+        const userId = req.user ? req.user.user_id : null;
+        const fileUrl = await downloadResumeService(profileId, userId);
 
         // Redirect to the Cloudinary URL for download
         return res.redirect(fileUrl);

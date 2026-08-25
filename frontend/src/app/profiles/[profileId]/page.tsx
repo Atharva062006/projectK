@@ -1,92 +1,173 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import Link from "next/link";
 import { api } from "@/lib/api";
-import { useTheme } from "@/context/ThemeContext";
+import { Download, ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap } from "lucide-react";
+import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Spinner } from "@/components/ui/Spinner";
+import { APPLE_COLORS, APPLE_RADII, APPLE_SHADOW } from "@/lib/theme";
 
-import Card from "@leafygreen-ui/card";
-import Badge from "@leafygreen-ui/badge";
-import Button from "@/components/OKCButton";
-import { Chip } from "@leafygreen-ui/chip";
-import { H1, H2, H3, Body, Overline, Label } from "@leafygreen-ui/typography";
-import Icon from "@leafygreen-ui/icon";
-import { Spinner } from "@leafygreen-ui/loading-indicator";
-import { Banner } from "@leafygreen-ui/banner";
-import { palette } from "@leafygreen-ui/palette";
-import { BRAND, SURFACE, STATUS } from "@/lib/theme";
+interface ContactInfo {
+  phone?: string;
+  linkedin?: string;
+  github?: string;
+  portfolio_url?: string;
+}
 
-const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-  </svg>
-);
-const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" />
-  </svg>
-);
+interface Skill {
+  skill_id: string;
+  name: string;
+  category: string;
+  level: string;
+}
 
-interface ContactInfo { phone?: string; linkedin?: string; github?: string; portfolio_url?: string; }
-interface Skill { skill_id: string; name: string; category: string; level: string; }
-interface Project { project_id: string; title: string; description?: string; github_link?: string; tech_stack?: string; demo_link?: string; }
+interface Project {
+  project_id: string;
+  title: string;
+  description?: string;
+  github_link?: string;
+  tech_stack?: string;
+  demo_link?: string;
+}
+
 interface ProfileData {
-  profile_id: string; full_name: string; email?: string; phone?: string; college?: string;
-  tagline?: string; bio?: string; availability?: string; department?: string;
-  location?: string; yr_of_graduation?: number; role_category?: string;
-  completion_percentage: number; contact?: ContactInfo;
-  skills?: Skill[]; projects?: Project[];
-  achievements?: string[]; certifications?: string[];
+  profile_id: string;
+  full_name: string;
+  email?: string;
+  phone?: string;
+  college?: string;
+  tagline?: string;
+  bio?: string;
+  availability?: string;
+  department?: string;
+  location?: string;
+  yr_of_graduation?: number;
+  role_category?: string;
+  completion_percentage: number;
+  contact?: ContactInfo;
+  skills?: Skill[];
+  projects?: Project[];
+  achievements?: string[];
+  certifications?: string[];
 }
 
-// ── Demo data (unchanged from original) ───────────────────────────────────
 const MOCK_PROFILES_DETAIL: Record<string, ProfileData> = {
-  "demo-1": { profile_id: "demo-1", full_name: "Atharva Kulkarni", email: "atharva@oysterkode.club", college: "Oyster Institute of Technology", tagline: "Full Stack Engineer & AI Enthusiast", bio: "Passionate software engineer specializing in building high-performance web applications and embedding machine learning models. Active open-source contributor and technical team lead at Oyster Kode Club.", availability: "Available", department: "Core Team", role_category: "Core Team", location: "Mumbai, India", yr_of_graduation: 2026, completion_percentage: 95, contact: { phone: "+91 98765 43210", linkedin: "https://linkedin.com/in/atharva", github: "https://github.com/atharva", portfolio_url: "https://atharvak.dev" }, skills: [{ skill_id: "s1", name: "TypeScript", category: "Languages", level: "Expert" }, { skill_id: "s2", name: "Next.js", category: "Frameworks", level: "Expert" }, { skill_id: "s3", name: "Python", category: "Languages", level: "Expert" }, { skill_id: "s4", name: "PostgreSQL", category: "Databases", level: "Intermediate" }], achievements: ["Winner of National Hackathon 2025 (First Prize out of 500+ teams)", "Built and deployed Oyster Club Portal serving 1000+ active members", "Contributed 20+ PRs to major open-source web frameworks"], certifications: ["AWS Certified Solutions Architect (Associate)", "Deep Learning Specialization by DeepLearning.AI"], projects: [{ project_id: "p1", title: "Distributed Task Scheduler", description: "A high-performance cluster job queue built with Go and gRPC, capable of scheduling 10k jobs per second.", tech_stack: "Go, gRPC, Redis, Docker", github_link: "https://github.com/atharva/scheduler" }, { project_id: "p2", title: "Bento Portfolio Portal", description: "A visual portfolio workspace designed with a modular bento grid layout to showcase member capabilities.", tech_stack: "React, Next.js, Tailwind CSS", github_link: "https://github.com/atharva/bento-portal" }] },
-  "demo-2": { profile_id: "demo-2", full_name: "Sneha Sharma", email: "sneha.s@oysterkode.club", college: "School of Design Studies", tagline: "UI/UX Designer & Frontend Developer", bio: "Focusing on crafting gorgeous, modern, and user-centric interfaces. Bridge the gap between engineering complexity and intuitive interaction designs.", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", location: "Bangalore, India", yr_of_graduation: 2025, completion_percentage: 90, contact: { linkedin: "https://linkedin.com/in/sneha", github: "https://github.com/sneha", portfolio_url: "https://sneha.design" }, skills: [{ skill_id: "s5", name: "Figma", category: "Design", level: "Expert" }, { skill_id: "s6", name: "React.js", category: "Frameworks", level: "Expert" }, { skill_id: "s7", name: "Tailwind CSS", category: "Libraries", level: "Expert" }], achievements: ["Designed the official club brand guide and logo framework", "Honorable Mention at Global Interaction Design Awards 2025"], certifications: ["Google UX Design Professional Certificate"], projects: [{ project_id: "p3", title: "Oyster Design System", description: "A comprehensive UI kit built on Tailwind for rapid frontend prototyping.", tech_stack: "Figma, React, Tailwind", github_link: "https://github.com/sneha/oyster-ds" }] },
-  "demo-3": { profile_id: "demo-3", full_name: "Vikram Malhotra", email: "vikram@oysterkode.club", college: "Tech State College", tagline: "DevOps & Cloud Architect", bio: "Cloud enthusiast and system orchestrator. Built robust CI/CD deployment setups for several open source projects.", availability: "Busy", department: "Technical Team", role_category: "Technical Team", location: "Pune, India", yr_of_graduation: 2026, completion_percentage: 85, contact: { linkedin: "https://linkedin.com/in/vikram", github: "https://github.com/vikram" }, skills: [{ skill_id: "s8", name: "Docker", category: "DevOps & Cloud", level: "Expert" }, { skill_id: "s9", name: "Kubernetes", category: "DevOps & Cloud", level: "Intermediate" }, { skill_id: "s10", name: "Amazon Web Services (AWS)", category: "DevOps & Cloud", level: "Expert" }], achievements: ["Designed high-availability infrastructure serving 5k daily active users", "Reduced cloud costs by 35% using Kubernetes auto-scaling"], projects: [{ project_id: "p4", title: "K8s Auto-scaler Tool", description: "Custom auto-scaling daemon for cluster nodes metrics.", tech_stack: "Go, Kubernetes API, Prometheus", github_link: "https://github.com/vikram/autoscaler" }] },
+  "demo-1": {
+    profile_id: "demo-1",
+    full_name: "Alex Mercer",
+    email: "alex.mercer@oysterkode.club",
+    college: "Oyster Institute of Technology",
+    tagline: "Senior UX Engineer & Generative Artist",
+    bio: "Bridging the gap between aesthetic form and systematic function. With a background in both classical graphic design and modern front-end architecture, I specialize in building digital experiences that feel intuitive and look spectacular. My recent work focuses on integrating subtle, performant WebGL interactions into standard DOM flows to elevate the perceived value of standard web products.\n\nCurrently exploring the intersection of generative AI and user interface design to create adaptive, highly personalized structural layouts for editorial platforms.",
+    availability: "Available",
+    department: "Core Team",
+    role_category: "Core Team",
+    location: "San Francisco, CA",
+    yr_of_graduation: 2026,
+    completion_percentage: 95,
+    contact: {
+      phone: "+1 (555) 234-5678",
+      linkedin: "https://linkedin.com",
+      github: "https://github.com",
+      portfolio_url: "https://alexmercer.design",
+    },
+    skills: [
+      { skill_id: "s1", name: "Creative Coding", category: "Design", level: "Expert" },
+      { skill_id: "s2", name: "Interaction Design", category: "Design", level: "Expert" },
+      { skill_id: "s3", name: "Design Systems", category: "Engineering", level: "Expert" },
+      { skill_id: "s4", name: "Three.js", category: "Graphics", level: "Expert" },
+      { skill_id: "s5", name: "React Architecture", category: "Engineering", level: "Expert" },
+      { skill_id: "s6", name: "Typography", category: "Design", level: "Expert" },
+    ],
+    achievements: [
+      "Winner of National Interaction Design Showcase 2025",
+      "Created design system adopted across 12 open-source web products",
+      "Speaker at Web Creative Standards Summit",
+    ],
+    certifications: [
+      "Advanced WebGL & Shader Computation",
+      "Professional HCI & Systems Ergonomics",
+    ],
+    projects: [
+      {
+        project_id: "p1",
+        title: "Aura Editorial Platform",
+        description: "A headless CMS frontend with fluid typography and dynamic theming.",
+        tech_stack: "Next.js, Tailwind, GraphQL",
+        demo_link: "https://aura-editorial.dev",
+        github_link: "https://github.com",
+      },
+      {
+        project_id: "p2",
+        title: "Fluid Morph WebGL",
+        description: "An experimental shader library for subtle, performant background animations.",
+        tech_stack: "Three.js, GLSL, Vite",
+        github_link: "https://github.com",
+      },
+    ],
+  },
+  "demo-2": {
+    profile_id: "demo-2",
+    full_name: "Samira Jones",
+    email: "samira.j@oysterkode.club",
+    college: "School of Engineering Studies",
+    tagline: "AI / Machine Learning Researcher",
+    bio: "Focused on deep learning models, neural architecture search, and scalable inference backends. Active research collaborator in multi-modal LLM reasoning pipelines.",
+    availability: "Open to work",
+    department: "Technical Team",
+    role_category: "Technical Team",
+    location: "Boston, MA",
+    yr_of_graduation: 2025,
+    completion_percentage: 90,
+    contact: {
+      linkedin: "https://linkedin.com",
+      github: "https://github.com",
+    },
+    skills: [
+      { skill_id: "s7", name: "PyTorch", category: "ML", level: "Expert" },
+      { skill_id: "s8", name: "Python", category: "Languages", level: "Expert" },
+      { skill_id: "s9", name: "CUDA", category: "Systems", level: "Intermediate" },
+      { skill_id: "s10", name: "Transformers", category: "ML", level: "Expert" },
+    ],
+    projects: [
+      {
+        project_id: "p3",
+        title: "Neural Vision Compiler",
+        description: "High throughput inference acceleration toolkit for quantized vision models.",
+        tech_stack: "PyTorch, C++, TensorRT",
+        github_link: "https://github.com",
+      },
+    ],
+  },
 };
-
-function availabilityBadgeVariant(av?: string): "green" | "yellow" | "red" | "lightgray" {
-  if (av === "Available") return "green";
-  if (av === "Busy") return "red";
-  if (av === "Open to work") return "yellow";
-  return "lightgray";
-}
-
-// Shared section separator
-function SectionDivider({ darkMode }: { darkMode: boolean }) {
-  return (
-    <div
-      style={{
-        borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-        margin: "8px 0",
-      }}
-    />
-  );
-}
 
 export default function ProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>();
   const router = useRouter();
-  const { darkMode } = useTheme();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-  const textColor = darkMode ? palette.white : palette.black;
-  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
-
   useEffect(() => {
     if (!profileId) return;
     if (profileId.startsWith("demo-")) {
-      const demoData = MOCK_PROFILES_DETAIL[profileId];
-      setProfile(demoData || { profile_id: profileId, full_name: "Club Member", tagline: "Engineering Showcase Profile", availability: "Available", completion_percentage: 75 });
+      const demoData = MOCK_PROFILES_DETAIL[profileId] || MOCK_PROFILES_DETAIL["demo-1"];
+      setProfile(demoData);
       setIsLoading(false);
     } else {
-      api.profile.getProfile(profileId)
-        .then((res) => { if (res.ok && res.data) setProfile(res.data as ProfileData); else setError(res.message || "Failed to load profile"); })
+      api.profile
+        .getProfile(profileId)
+        .then((res) => {
+          if (res.ok && res.data) {
+            setProfile(res.data as ProfileData);
+          } else {
+            setError(res.message || "Failed to load profile");
+          }
+        })
         .catch(() => setError("Backend connection error"))
         .finally(() => setIsLoading(false));
     }
@@ -95,271 +176,485 @@ export default function ProfileDetailPage() {
   if (isLoading) {
     return (
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Spinner darkMode={darkMode} />
+        <Spinner size={32} />
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {/* Single Card for error state — isolated distinct surface */}
-        <Card data-okc-theme="true" darkMode={darkMode} style={{ padding: "40px", textAlign: "center", maxWidth: "380px", width: "100%" }}>
-          <Banner darkMode={darkMode} variant="danger" style={{ marginBottom: "20px" }}>
-            {error || "Profile not found"}
-          </Banner>
-          <Button
-            darkMode={darkMode}
-            variant="default"
-            leftGlyph={<Icon glyph="ArrowLeft" />}
-            onClick={() => router.push("/directory")}
-          >
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: APPLE_RADII.lg,
+            border: `1px solid ${APPLE_COLORS.hairline}`,
+            padding: "40px",
+            textAlign: "center",
+            maxWidth: "420px",
+            width: "100%",
+          }}
+        >
+          <h2 style={{ fontSize: "20px", fontWeight: 600, color: APPLE_COLORS.ink, marginBottom: "8px" }}>
+            Profile Not Found
+          </h2>
+          <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48, marginBottom: "24px" }}>
+            {error || "The requested talent showcase is unavailable."}
+          </p>
+          <Button variant="primary" size="small" onClick={() => router.push("/directory")}>
             Back to Directory
           </Button>
-        </Card>
+        </div>
       </div>
     );
   }
 
   const initials = profile.full_name
-    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase()
+    ? profile.full_name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
     : "?";
 
   return (
-    <div className="anim-fadeInUp" style={{ display: "flex", flexDirection: "column", gap: "0", paddingBottom: "48px", maxWidth: "860px", margin: "0 auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", margin: 0, padding: 0 }}>
+      {/* ── SECTION 1: Profile Hero Card (Screenshot 2 Reference) ── */}
+      <section
+        style={{
+          backgroundColor: "#ffffff",
+          padding: "56px 24px 64px",
+          borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+          width: "100%",
+        }}
+      >
+        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+          {/* Back link */}
+          <div style={{ marginBottom: "28px" }}>
+            <Link
+              href="/directory"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "14px",
+                color: APPLE_COLORS.primary,
+                textDecoration: "none",
+                fontWeight: 500,
+              }}
+            >
+              <ArrowLeft size={14} />
+              <span>Back to Directory</span>
+            </Link>
+          </div>
 
-      {/* ── Top nav bar ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "36px" }}>
-        <Button
-          darkMode={darkMode}
-          variant="default"
-          size="small"
-          leftGlyph={<Icon glyph="ArrowLeft" />}
-          onClick={() => router.push("/directory")}
-        >
-          Directory
-        </Button>
-      </div>
+          {/* Hero Grid: Portrait + Info */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "48px",
+              alignItems: "center",
+            }}
+          >
+            {/* Left: Photographic Headshot / Portrait with Apple Product Shadow */}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: "340px",
+                  aspectRatio: "3/4",
+                  borderRadius: APPLE_RADII.lg,
+                  backgroundColor: "#f5f5f7",
+                  border: `1px solid ${APPLE_COLORS.hairline}`,
+                  boxShadow: APPLE_SHADOW.product, // The signature system shadow
+                  overflow: "hidden",
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {/* Fallback portrait visual monogram */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "8px",
+                    color: APPLE_COLORS.inkMuted80,
+                  }}
+                >
+                  <span style={{ fontSize: "64px", fontWeight: 700, letterSpacing: "-0.03em" }}>
+                    {initials}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      color: APPLE_COLORS.primary,
+                    }}
+                  >
+                    VERIFIED TALENT
+                  </span>
+                </div>
+              </div>
+            </div>
 
-      {/* ── HEADER — avatar + name + tagline + meta, no Card ── */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "24px", marginBottom: "32px" }}>
-        {/* Avatar circle */}
+            {/* Right: Candidate Details & Download Resume CTA */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                  <h1
+                    className="apple-display-lg"
+                    style={{ color: APPLE_COLORS.ink, margin: 0, fontSize: "clamp(28px, 4vw, 40px)" }}
+                  >
+                    {profile.full_name}
+                  </h1>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      backgroundColor: "rgba(0, 102, 204, 0.1)",
+                      color: APPLE_COLORS.primary,
+                      fontSize: "12px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    K
+                  </span>
+                </div>
+
+                <p
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: 400,
+                    color: APPLE_COLORS.inkMuted80,
+                    margin: 0,
+                    letterSpacing: "-0.2px",
+                  }}
+                >
+                  {profile.tagline || "Senior Engineer & Technology Leader"}
+                </p>
+              </div>
+
+              {/* Action Button: Download Resume */}
+              <div>
+                <Button
+                  as="a"
+                  href={profile.profile_id.startsWith("demo-") ? "#" : `${BASE}/profiles/${profile.profile_id}/resume`}
+                  target="_blank"
+                  variant="primary"
+                  size="default"
+                  leftGlyph={<Download size={16} />}
+                  onClick={() => {
+                    if (profile.profile_id.startsWith("demo-")) {
+                      alert("Demo candidate resume download initiated.");
+                    }
+                  }}
+                >
+                  Download Resume
+                </Button>
+              </div>
+
+              {/* Candidate Metadata */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: "12px",
+                  paddingTop: "16px",
+                  borderTop: `1px solid ${APPLE_COLORS.hairline}`,
+                  fontSize: "13px",
+                  color: APPLE_COLORS.inkMuted48,
+                }}
+              >
+                {profile.email && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Mail size={14} color={APPLE_COLORS.primary} />
+                    <span>{profile.email}</span>
+                  </div>
+                )}
+                {profile.location && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <MapPin size={14} color={APPLE_COLORS.primary} />
+                    <span>{profile.location}</span>
+                  </div>
+                )}
+                {profile.college && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <GraduationCap size={14} color={APPLE_COLORS.primary} />
+                    <span>{profile.college}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Social / Portfolio Links */}
+              <div style={{ display: "flex", gap: "10px", paddingTop: "4px" }}>
+                {profile.contact?.github && (
+                  <Button as="a" href={profile.contact.github} target="_blank" variant="default" size="xsmall" leftGlyph={<GithubIcon />}>
+                    GitHub
+                  </Button>
+                )}
+                {profile.contact?.linkedin && (
+                  <Button as="a" href={profile.contact.linkedin} target="_blank" variant="default" size="xsmall" leftGlyph={<LinkedinIcon />}>
+                    LinkedIn
+                  </Button>
+                )}
+                {profile.contact?.portfolio_url && (
+                  <Button as="a" href={profile.contact.portfolio_url} target="_blank" variant="default" size="xsmall" leftGlyph={<Globe size={13} />}>
+                    Website
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 2: Biography & Core Disciplines (2 columns) (Screenshot 2 Reference) ── */}
+      <section
+        style={{
+          backgroundColor: APPLE_COLORS.canvasParchment,
+          padding: "72px 24px",
+          borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+          width: "100%",
+        }}
+      >
         <div
           style={{
-            width: "80px", height: "80px", borderRadius: "20px", flexShrink: 0,
-            background: SURFACE.elevated,
-            border: `1px solid ${BRAND.primaryBorder}`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "24px", fontWeight: 700, color: BRAND.primary,
+            maxWidth: "1024px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "56px",
+            alignItems: "start",
           }}
         >
-          {initials}
-        </div>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "6px" }}>
-            <H1 darkMode={darkMode} style={{ fontSize: "26px", margin: 0 }}>{profile.full_name}</H1>
-            <Badge darkMode={darkMode} variant={availabilityBadgeVariant(profile.availability)}>
-              {profile.availability || "Offline"}
-            </Badge>
-            {profile.role_category && (
-              <Badge darkMode={darkMode} variant="lightgray">{profile.role_category}</Badge>
-            )}
-          </div>
-          <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "12px", fontSize: "15px" }}>
-            {profile.tagline || "Oyster Kode Club Active Member"}
-          </Body>
-
-          {/* Meta row */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-            {profile.email && (
-              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="Envelope" fill={BRAND.primary} size={12} />
-                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.email}</Body>
-              </div>
-            )}
-            {(profile.contact?.phone || profile.phone) && (
-              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="Phone" fill={BRAND.primary} size={12} />
-                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.contact?.phone || profile.phone}</Body>
-              </div>
-            )}
-            {profile.college && (
-              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="University" fill={BRAND.primary} size={12} />
-                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.college}</Body>
-              </div>
-            )}
-            {profile.location && (
-              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="Map" fill={BRAND.primary} size={12} />
-                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>{profile.location}</Body>
-              </div>
-            )}
-            {profile.yr_of_graduation && (
-              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <Icon glyph="GraduationCap" fill={BRAND.primary} size={12} />
-                <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>Class of {profile.yr_of_graduation}</Body>
-              </div>
-            )}
+          {/* Left Column: Biography */}
+          <div>
+            <h2
+              className="apple-display-md"
+              style={{ color: APPLE_COLORS.ink, marginBottom: "20px", fontSize: "28px" }}
+            >
+              Biography
+            </h2>
+            <div
+              style={{
+                fontSize: "16px",
+                lineHeight: 1.65,
+                color: APPLE_COLORS.inkMuted80,
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                whiteSpace: "pre-line",
+              }}
+            >
+              {profile.bio || "No biography provided for this profile yet."}
+            </div>
           </div>
 
-          {/* Social buttons */}
-          <div style={{ display: "flex", gap: "8px", marginTop: "14px" }}>
-            {profile.contact?.github && (
-              <Button as="a" href={profile.contact.github} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<GithubIcon />}>GitHub</Button>
-            )}
-            {profile.contact?.linkedin && (
-              <Button as="a" href={profile.contact.linkedin} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<LinkedinIcon />}>LinkedIn</Button>
-            )}
-            {profile.contact?.portfolio_url && (
-              <Button as="a" href={profile.contact.portfolio_url} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<Icon glyph="Globe" />}>Portfolio</Button>
-            )}
+          {/* Right Column: Core Disciplines */}
+          <div>
+            <h2
+              className="apple-display-md"
+              style={{ color: APPLE_COLORS.ink, marginBottom: "20px", fontSize: "28px" }}
+            >
+              Core Disciplines
+            </h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+              {profile.skills && profile.skills.length > 0 ? (
+                profile.skills.map((sk) => (
+                  <span
+                    key={sk.name}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: APPLE_RADII.pill,
+                      backgroundColor: "#ffffff",
+                      border: `1px solid ${APPLE_COLORS.hairline}`,
+                      color: APPLE_COLORS.ink,
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      letterSpacing: "-0.1px",
+                      boxShadow: "0 1px 4px rgba(0, 0, 0, 0.02)",
+                    }}
+                  >
+                    {sk.name}
+                  </span>
+                ))
+              ) : (
+                <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48 }}>No disciplines linked.</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <SectionDivider darkMode={darkMode} />
+      {/* ── SECTION 3: Selected Works / Projects (Screenshot 2 Reference) ── */}
+      <section
+        style={{
+          backgroundColor: "#ffffff",
+          padding: "72px 24px",
+          width: "100%",
+        }}
+      >
+        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "36px" }}>
+            <h2
+              className="apple-display-md"
+              style={{ color: APPLE_COLORS.ink, margin: "0 0 6px", fontSize: "28px" }}
+            >
+              Selected Works
+            </h2>
+            <p style={{ fontSize: "15px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
+              Curated engineering projects and production systems
+            </p>
+          </div>
 
-      {/* ── ABOUT — plain section, no Card ── */}
-      <div style={{ padding: "28px 0" }}>
-        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>About</Overline>
-        <Body darkMode={darkMode} style={{ color: mutedColor, lineHeight: "1.75", fontSize: "14px" }}>
-          {profile.bio || "No biography added yet."}
-        </Body>
-      </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "28px",
+            }}
+          >
+            {profile.projects && profile.projects.length > 0 ? (
+              profile.projects.map((proj) => (
+                <div
+                  key={proj.project_id}
+                  style={{
+                    backgroundColor: APPLE_COLORS.canvasParchment,
+                    borderRadius: APPLE_RADII.lg,
+                    border: `1px solid ${APPLE_COLORS.hairline}`,
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {/* Visual Preview Frame */}
+                  <div
+                    style={{
+                      height: "180px",
+                      width: "100%",
+                      backgroundColor: "#ffffff",
+                      borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "20px",
+                    }}
+                  >
+                    <span style={{ fontSize: "16px", fontWeight: 600, color: APPLE_COLORS.inkMuted80 }}>
+                      {proj.title}
+                    </span>
+                    <span style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, marginTop: "4px" }}>
+                      {proj.tech_stack || "Full Stack Application"}
+                    </span>
+                  </div>
 
-      <SectionDivider darkMode={darkMode} />
+                  {/* Project Details */}
+                  <div style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1 }}>
+                    <div>
+                      <h3 style={{ fontSize: "17px", fontWeight: 600, color: APPLE_COLORS.ink, margin: "0 0 8px" }}>
+                        {proj.title}
+                      </h3>
+                      <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48, lineHeight: 1.5, margin: 0 }}>
+                        {proj.description || "Production engineering project repository."}
+                      </p>
+                    </div>
 
-      {/* ── SKILLS — plain section, no Card ── */}
-      <div style={{ padding: "28px 0" }}>
-        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Skills</Overline>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-          {profile.skills && profile.skills.length > 0 ? (
-            profile.skills.map((sk) => (
-              <Chip key={sk.name} darkMode={darkMode} label={`${sk.name} · ${sk.level}`} variant="green" />
-            ))
-          ) : (
-            <Body darkMode={darkMode} style={{ color: mutedColor }}>No skills associated yet.</Body>
-          )}
-        </div>
-      </div>
-
-      <SectionDivider darkMode={darkMode} />
-
-      {/* ── PROJECTS — section label + individual Cards (distinct content objects) ── */}
-      <div style={{ padding: "28px 0" }}>
-        <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "16px" }}>Projects</Overline>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
-          {profile.projects && profile.projects.length > 0 ? (
-            profile.projects.map((proj) => (
-              <Card data-okc-theme="true"
-                key={proj.project_id}
-                darkMode={darkMode}
-                style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}
-              >
-                <div>
-                  <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "6px" }}>{proj.title}</H3>
-                  <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                    {proj.description}
-                  </Body>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "8px", borderTop: `1px solid ${SURFACE.border}` }}>
-                  <Body darkMode={darkMode} style={{ fontSize: "10px", color: mutedColor }}>{proj.tech_stack}</Body>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    {proj.github_link && (
-                      <Button as="a" href={proj.github_link} target="_blank" darkMode={darkMode} variant="default" size="xsmall" leftGlyph={<GithubIcon />}>GitHub</Button>
-                    )}
-                    {proj.demo_link && (
-                      <Button as="a" href={proj.demo_link} target="_blank" darkMode={darkMode} variant="primary" size="xsmall">Demo</Button>
-                    )}
+                    <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
+                      {proj.demo_link && (
+                        <a
+                          href={proj.demo_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            fontSize: "13px",
+                            color: APPLE_COLORS.primary,
+                            fontWeight: 500,
+                            textDecoration: "none",
+                          }}
+                        >
+                          <span>View Pitch</span>
+                          <ArrowUpRight size={14} />
+                        </a>
+                      )}
+                      {proj.github_link && (
+                        <a
+                          href={proj.github_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            fontSize: "13px",
+                            color: APPLE_COLORS.primary,
+                            fontWeight: 500,
+                            textDecoration: "none",
+                          }}
+                        >
+                          <span>GitHub Repository</span>
+                          <span>&lt;/&gt;</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </Card>
-            ))
-          ) : (
-            <Body darkMode={darkMode} style={{ color: mutedColor, padding: "32px 0" }}>
-              No projects showcased yet.
-            </Body>
-          )}
-        </div>
-      </div>
-
-      <SectionDivider darkMode={darkMode} />
-
-      {/* ── ACHIEVEMENTS — plain section, no Card ── */}
-      {profile.achievements && profile.achievements.length > 0 && (
-        <>
-          <div style={{ padding: "28px 0" }}>
-            <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Achievements</Overline>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {profile.achievements.map((ach, i) => (
-                <li key={i} style={{ borderLeft: `2px solid ${BRAND.primaryBorder}`, paddingLeft: "12px" }}>
-                  <Body darkMode={darkMode} style={{ fontSize: "13px", color: mutedColor, lineHeight: "1.6" }}>{ach}</Body>
-                </li>
-              ))}
-            </ul>
+              ))
+            ) : (
+              <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48 }}>
+                No projects showcased yet.
+              </p>
+            )}
           </div>
-          <SectionDivider darkMode={darkMode} />
-        </>
-      )}
-
-      {/* ── CERTIFICATIONS — plain section, no Card ── */}
-      {profile.certifications && profile.certifications.length > 0 && (
-        <>
-          <div style={{ padding: "28px 0" }}>
-            <Overline darkMode={darkMode} style={{ display: "block", marginBottom: "12px" }}>Certifications</Overline>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {profile.certifications.map((cert, i) => (
-                <li key={i} style={{ borderLeft: `2px solid rgba(1,107,248,0.4)`, paddingLeft: "12px" }}>
-                  <Body darkMode={darkMode} style={{ fontSize: "13px", color: mutedColor, lineHeight: "1.6" }}>{cert}</Body>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <SectionDivider darkMode={darkMode} />
-        </>
-      )}
-
-      {/* ── Profile Quality strip — inline, no Card ── */}
-      <div style={{ padding: "20px 0", display: "flex", alignItems: "center", gap: "16px" }}>
-        <Label htmlFor="completion-bar" darkMode={darkMode} style={{ color: mutedColor, flexShrink: 0 }}>Profile Quality</Label>
-        <div style={{ flex: 1, height: "6px", borderRadius: "99px", background: SURFACE.border, overflow: "hidden" }}>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${profile.completion_percentage}%` }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            style={{ height: "100%", borderRadius: "99px", background: BRAND.gradient }}
-          />
         </div>
-        <H2 darkMode={darkMode} style={{ color: BRAND.primary, margin: 0, fontSize: "18px" }}>{profile.completion_percentage}%</H2>
-      </div>
+      </section>
 
-      <SectionDivider darkMode={darkMode} />
-
-      {/* ── RESUME CTA — ONE Card for this distinct action ── */}
-      <Card data-okc-theme="true"
-        darkMode={darkMode}
-        style={{ padding: "24px", marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}
+      {/* ── PARCHMENT FOOTER (appledesign.md specification) ── */}
+      <footer
+        style={{
+          backgroundColor: APPLE_COLORS.canvasParchment,
+          padding: "56px 24px 40px",
+          borderTop: `1px solid ${APPLE_COLORS.hairline}`,
+          width: "100%",
+        }}
       >
-        <div>
-          <Overline darkMode={darkMode}>Curriculum Vitae</Overline>
-          <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px", fontSize: "13px" }}>
-            Download the verified resume for this member profile.
-          </Body>
+        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "20px",
+              fontSize: "12px",
+              color: APPLE_COLORS.inkMuted48,
+            }}
+          >
+            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Terms of Service</Link>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Privacy Policy</Link>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Contact Support</Link>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Member Guidelines</Link>
+            </div>
+            <div>
+              © {new Date().getFullYear()} Oyster Kode Club. All rights reserved.
+            </div>
+          </div>
         </div>
-        <Button
-          as="a"
-          href={profile.profile_id.startsWith("demo-") ? "#" : `${BASE}/profiles/${profile.profile_id}/resume`}
-          target="_blank"
-          darkMode={darkMode}
-          variant="primary"
-          leftGlyph={<Icon glyph="Download" />}
-          onClick={() => profile.profile_id.startsWith("demo-") && alert("Demo resume download logged!")}
-        >
-          Download Resume
-        </Button>
-      </Card>
+      </footer>
     </div>
   );
 }

@@ -2,31 +2,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-
-import Card from "@leafygreen-ui/card";
-import Button from "@/components/OKCButton";
-import Badge from "@leafygreen-ui/badge";
-import {
-  H1,
-  H2,
-  H3,
-  Subtitle,
-  Body,
-  Label,
-  Overline,
-} from "@leafygreen-ui/typography";
-import Icon from "@leafygreen-ui/icon";
-import { ExpandableCard } from "@leafygreen-ui/expandable-card";
-import { palette } from "@leafygreen-ui/palette";
-import { useTheme } from "@/context/ThemeContext";
-import { BRAND, STATUS, SURFACE, availabilityStyle } from "@/lib/theme";
-import {
-  staggerContainer,
-  fadeInUp,
-  fadeInScale,
-  floatingHero,
-} from "@/lib/animations";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, ArrowRight, Sparkles, Laptop, Building2, UserCheck } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { APPLE_COLORS, APPLE_RADII, APPLE_SHADOW } from "@/lib/theme";
+import { fadeInUp, fadeInScale, staggerContainer } from "@/lib/animations";
 
 interface Testimonial {
   name: string;
@@ -35,6 +16,7 @@ interface Testimonial {
   quote: string;
   gradYear: number;
 }
+
 interface FAQItem {
   question: string;
   answer: string;
@@ -91,384 +73,567 @@ const FAQS: FAQItem[] = [
 ];
 
 const STATS = [
-  { value: "40+", label: "Verified Members", glyph: "Person" },
-  { value: "25+", label: "Completed Projects", glyph: "Laptop" },
-  { value: "8+", label: "Alumni at Big Tech", glyph: "Building" },
-  { value: "100%", label: "Student-Led", glyph: "Sparkle" },
+  { value: "40+", label: "Verified Members", icon: UserCheck },
+  { value: "25+", label: "Completed Projects", icon: Laptop },
+  { value: "8+", label: "Alumni at Big Tech", icon: Building2 },
+  { value: "100%", label: "Student-Led", icon: Sparkles },
 ];
 
-const DOMAINS = [
-  { title: "Full Stack & Web Systems", tech: "React · Next.js · Node.js · PostgreSQL", href: "/directory?search=Next.js" },
-  { title: "AI & Machine Learning", tech: "PyTorch · Python · LLMs · OpenCV", href: "/directory?search=Python" },
-  { title: "Hardware & VLSI", tech: "Verilog · VHDL · FPGA · Embedded C", href: "/directory?search=VLSI" },
-  { title: "Cloud & DevOps", tech: "Docker · AWS · Kubernetes · CI/CD", href: "/directory?search=Docker" },
+const EXPERTISE_AREAS = [
+  {
+    title: "Full Stack",
+    description: "Architecting scalable web and mobile applications from end to end.",
+    href: "/directory?search=Next.js",
+  },
+  {
+    title: "AI/ML",
+    description: "Developing intelligent systems and predictive models.",
+    href: "/directory?search=Python",
+  },
+  {
+    title: "Hardware & VLSI",
+    description: "Designing the physical foundations of tomorrow's computing.",
+    href: "/directory?search=VLSI",
+  },
+  {
+    title: "Cloud & DevOps",
+    description: "Building robust, automated infrastructure for global scale.",
+    href: "/directory?search=Docker",
+  },
 ];
 
 export default function LandingPage() {
-  const { darkMode } = useTheme();
-  const textColor = darkMode ? palette.white : palette.black;
-  const mutedColor = darkMode ? palette.gray.light1 : palette.gray.dark1;
-  const borderColor = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "56px", paddingBottom: "64px" }}>
-
-      {/* ── HERO — seamless full-bleed top flow ── */}
-      <div
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", margin: 0, padding: 0 }}>
+      {/* ── TILE 1: Dark Hero Tile with OysterTeam5 Background Image (Screenshot 4 Reference) ── */}
+      <section
         style={{
-          textAlign: "center",
-          padding: "40px 24px 32px",
           position: "relative",
+          overflow: "hidden",
+          color: "#ffffff",
+          minHeight: "82vh",
+          padding: "120px 24px 100px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          width: "100%",
+          backgroundColor: "#141416",
         }}
       >
+        {/* Background Image: OysterTeam5 */}
+        <Image
+          src="/OysterTeam5.jpg"
+          alt="Oyster Kode Club Team"
+          fill
+          priority
+          sizes="100vw"
+          style={{
+            objectFit: "cover",
+            objectPosition: "center 35%",
+            zIndex: 0,
+          }}
+        />
+
+        {/* Apple Cinematic Dark Scrim Overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(15, 15, 17, 0.72) 0%, rgba(20, 20, 22, 0.85) 60%, rgba(20, 20, 22, 0.96) 100%)",
+            backdropFilter: "blur(1px)",
+            WebkitBackdropFilter: "blur(1px)",
+            zIndex: 1,
+          }}
+        />
+
+        {/* Content Staged on Top */}
         <motion.div
-          variants={staggerContainer(0.1, 0.1)}
+          variants={staggerContainer(0.1)}
           initial="initial"
           animate="animate"
-          style={{ position: "relative", zIndex: 1, maxWidth: "640px", margin: "0 auto" }}
+          style={{
+            position: "relative",
+            zIndex: 2,
+            maxWidth: "840px",
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
         >
-          <motion.div
-            variants={fadeInScale}
-            style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}
-          >
-            <motion.div
-              variants={floatingHero}
-              initial="initial"
-              animate="animate"
-              style={{ position: "relative" }}
-            >
-              <Image
-                src="/okc_main_logo.png"
-                alt="OKC Logo"
-                width={80}
-                height={80}
-                style={{ objectFit: "contain", position: "relative", zIndex: 1 }}
-              />
-            </motion.div>
-          </motion.div>
-
+          {/* Eyebrow */}
           <motion.div variants={fadeInUp}>
-            <H1
-              darkMode={darkMode}
+            <span
               style={{
-                color: textColor,
-                marginBottom: "16px",
-                letterSpacing: "-0.02em",
+                fontSize: "12px",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "rgba(255, 255, 255, 0.7)",
+                display: "block",
+                marginBottom: "20px",
               }}
             >
-              PROJECT K
-            </H1>
+              ARTIFICIAL INTELLIGENCE & MACHINE LEARNING
+            </span>
           </motion.div>
 
+          {/* Hero Quote Headline */}
           <motion.div variants={fadeInUp}>
-            <Body darkMode={darkMode} style={{ color: mutedColor, marginBottom: "32px", lineHeight: "1.7", fontSize: "16px" }}>
-              A structured portfolio database of members and alumni. Discover skill-based talent,
-              download verified resumes, and connect with developers.
-            </Body>
+            <h1
+              className="apple-hero-display"
+              style={{
+                color: "#ffffff",
+                marginBottom: "24px",
+                fontSize: "clamp(32px, 5.5vw, 56px)",
+                lineHeight: 1.12,
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                textShadow: "0 2px 20px rgba(0, 0, 0, 0.5)",
+              }}
+            >
+              &ldquo;Architecting intelligence requires more than algorithms. It demands intuition.&rdquo;
+            </h1>
           </motion.div>
 
+          {/* Hero Tagline / Subtitle */}
+          <motion.div variants={fadeInUp}>
+            <p
+              style={{
+                fontSize: "clamp(16px, 2vw, 20px)",
+                lineHeight: 1.5,
+                color: "rgba(255, 255, 255, 0.85)",
+                maxWidth: "680px",
+                margin: "0 auto 36px",
+                letterSpacing: "-0.2px",
+                fontWeight: 400,
+                textShadow: "0 1px 12px rgba(0, 0, 0, 0.5)",
+              }}
+            >
+              Discover elite engineering talent specialized in deep learning, neural networks, and scalable AI infrastructure.
+            </p>
+          </motion.div>
+
+          {/* Action CTAs */}
           <motion.div
             variants={fadeInUp}
-            style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}
+            style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}
           >
             <Button
               as={Link}
               href="/directory"
-              darkMode={darkMode}
               variant="primary"
-              rightGlyph={<Icon glyph="ArrowRight" />}
+              size="default"
+              rightGlyph={<ArrowRight size={15} />}
             >
               Browse Directory
             </Button>
             <Button
               as={Link}
               href="/auth"
-              darkMode={darkMode}
-              variant="default"
+              variant="secondary-pill"
+              size="default"
+              style={{ color: "#ffffff", borderColor: "rgba(255,255,255,0.4)" }}
             >
-              Join Portal
+              Join Club
             </Button>
           </motion.div>
         </motion.div>
-      </div>
+      </section>
 
-      {/* ── STATS — staggered scroll reveal strip ── */}
-      <motion.div
-        variants={staggerContainer(0.08)}
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true, margin: "-40px" }}
+      {/* ── TILE 2: Light Canvas Tile — "Areas of Expertise" (Screenshot 4 Reference) ── */}
+      <section
         style={{
-          display: "flex",
-          alignItems: "stretch",
-          justifyContent: "center",
-          flexWrap: "wrap",
-          gap: 0,
-          borderTop: `1px solid ${borderColor}`,
-          borderBottom: `1px solid ${borderColor}`,
-          padding: "8px 0",
+          backgroundColor: APPLE_COLORS.canvasParchment,
+          padding: "80px 24px",
+          width: "100%",
         }}
       >
-        {STATS.map((s, i) => (
-          <motion.div
-            key={i}
-            variants={fadeInScale}
+        <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2
+              className="apple-display-md"
+              style={{ color: APPLE_COLORS.ink, marginBottom: "8px" }}
+            >
+              Areas of Expertise
+            </h2>
+            <p style={{ fontSize: "16px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
+              Specialized disciplines and modern technical foundations
+            </p>
+          </div>
+
+          <div
             style={{
-              flex: "1 1 180px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "8px",
-              padding: "28px 24px",
-              borderRight: i < STATS.length - 1 ? `1px solid ${borderColor}` : "none",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: "20px",
             }}
           >
-            <Icon glyph={s.glyph as never} fill={BRAND.primary} size={20} />
-            <H2 darkMode={darkMode} style={{ color: textColor, margin: 0 }}>{s.value}</H2>
-            <Label htmlFor={`stat-${i}`} darkMode={darkMode} style={{ color: mutedColor, textAlign: "center" }}>{s.label}</Label>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* ── DOMAINS — staggered interactive grid ── */}
-      <div>
-        <div
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            marginBottom: "20px", flexWrap: "wrap", gap: "8px",
-          }}
-        >
-          <div>
-            <Overline darkMode={darkMode}>Core Engineering Domains</Overline>
-            <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
-              Discover members by filtering technical subdivisions
-            </Body>
-          </div>
-          <Button
-            as={Link}
-            href="/directory"
-            darkMode={darkMode}
-            variant="default"
-            size="small"
-            rightGlyph={<Icon glyph="ArrowRight" />}
-          >
-            All filters
-          </Button>
-        </div>
-
-        <motion.div
-          variants={staggerContainer(0.06)}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, margin: "-40px" }}
-          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}
-        >
-          {DOMAINS.map((d, i) => (
-            <motion.div
-              key={i}
-              variants={fadeInUp}
-              whileHover={{ y: -4, transition: { duration: 0.18 } }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Link
-                href={d.href}
-                style={{ textDecoration: "none", display: "block", height: "100%" }}
+            {EXPERTISE_AREAS.map((area, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ y: -3, transition: { duration: 0.18 } }}
+                style={{ height: "100%" }}
               >
                 <div
                   style={{
-                    padding: "20px",
-                    borderRadius: "8px",
-                    border: `1px solid ${borderColor}`,
-                    cursor: "pointer",
-                    transition: "background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease",
+                    backgroundColor: "#ffffff",
+                    borderRadius: APPLE_RADII.lg,
+                    border: `1px solid ${APPLE_COLORS.hairline}`,
+                    padding: "28px 24px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
                     height: "100%",
-                    background: "transparent",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.background = BRAND.primaryBg;
-                    (e.currentTarget as HTMLDivElement).style.borderColor = BRAND.primaryBorder;
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 4px 20px ${BRAND.primaryBg}`;
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.background = "transparent";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = borderColor;
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                    minHeight: "190px",
+                    boxSizing: "border-box",
                   }}
                 >
-                  <H3 darkMode={darkMode} style={{ fontSize: "14px", marginBottom: "8px", color: textColor }}>
-                    {d.title}
-                  </H3>
-                  <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
-                    {d.tech}
-                  </Body>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* ── TESTIMONIALS — staggered cards with hover lift ── */}
-      <div>
-        <div style={{ marginBottom: "20px" }}>
-          <Overline darkMode={darkMode}>Alumni Success</Overline>
-          <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
-            What our members say about their journey
-          </Body>
-        </div>
-
-        <motion.div
-          variants={staggerContainer(0.1)}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, margin: "-40px" }}
-          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}
-        >
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={i}
-              variants={fadeInUp}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              style={{ display: "flex", height: "100%" }}
-            >
-              <Card data-okc-theme="true"
-                darkMode={darkMode}
-                style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}
-              >
-                <Body
-                  darkMode={darkMode}
-                  style={{ fontStyle: "italic", color: mutedColor, lineHeight: "1.7", flex: 1 }}
-                >
-                  &ldquo;{t.quote}&rdquo;
-                </Body>
-
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "12px", borderTop: `1px solid ${SURFACE.border}` }}>
                   <div>
-                    <Subtitle darkMode={darkMode} style={{ fontSize: "13px", color: textColor, margin: 0 }}>
-                      {t.name}
-                    </Subtitle>
-                    <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor, marginTop: "2px" }}>
-                      {t.role} @ {t.company}
-                    </Body>
+                    <h3
+                      style={{
+                        fontSize: "19px",
+                        fontWeight: 600,
+                        color: APPLE_COLORS.ink,
+                        margin: "0 0 10px",
+                        letterSpacing: "-0.24px",
+                      }}
+                    >
+                      {area.title}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        color: APPLE_COLORS.inkMuted48,
+                        lineHeight: 1.5,
+                        margin: 0,
+                      }}
+                    >
+                      {area.description}
+                    </p>
                   </div>
-                  <Badge darkMode={darkMode} variant="lightgray">{t.gradYear}</Badge>
+
+                  <Link
+                    href={area.href}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      fontSize: "14px",
+                      color: APPLE_COLORS.primary,
+                      fontWeight: 500,
+                      textDecoration: "none",
+                      marginTop: "20px",
+                      letterSpacing: "-0.1px",
+                    }}
+                  >
+                    <span>Learn more</span>
+                    <span>→</span>
+                  </Link>
                 </div>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* ── FAQ — staggered scroll reveal ── */}
-      <div>
-        <div style={{ marginBottom: "20px" }}>
-          <Overline darkMode={darkMode}>Frequently Asked Questions</Overline>
-          <Body darkMode={darkMode} style={{ color: mutedColor, marginTop: "4px" }}>
-            Everything you need to know about the portfolio ecosystem
-          </Body>
+              </motion.div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <motion.div
-          variants={staggerContainer(0.07)}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, margin: "-40px" }}
-          style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-        >
-          {FAQS.map((faq, i) => (
-            <motion.div key={i} variants={fadeInUp}>
-              <ExpandableCard data-okc-theme="true"
-                darkMode={darkMode}
-                title={faq.question}
-                flagText="FAQ"
-              >
-                <Body darkMode={darkMode} style={{ color: mutedColor }}>{faq.answer}</Body>
-              </ExpandableCard>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* ── FOOTER — plain footer with top border; no Card ── */}
-      <footer
+      {/* ── TILE 3: Dark Editorial Stats Tile ── */}
+      <section
         style={{
-          paddingTop: "32px",
-          borderTop: `1px solid ${borderColor}`,
+          backgroundColor: APPLE_COLORS.surfaceTile2,
+          color: "#ffffff",
+          padding: "64px 24px",
+          width: "100%",
         }}
       >
         <div
           style={{
+            maxWidth: "1024px",
+            margin: "0 auto",
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
             gap: "24px",
-            marginBottom: "24px",
+            textAlign: "center",
           }}
         >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-              <Image src="/okc_main_logo.png" alt="OKC" width={20} height={20} style={{ objectFit: "contain" }} />
-              <Subtitle darkMode={darkMode} style={{ fontSize: "12px", letterSpacing: "0.05em" }}>
-                OYSTER KODE CLUB
-              </Subtitle>
-            </div>
-            <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor, lineHeight: "1.6" }}>
-              Official portfolio ecosystem showcasing engineering talent built by our active student club.
-            </Body>
-          </div>
+          {STATS.map((s, i) => {
+            const IconComp = s.icon;
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  padding: "16px 12px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "36px",
+                    fontWeight: 600,
+                    color: "#ffffff",
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1.1,
+                    marginBottom: "8px",
+                  }}
+                >
+                  {s.value}
+                </span>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "rgba(255, 255, 255, 0.72)",
+                    fontWeight: 400,
+                    letterSpacing: "-0.1px",
+                  }}
+                >
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
+      {/* ── TILE 4: Testimonials & FAQ Section ── */}
+      <section
+        id="about"
+        style={{
+          backgroundColor: "#ffffff",
+          padding: "80px 24px",
+          width: "100%",
+        }}
+      >
+        <div style={{ maxWidth: "1024px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "64px" }}>
+          {/* Testimonials */}
           <div>
-            <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Browse</Overline>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              {[["Web Systems", "/directory?search=Next.js"], ["Data Systems", "/directory?search=Python"], ["VLSI & Hardware", "/directory?search=VLSI"], ["DevOps & Cloud", "/directory?search=Docker"]].map(([label, href]) => (
-                <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
-                  {label}
-                </Link>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <span style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: APPLE_COLORS.primary, display: "block", marginBottom: "6px" }}>
+                ALUMNI VOICES
+              </span>
+              <h2 className="apple-display-md" style={{ color: APPLE_COLORS.ink, margin: 0 }}>
+                Crafted by Engineers
+              </h2>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "20px",
+              }}
+            >
+              {TESTIMONIALS.map((t, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    backgroundColor: APPLE_COLORS.canvasParchment,
+                    borderRadius: APPLE_RADII.lg,
+                    border: `1px solid ${APPLE_COLORS.hairline}`,
+                    padding: "28px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: APPLE_COLORS.inkMuted80,
+                      lineHeight: 1.6,
+                      fontStyle: "normal",
+                      margin: "0 0 20px",
+                    }}
+                  >
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div>
+                    <p style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink, margin: 0 }}>
+                      {t.name}
+                    </p>
+                    <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: "2px 0 0" }}>
+                      {t.role} • {t.company} ({t.gradYear})
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
+          {/* FAQ Accordion */}
           <div>
-            <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Portal</Overline>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              {[["Member Directory", "/directory"], ["Pitch Showcase", "/pitches"], ["Join Portal", "/auth"], ["Admin Panel", "/admin"]].map(([label, href]) => (
-                <Link key={href} href={href} style={{ fontSize: "13px", color: mutedColor, textDecoration: "none" }}>
-                  {label}
-                </Link>
-              ))}
+            <div style={{ textAlign: "center", marginBottom: "32px" }}>
+              <h2 className="apple-display-md" style={{ color: APPLE_COLORS.ink, margin: "0 0 6px" }}>
+                Frequently Asked Questions
+              </h2>
+              <p style={{ fontSize: "15px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
+                Everything you need to know about the talent ecosystem
+              </p>
             </div>
-          </div>
 
-          <div>
-            <Overline darkMode={darkMode} style={{ marginBottom: "10px" }}>Contact</Overline>
-            <Body darkMode={darkMode} style={{ fontSize: "12px", color: mutedColor }}>
-              Questions or sponsorships?
-            </Body>
-            <Body darkMode={darkMode} style={{ fontSize: "13px", color: BRAND.primary, marginTop: "4px" }}>
-              contact@oysterkode.club
-            </Body>
+            <div style={{ maxWidth: "760px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+              {FAQS.map((faq, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      backgroundColor: APPLE_COLORS.canvasParchment,
+                      borderRadius: APPLE_RADII.md,
+                      border: `1px solid ${APPLE_COLORS.hairline}`,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleFaq(i)}
+                      style={{
+                        width: "100%",
+                        padding: "18px 20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: APPLE_COLORS.ink,
+                        letterSpacing: "-0.2px",
+                      }}
+                    >
+                      <span>{faq.question}</span>
+                      <motion.span
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ display: "flex", alignItems: "center", color: APPLE_COLORS.inkMuted48 }}
+                      >
+                        <ChevronDown size={18} />
+                      </motion.span>
+                    </button>
+
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
+                          style={{ overflow: "hidden" }}
+                        >
+                          <div style={{ padding: "0 20px 18px", fontSize: "14px", color: APPLE_COLORS.inkMuted80, lineHeight: 1.6 }}>
+                            {faq.answer}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
+      </section>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "8px",
-            paddingTop: "16px",
-            borderTop: `1px solid ${borderColor}`,
-          }}
-        >
-          <Body darkMode={darkMode} style={{ fontSize: "11px", color: mutedColor }}>
-            © {new Date().getFullYear()} Oyster Kode Club. All Rights Reserved.
-          </Body>
-          <div style={{ display: "flex", gap: "16px" }}>
-            {["Privacy", "Terms"].map((l) => (
-              <Link key={l} href="#" style={{ fontSize: "11px", color: mutedColor, textDecoration: "none" }}>
-                {l}
-              </Link>
-            ))}
+      {/* ── PARCHMENT FOOTER (appledesign.md specification) ── */}
+      <footer
+        style={{
+          backgroundColor: APPLE_COLORS.canvasParchment,
+          padding: "56px 24px 40px",
+          borderTop: `1px solid ${APPLE_COLORS.hairline}`,
+          width: "100%",
+        }}
+      >
+        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+          {/* Main Footer Links & Brand */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+              gap: "32px",
+              paddingBottom: "36px",
+              borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: APPLE_COLORS.ink,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  display: "block",
+                  marginBottom: "8px",
+                }}
+              >
+                OYSTER KODE CLUB
+              </span>
+              <p style={{ fontSize: "13px", color: APPLE_COLORS.inkMuted48, maxWidth: "340px", lineHeight: 1.5, margin: 0 }}>
+                Official portfolio ecosystem showcasing verified technical talent and student engineering achievements.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: "48px", flexWrap: "wrap" }}>
+              <div>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: APPLE_COLORS.ink, display: "block", marginBottom: "12px" }}>
+                  Directory
+                </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: APPLE_COLORS.inkMuted80 }}>
+                  <Link href="/directory" style={{ textDecoration: "none", color: "inherit" }}>All Members</Link>
+                  <Link href="/directory?search=Next.js" style={{ textDecoration: "none", color: "inherit" }}>Full Stack</Link>
+                  <Link href="/directory?search=Python" style={{ textDecoration: "none", color: "inherit" }}>AI / Machine Learning</Link>
+                  <Link href="/directory?search=VLSI" style={{ textDecoration: "none", color: "inherit" }}>Hardware & Systems</Link>
+                </div>
+              </div>
+
+              <div>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: APPLE_COLORS.ink, display: "block", marginBottom: "12px" }}>
+                  Portal
+                </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: APPLE_COLORS.inkMuted80 }}>
+                  <Link href="/pitches" style={{ textDecoration: "none", color: "inherit" }}>Pitch Showcase</Link>
+                  <Link href="/auth" style={{ textDecoration: "none", color: "inherit" }}>Member Sign In</Link>
+                  <Link href="/portfolio" style={{ textDecoration: "none", color: "inherit" }}>Workspace Dashboard</Link>
+                  <Link href="/admin" style={{ textDecoration: "none", color: "inherit" }}>Administration</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Legal / Copyright Bottom Row */}
+          <div
+            style={{
+              paddingTop: "24px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "16px",
+              fontSize: "12px",
+              color: APPLE_COLORS.inkMuted48,
+            }}
+          >
+            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Terms of Service</Link>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Privacy Policy</Link>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Contact Support</Link>
+              <Link href="#" style={{ color: "inherit", textDecoration: "none" }}>Member Guidelines</Link>
+            </div>
+            <div>
+              © {new Date().getFullYear()} Oyster Kode Club. All rights reserved.
+            </div>
           </div>
         </div>
       </footer>
