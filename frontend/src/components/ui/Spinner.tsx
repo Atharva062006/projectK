@@ -17,35 +17,21 @@ export function Spinner({ size = 24, color = APPLE_COLORS.primary }: SpinnerProp
         justifyContent: "center",
         width: size,
         height: size,
+        flexShrink: 0,
       }}
     >
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
+      <span
         style={{
-          animation: "spin 0.8s linear infinite",
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          border: `2.5px solid rgba(0, 0, 0, 0.1)`,
+          borderTopColor: color,
+          animation: "spin 0.5s linear infinite",
+          display: "inline-block",
+          boxSizing: "border-box",
         }}
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          fill="none"
-          stroke="rgba(0, 0, 0, 0.1)"
-          strokeWidth="2.5"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          fill="none"
-          stroke={color}
-          strokeWidth="2.5"
-          strokeDasharray="40 100"
-          strokeLinecap="round"
-        />
-      </svg>
+      />
     </div>
   );
 }

@@ -20,7 +20,8 @@ export const registerUser = async (req, res) => {
         
         handleResponse(res, 201, "User registered successfully", user);
     } catch (error) {
-        const statusCode = error.message === "Email already in use" ? 409 : 500;
+        const isConflict = error.message === "Email already in use" || error.message === "Username already in use";
+        const statusCode = isConflict ? 409 : 500;
         return handleResponse(res, statusCode, error.message);
     }
     

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { Download, ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap } from "lucide-react";
-import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
+import { Download, ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap, CheckCircle, Eye } from "lucide-react";
+import { GithubIcon, LinkedinIcon, LinkedInVerifiedBadge } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
@@ -36,6 +36,7 @@ interface Project {
 interface ProfileData {
   profile_id: string;
   full_name: string;
+  profile_image?: string;
   email?: string;
   phone?: string;
   college?: string;
@@ -257,53 +258,109 @@ export default function ProfileDetailPage() {
               alignItems: "center",
             }}
           >
-            {/* Left: Photographic Headshot / Portrait with Apple Product Shadow */}
+            {/* Left: Candidate Card (Reference Image Styled) */}
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div
                 style={{
                   width: "100%",
                   maxWidth: "340px",
-                  aspectRatio: "3/4",
-                  borderRadius: APPLE_RADII.lg,
-                  backgroundColor: "#f5f5f7",
-                  border: `1px solid ${APPLE_COLORS.hairline}`,
-                  boxShadow: APPLE_SHADOW.product, // The signature system shadow
+                  borderRadius: "28px",
+                  backgroundColor: "#ffffff",
+                  border: "6px solid #ffffff",
+                  boxShadow: "0 20px 48px rgba(0, 0, 0, 0.1)",
                   overflow: "hidden",
                   position: "relative",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  flexDirection: "column",
                 }}
               >
-                {/* Fallback portrait visual monogram */}
+                {/* Image / Visual Container */}
                 <div
                   style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "360px",
+                    backgroundColor: "#e8ecef",
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
-                    gap: "8px",
-                    color: APPLE_COLORS.inkMuted80,
+                    justifyContent: "center",
+                    overflow: "hidden",
                   }}
                 >
-                  <span style={{ fontSize: "64px", fontWeight: 700, letterSpacing: "-0.03em" }}>
-                    {initials}
-                  </span>
-                  <span
+                  {profile.profile_image ? (
+                    <img
+                      src={profile.profile_image}
+                      alt={profile.full_name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "8px",
+                        color: APPLE_COLORS.inkMuted80,
+                      }}
+                    >
+                      <span style={{ fontSize: "64px", fontWeight: 700, letterSpacing: "-0.03em" }}>
+                        {initials}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                          color: APPLE_COLORS.primary,
+                        }}
+                      >
+                        VERIFIED TALENT
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Card Detail Panel (Matching Reference Image) */}
+                <div
+                  style={{
+                    padding: "20px 22px 24px",
+                    backgroundColor: "#ffffff",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <h2
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: 700,
+                        color: "#1d1d1f",
+                        margin: 0,
+                        letterSpacing: "-0.3px",
+                      }}
+                    >
+                      {profile.full_name}
+                    </h2>
+                    <LinkedInVerifiedBadge size={22} />
+                  </div>
+
+                  <p
                     style={{
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                      color: APPLE_COLORS.primary,
+                      fontSize: "14px",
+                      color: "#6e6e73",
+                      margin: 0,
+                      lineHeight: 1.45,
                     }}
                   >
-                    VERIFIED TALENT
-                  </span>
+                    {profile.tagline || profile.bio?.slice(0, 90) || "Verified Oyster Kode Club Talent"}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Right: Candidate Details & Download Resume CTA */}
+            {/* Right: Candidate Details & Resume CTAs */}
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
@@ -313,22 +370,7 @@ export default function ProfileDetailPage() {
                   >
                     {profile.full_name}
                   </h1>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "22px",
-                      height: "22px",
-                      borderRadius: "50%",
-                      backgroundColor: "rgba(0, 102, 204, 0.1)",
-                      color: APPLE_COLORS.primary,
-                      fontSize: "12px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    K
-                  </span>
+                  <LinkedInVerifiedBadge size={26} />
                 </div>
 
                 <p
@@ -344,20 +386,36 @@ export default function ProfileDetailPage() {
                 </p>
               </div>
 
-              {/* Action Button: Download Resume */}
-              <div>
+              {/* Action Buttons: View Resume & Download Resume */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
                 <Button
                   as="a"
-                  href={profile.profile_id.startsWith("demo-") ? "#" : `${BASE}/profiles/${profile.profile_id}/resume`}
+                  href={
+                    profile.profile_id.startsWith("demo-")
+                      ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                      : `${BASE}/profiles/${profile.profile_id}/resume`
+                  }
                   target="_blank"
+                  rel="noreferrer"
                   variant="primary"
                   size="default"
+                  leftGlyph={<Eye size={16} />}
+                >
+                  View Resume
+                </Button>
+
+                <Button
+                  as="a"
+                  href={
+                    profile.profile_id.startsWith("demo-")
+                      ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                      : `${BASE}/profiles/${profile.profile_id}/resume?download=true`
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                  variant="secondary"
+                  size="default"
                   leftGlyph={<Download size={16} />}
-                  onClick={() => {
-                    if (profile.profile_id.startsWith("demo-")) {
-                      alert("Demo candidate resume download initiated.");
-                    }
-                  }}
                 >
                   Download Resume
                 </Button>

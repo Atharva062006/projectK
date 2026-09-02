@@ -1,4 +1,6 @@
 import handleResponse from "../util/handleResponse.js";
+import cloudinary from "../config/cloudinary.js";
+import { findProfileByUserId, updateProfile } from "../repositories/profileRepository.js";
 import { 
     getOwnProfileService, 
     updateOwnProfileService, 
@@ -14,6 +16,50 @@ import {
     updateProjectService, 
     deleteProjectService 
 } from "../services/projectsService.js";
+
+// # Upload avatar controller — uploads profile photo to Cloudinary and saves URL in DB
+export const uploadAvatar = async (req, res) => {
+    if (!req.file) {
+        return handleResponse(res, 400, "No file uploaded or file format is invalid. Please select an image file.");
+    }
+
+    try {
+        const profile = await findProfileByUserId(req.user.user_id);
+        if (!profile) {
+            return handleResponse(res, 404, "Profile not found");
+        }
+
+        // Upload image buffer to Cloudinary in 'projectk/avatars' folder
+        const cloudinaryUrl = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                {
+                    folder: "projectk/avatars",
+                    resource_type: "image",
+                    transformation: [
+                        { width: 500, height: 500, crop: "fill", gravity: "face" }
+                    ]
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result.secure_url);
+                }
+            );
+            stream.end(req.file.buffer);
+        });
+
+        // Update profile_image in database
+        const updatedProfile = await updateProfile(profile.profile_id, { profile_image: cloudinaryUrl });
+        return handleResponse(res, 200, "Profile photo uploaded successfully", {
+            profile_image: cloudinaryUrl,
+            profile: updatedProfile
+        });
+    } catch (error) {
+        return handleResponse(res, 500, error.message);
+    }
+};
+
+
+
 
 // # Fetch current user's profile
 export const getOwnProfile = async (req, res) => {

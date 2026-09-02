@@ -52,6 +52,7 @@ export const api = {
     addProject: (body: object) => request("/profiles/me/projects", { method: "POST", body: JSON.stringify(body) }),
     updateProject: (projectId: string, body: object) => request(`/profiles/me/projects/${projectId}`, { method: "PUT", body: JSON.stringify(body) }),
     deleteProject: (projectId: string) => request(`/profiles/me/projects/${projectId}`, { method: "DELETE" }),
+    uploadAvatar: (formData: FormData) => request("/profiles/me/avatar", { method: "POST", body: formData }, true),
     uploadResume: (formData: FormData) => request("/profiles/me/resume", { method: "POST", body: formData }, true),
     downloadResume: (profileId: string) => `${BASE}/profiles/${profileId}/resume`,
     trackClick: (profileId: string, linkType: string, clickedUrl: string) =>

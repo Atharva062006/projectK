@@ -9,9 +9,10 @@ import {
     removeSkill,
     addProject,
     updateProject,
-    deleteProject
+    deleteProject,
+    uploadAvatar
 } from "../controllers/profileController.js";
-import { uploadResumeMiddleware } from "../middlewares/uploadMiddleware.js";
+import { uploadResumeMiddleware, uploadAvatarMiddleware } from "../middlewares/uploadMiddleware.js";
 import { uploadResume, downloadResume, trackOutboundClick } from "../controllers/resumeController.js";
 
 const profileRouter = Router();
@@ -44,7 +45,12 @@ profileRouter.post("/me/projects", addProject);
 profileRouter.put("/me/projects/:projectId", updateProject);
 profileRouter.delete("/me/projects/:projectId", deleteProject);
 
-// Resume upload
+// Avatar & Resume uploads
+profileRouter.post("/me/avatar", uploadAvatarMiddleware.single("avatar"), uploadAvatar);
 profileRouter.post("/me/resume", uploadResumeMiddleware.single("resume"), uploadResume);
 
 export default profileRouter;
+
+
+
+
