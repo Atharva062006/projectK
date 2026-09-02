@@ -2,18 +2,45 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
 import { User, Menu, X, ChevronDown, UserCheck, Edit3, ShieldAlert, LogOut } from "lucide-react";
 import { APPLE_COLORS, APPLE_RADII } from "@/lib/theme";
 
 export default function Navbar() {
-  const { user, profileId, logout } = useAuth();
+  const { user, profileId, logout, refreshProfileId } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleViewShowcase = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    let id = profileId || (typeof window !== "undefined" ? localStorage.getItem("pk_profile_id") : null);
+    if (!id) {
+      try {
+        const res = await api.profile.getMe();
+        if (res.ok && res.data) {
+          id = (res.data as any).profile_id;
+          if (id && typeof window !== "undefined") {
+            localStorage.setItem("pk_profile_id", id);
+            refreshProfileId();
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load profile for showcase", err);
+      }
+    }
+    if (id) {
+      router.push(`/profiles/${id}`);
+    } else {
+      router.push("/portfolio");
+    }
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -260,52 +287,50 @@ export default function Navbar() {
 
                     <div style={{ height: "1px", backgroundColor: APPLE_COLORS.hairline, margin: "4px 0" }} />
 
-                    {(user.role === "member" || user.role === "alumni") && (
-                      <>
-                        <Link
-                          href={profileId ? `/profiles/${profileId}` : "/portfolio"}
-                          prefetch={true}
-                          onClick={() => setMenuOpen(false)}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "8px 12px",
-                            borderRadius: APPLE_RADII.sm,
-                            fontSize: "13px",
-                            color: APPLE_COLORS.ink,
-                            textDecoration: "none",
-                            transition: "background-color 0.15s ease",
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
-                          <UserCheck size={14} color={APPLE_COLORS.primary} />
-                          <span>View Showcase</span>
-                        </Link>
-                        <Link
-                          href="/portfolio"
-                          prefetch={true}
-                          onClick={() => setMenuOpen(false)}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "8px 12px",
-                            borderRadius: APPLE_RADII.sm,
-                            fontSize: "13px",
-                            color: APPLE_COLORS.ink,
-                            textDecoration: "none",
-                            transition: "background-color 0.15s ease",
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
-                          <Edit3 size={14} color={APPLE_COLORS.primary} />
-                          <span>Edit Portfolio</span>
-                        </Link>
-                      </>
-                    )}
+                    <>
+                      <a
+                        href={profileId ? `/profiles/${profileId}` : "#"}
+                        onClick={handleViewShowcase}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          padding: "8px 12px",
+                          borderRadius: APPLE_RADII.sm,
+                          fontSize: "13px",
+                          color: APPLE_COLORS.ink,
+                          textDecoration: "none",
+                          cursor: "pointer",
+                          transition: "background-color 0.15s ease",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        <UserCheck size={14} color={APPLE_COLORS.primary} />
+                        <span>View Showcase</span>
+                      </a>
+                      <Link
+                        href="/portfolio"
+                        prefetch={true}
+                        onClick={() => setMenuOpen(false)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          padding: "8px 12px",
+                          borderRadius: APPLE_RADII.sm,
+                          fontSize: "13px",
+                          color: APPLE_COLORS.ink,
+                          textDecoration: "none",
+                          transition: "background-color 0.15s ease",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        <Edit3 size={14} color={APPLE_COLORS.primary} />
+                        <span>Edit Portfolio</span>
+                      </Link>
+                    </>
 
                     {user.role === "admin" && (
                       <Link

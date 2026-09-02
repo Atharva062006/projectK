@@ -384,10 +384,6 @@ function DirectoryContent() {
             Directory
           </h1>
         </div>
-
-        <Button as={Link} href="/auth" variant="primary" size="default">
-          Join Club
-        </Button>
       </div>
 
       {/* ── Search Bar + View Switcher ── */}

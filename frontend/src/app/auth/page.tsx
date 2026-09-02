@@ -40,12 +40,13 @@ export default function AuthPage() {
       const res = await api.auth.login({ email, password });
       setResult({ ok: res.ok, message: res.message });
       if (res.ok && res.data) {
-        const payload = res.data as { token: string; user: Parameters<typeof login>[1] };
-        login(payload.token, payload.user);
+        const payload = res.data as { token: string; user: Parameters<typeof login>[1]; profile_id?: string };
+        login(payload.token, payload.user, payload.profile_id);
         setTimeout(() => {
           if (payload.user.role === "admin") router.push("/admin");
-          else if (payload.user.role === "member" || payload.user.role === "alumni") router.push("/portfolio");
-          else router.push("/");
+          else if (payload.user.role === "member" || payload.user.role === "alumni") {
+            router.push(payload.profile_id ? `/profiles/${payload.profile_id}` : "/portfolio");
+          } else router.push("/");
         }, 100);
       }
     } catch {
@@ -95,12 +96,13 @@ export default function AuthPage() {
       const res = await api.auth.googleLogin(idToken);
       setResult({ ok: res.ok, message: res.message });
       if (res.ok && res.data) {
-        const payload = res.data as { token: string; user: Parameters<typeof login>[1] };
-        login(payload.token, payload.user);
+        const payload = res.data as { token: string; user: Parameters<typeof login>[1]; profile_id?: string };
+        login(payload.token, payload.user, payload.profile_id);
         setTimeout(() => {
           if (payload.user.role === "admin") router.push("/admin");
-          else if (payload.user.role === "member" || payload.user.role === "alumni") router.push("/portfolio");
-          else router.push("/");
+          else if (payload.user.role === "member" || payload.user.role === "alumni") {
+            router.push(payload.profile_id ? `/profiles/${payload.profile_id}` : "/portfolio");
+          } else router.push("/");
         }, 100);
       }
     } catch {

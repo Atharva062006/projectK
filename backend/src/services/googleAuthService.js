@@ -8,7 +8,7 @@ import {
     linkGoogleId,
     updateLastLogin 
 } from "../repositories/userRepository.js";
-import { createProfile } from "../repositories/profileRepository.js";
+import { createProfile, findProfileByUserId } from "../repositories/profileRepository.js";
 import { createApprovalRequest } from "../repositories/approvalRepository.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -90,5 +90,12 @@ export const googleAuthService = async (idToken) => {
     const jwtSecret = process.env.JWT_SECRET || "fallback_secure_secret_key_123";
     const token = jwt.sign(jwtPayload, jwtSecret, { expiresIn: "1d" });
 
-    return { user, token };
+    // Attach profile_id so the frontend can navigate directly to the showcase page
+    let profile_id = null;
+    if (user.role === "member" || user.role === "alumni") {
+        const profile = await findProfileByUserId(user.user_id);
+        if (profile) profile_id = profile.profile_id;
+    }
+
+    return { user, token, profile_id };
 };

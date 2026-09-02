@@ -14,7 +14,7 @@ import {
     findUserByResetToken,
     updatePassword
 } from "../repositories/userRepository.js";
-import { createProfile } from "../repositories/profileRepository.js";
+import { createProfile, findProfileByUserId } from "../repositories/profileRepository.js";
 import { createApprovalRequest } from "../repositories/approvalRepository.js";
 
 // # Register user service
@@ -97,7 +97,14 @@ export const loginUserService = async ({ email, password }) => {
         { expiresIn: "1d" }
     );
 
-    return { user, token };
+    // # 7. Attach profile_id to the response so the frontend can navigate directly to the showcase page
+    let profile_id = null;
+    if (user.role === "member" || user.role === "alumni") {
+        const profile = await findProfileByUserId(user.user_id);
+        if (profile) profile_id = profile.profile_id;
+    }
+
+    return { user, token, profile_id };
 };
 
 // # Request password reset service

@@ -180,6 +180,15 @@ export default function PortfolioPage() {
     );
   }
 
+  if (isDataLoading) {
+    return (
+      <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+        <Spinner size={32} />
+        <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48 }}>Loading your workspace data...</p>
+      </div>
+    );
+  }
+
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -266,6 +275,7 @@ export default function PortfolioPage() {
     setResult(res);
     if (res.ok) {
       await loadData();
+      await refreshProfileId();
     }
     setAvatarLoading(false);
   };
@@ -294,24 +304,37 @@ export default function PortfolioPage() {
           </p>
         </div>
 
-        {profile && (
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ textAlign: "right" }}>
-              <span style={{ fontSize: "11px", color: APPLE_COLORS.inkMuted48, textTransform: "uppercase", fontWeight: 600, display: "block" }}>
-                Profile Quality
-              </span>
-              <span style={{ fontSize: "20px", fontWeight: 600, color: APPLE_COLORS.primary }}>
-                {profile.completion_percentage}%
-              </span>
-            </div>
-            <div style={{ width: "100px", height: "6px", borderRadius: "99px", backgroundColor: APPLE_COLORS.hairline, overflow: "hidden" }}>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${profile.completion_percentage}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                style={{ height: "100%", backgroundColor: APPLE_COLORS.primary }}
-              />
-            </div>
+        {(profile || profileId) && (
+          <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
+            <Button
+              as="a"
+              href={`/profiles/${profile?.profile_id || profileId}`}
+              variant="secondary"
+              size="small"
+              leftGlyph={<ExternalLink size={14} />}
+            >
+              View Public Showcase
+            </Button>
+            {profile && (
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ textAlign: "right" }}>
+                  <span style={{ fontSize: "11px", color: APPLE_COLORS.inkMuted48, textTransform: "uppercase", fontWeight: 600, display: "block" }}>
+                    Profile Quality
+                  </span>
+                  <span style={{ fontSize: "18px", fontWeight: 600, color: APPLE_COLORS.primary }}>
+                    {profile.completion_percentage}%
+                  </span>
+                </div>
+                <div style={{ width: "80px", height: "6px", borderRadius: "99px", backgroundColor: APPLE_COLORS.hairline, overflow: "hidden" }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${profile.completion_percentage}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    style={{ height: "100%", backgroundColor: APPLE_COLORS.primary }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
