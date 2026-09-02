@@ -17,37 +17,36 @@ import { uploadResume, downloadResume, trackOutboundClick } from "../controllers
 
 const profileRouter = Router();
 
-// ── Public / Optional Auth Routes ─────────────────────────────────────────────
-// Resume download (direct browser navigation from showcase / portfolio)
-profileRouter.get("/:profileId/resume", optionalAuthJWT, downloadResume);
+// ── Static / Specific Routes ─────────────────────────────────────────────
+// Skills catalog
+profileRouter.get("/skills", optionalAuthJWT, getPredefinedSkills);
 
 // Outbound click logging
 profileRouter.post("/track-click", optionalAuthJWT, trackOutboundClick);
 
-// Skills catalog
-profileRouter.get("/skills", optionalAuthJWT, getPredefinedSkills);
+// ── Protected Routes (Logged-in Member / Admin Only) ──────────────────────────
+profileRouter.get("/me", authenticateJWT, getOwnProfile);
+profileRouter.put("/me", authenticateJWT, updateOwnProfile);
+
+// Skills mutations
+profileRouter.post("/me/skills", authenticateJWT, addSkill);
+profileRouter.delete("/me/skills/:skillId", authenticateJWT, removeSkill);
+
+// Projects mutations
+profileRouter.post("/me/projects", authenticateJWT, addProject);
+profileRouter.put("/me/projects/:projectId", authenticateJWT, updateProject);
+profileRouter.delete("/me/projects/:projectId", authenticateJWT, deleteProject);
+
+// Avatar & Resume uploads
+profileRouter.post("/me/avatar", authenticateJWT, uploadAvatarMiddleware.single("avatar"), uploadAvatar);
+profileRouter.post("/me/resume", authenticateJWT, uploadResumeMiddleware.single("resume"), uploadResume);
+
+// ── Parameterized Routes (Must be registered last to prevent shadowing) ───────
+// Resume download (direct browser navigation from showcase / portfolio)
+profileRouter.get("/:profileId/resume", optionalAuthJWT, downloadResume);
 
 // Public / Detailed profile view
 profileRouter.get("/:profileId", optionalAuthJWT, getProfileDetails);
-
-// ── Protected Routes (Logged-in Member / Admin Only) ──────────────────────────
-profileRouter.use(authenticateJWT);
-
-profileRouter.get("/me", getOwnProfile);
-profileRouter.put("/me", updateOwnProfile);
-
-// Skills mutations
-profileRouter.post("/me/skills", addSkill);
-profileRouter.delete("/me/skills/:skillId", removeSkill);
-
-// Projects mutations
-profileRouter.post("/me/projects", addProject);
-profileRouter.put("/me/projects/:projectId", updateProject);
-profileRouter.delete("/me/projects/:projectId", deleteProject);
-
-// Avatar & Resume uploads
-profileRouter.post("/me/avatar", uploadAvatarMiddleware.single("avatar"), uploadAvatar);
-profileRouter.post("/me/resume", uploadResumeMiddleware.single("resume"), uploadResume);
 
 export default profileRouter;
 

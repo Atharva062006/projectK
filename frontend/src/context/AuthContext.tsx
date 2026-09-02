@@ -15,7 +15,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   profileId: string | null;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, profileId?: string | null) => void;
   logout: () => void;
   refreshProfileId: () => Promise<void>;
 }
@@ -34,21 +34,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
 
-  const fetchProfileId = async (userRole: string) => {
-    if (userRole === "member" || userRole === "alumni") {
-      try {
-        const res = await api.profile.getMe();
-        if (res.ok && res.data) {
-          const profile = res.data as { profile_id: string; profile_image?: string };
-          localStorage.setItem("pk_profile_id", profile.profile_id);
-          setProfileId(profile.profile_id);
-          if (profile.profile_image) {
-            setUser((prev) => (prev ? { ...prev, profile_image: profile.profile_image } : prev));
-          }
+  const fetchProfileId = async (_userRole?: string) => {
+    try {
+      const res = await api.profile.getMe();
+      if (res.ok && res.data) {
+        const profile = res.data as { profile_id: string; profile_image?: string };
+        localStorage.setItem("pk_profile_id", profile.profile_id);
+        setProfileId(profile.profile_id);
+        if (profile.profile_image) {
+          setUser((prev) => (prev ? { ...prev, profile_image: profile.profile_image } : prev));
         }
-      } catch (err) {
-        console.error("Failed to load profile ID", err);
       }
+    } catch (err) {
+      console.error("Failed to load profile ID", err);
     }
   };
 
@@ -68,12 +66,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = (t: string, u: User) => {
+  const login = (t: string, u: User, pid?: string | null) => {
     localStorage.setItem("pk_token", t);
     localStorage.setItem("pk_user", JSON.stringify(u));
     setToken(t);
     setUser(u);
-    fetchProfileId(u.role);
+    if (pid) {
+      // Profile ID came directly from login response — store immediately, no extra fetch needed
+      localStorage.setItem("pk_profile_id", pid);
+      setProfileId(pid);
+    } else {
+      fetchProfileId(u.role);
+    }
   };
 
   const logout = () => {

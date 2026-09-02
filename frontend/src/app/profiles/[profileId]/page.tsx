@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { Download, ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap, CheckCircle, Eye } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Download, ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap, CheckCircle, Eye, Edit3 } from "lucide-react";
 import { GithubIcon, LinkedinIcon, LinkedInVerifiedBadge } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -35,6 +36,7 @@ interface Project {
 
 interface ProfileData {
   profile_id: string;
+  user_id?: string;
   full_name: string;
   profile_image?: string;
   email?: string;
@@ -148,10 +150,19 @@ const MOCK_PROFILES_DETAIL: Record<string, ProfileData> = {
 export default function ProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>();
   const router = useRouter();
+  const { user, profileId: authProfileId } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+
+  const isOwnProfile = Boolean(
+    profile && (
+      profile.profile_id === authProfileId || 
+      (typeof window !== "undefined" && profile.profile_id === localStorage.getItem("pk_profile_id")) ||
+      (user && profile.user_id === user.user_id)
+    )
+  );
 
   useEffect(() => {
     if (!profileId) return;
@@ -220,7 +231,7 @@ export default function ProfileDetailPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", margin: 0, padding: 0 }}>
-      {/* ── SECTION 1: Profile Hero Card (Screenshot 2 Reference) ── */}
+      {/* ── SECTION 1: Profile Hero Card ── */}
       <section
         style={{
           backgroundColor: "#ffffff",
@@ -230,6 +241,40 @@ export default function ProfileDetailPage() {
         }}
       >
         <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+          {/* Own Profile Preview Banner */}
+          {isOwnProfile && (
+            <div
+              style={{
+                backgroundColor: "rgba(0, 102, 204, 0.05)",
+                border: `1px solid rgba(0, 102, 204, 0.2)`,
+                borderRadius: APPLE_RADII.md,
+                padding: "12px 18px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
+                marginBottom: "24px",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <CheckCircle size={16} color={APPLE_COLORS.primary} />
+                <span style={{ fontSize: "13px", color: APPLE_COLORS.ink, fontWeight: 500 }}>
+                  This is your public showcase preview as seen by recruiters and visitors.
+                </span>
+              </div>
+              <Button
+                as={Link}
+                href="/portfolio"
+                variant="primary"
+                size="small"
+                leftGlyph={<Edit3 size={13} />}
+              >
+                Edit Portfolio
+              </Button>
+            </div>
+          )}
+
           {/* Back link */}
           <div style={{ marginBottom: "28px" }}>
             <Link
@@ -388,6 +433,18 @@ export default function ProfileDetailPage() {
 
               {/* Action Buttons: View Resume & Download Resume */}
               <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+                {isOwnProfile && (
+                  <Button
+                    as={Link}
+                    href="/portfolio"
+                    variant="primary"
+                    size="default"
+                    leftGlyph={<Edit3 size={16} />}
+                  >
+                    Edit Portfolio
+                  </Button>
+                )}
+
                 <Button
                   as="a"
                   href={
@@ -397,7 +454,7 @@ export default function ProfileDetailPage() {
                   }
                   target="_blank"
                   rel="noreferrer"
-                  variant="primary"
+                  variant={isOwnProfile ? "secondary" : "primary"}
                   size="default"
                   leftGlyph={<Eye size={16} />}
                 >
