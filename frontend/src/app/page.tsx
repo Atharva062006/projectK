@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ArrowRight, Sparkles, Laptop, Building2, UserCheck } from "lucide-react";
+import { ChevronDown, ArrowRight, Sparkles, Laptop, Building2, UserCheck, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { APPLE_COLORS, APPLE_RADII, APPLE_SHADOW } from "@/lib/theme";
@@ -12,9 +12,8 @@ import { fadeInUp, fadeInScale, staggerContainer } from "@/lib/animations";
 interface Testimonial {
   name: string;
   role: string;
-  company: string;
   quote: string;
-  gradYear: number;
+  rating: number;
 }
 
 interface FAQItem {
@@ -24,28 +23,22 @@ interface FAQItem {
 
 const TESTIMONIALS: Testimonial[] = [
   {
-    name: "Rohan Kulkarni",
-    role: "Software Engineer",
-    company: "Google",
-    quote:
-      "Being part of Oyster Kode Club was a turning point. The technical autonomy and building real projects prepared me directly for industry standards.",
-    gradYear: 2024,
+    name: "Yashraj Shinde",
+    role: "Computer Science, TY RIT",
+    quote: "Being part of Oyster Kode Club has been transformative. The Code 404 competition helped me improve my problem-solving skills significantly.",
+    rating: 5,
   },
   {
-    name: "Meera Sen",
-    role: "Hardware Engineer",
-    company: "Intel Corporation",
-    quote:
-      "The club's focus on low-level design, systems integration, and peer learning is rare. It helped me land my hardware role directly after graduation.",
-    gradYear: 2023,
+    name: "Suryakant Koli",
+    role: "Computer Science, SY RIT",
+    quote: "The community and the coding culture has made me build consistency and discipline towards coding",
+    rating: 5,
   },
   {
-    name: "Kabir Mehta",
-    role: "Founding Engineer",
-    company: "DevFlow Labs",
-    quote:
-      "The portfolio showcase portal is a game changer. Hiring managers need direct access to repos and resume downloads without navigating standard HR spam.",
-    gradYear: 2022,
+    name: "Harshal Kumbhar",
+    role: "SDE Intern, RSquareSoft",
+    quote: "The supportive community and mentorship opportunities at Oyster Kode Club have been invaluable for my growth as a developer.",
+    rating: 5,
   },
 ];
 
@@ -145,10 +138,16 @@ export default function LandingPage() {
         <div
           style={{
             position: "absolute",
-            inset: 0,
-            background: "linear-gradient(180deg, rgba(15, 15, 17, 0.72) 0%, rgba(20, 20, 22, 0.85) 60%, rgba(20, 20, 22, 0.96) 100%)",
-            backdropFilter: "blur(1px)",
-            WebkitBackdropFilter: "blur(1px)",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(12, 12, 14, 0.82)",
+            background: "linear-gradient(180deg, rgba(12, 12, 14, 0.85) 0%, rgba(15, 15, 17, 0.82) 50%, rgba(18, 18, 20, 0.92) 100%)",
+            backdropFilter: "blur(3px)",
+            WebkitBackdropFilter: "blur(3px)",
             zIndex: 1,
           }}
         />
@@ -417,18 +416,21 @@ export default function LandingPage() {
           <div>
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
               <span style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: APPLE_COLORS.primary, display: "block", marginBottom: "6px" }}>
-                ALUMNI VOICES
+                COMMUNITY REVIEWS
               </span>
-              <h2 className="apple-display-md" style={{ color: APPLE_COLORS.ink, margin: 0 }}>
-                Crafted by Engineers
+              <h2 className="apple-display-md" style={{ color: APPLE_COLORS.ink, margin: "0 0 8px" }}>
+                What Our Members Say
               </h2>
+              <p style={{ fontSize: "15px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
+                Hear from our members about their experiences and growth with Oyster Kode Club
+              </p>
             </div>
 
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: "20px",
+                gap: "24px",
               }}
             >
               {TESTIMONIALS.map((t, idx) => (
@@ -438,29 +440,41 @@ export default function LandingPage() {
                     backgroundColor: APPLE_COLORS.canvasParchment,
                     borderRadius: APPLE_RADII.lg,
                     border: `1px solid ${APPLE_COLORS.hairline}`,
-                    padding: "28px",
+                    padding: "24px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
                   }}
                 >
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      color: APPLE_COLORS.inkMuted80,
-                      lineHeight: 1.6,
-                      fontStyle: "normal",
-                      margin: "0 0 20px",
-                    }}
-                  >
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
                   <div>
-                    <p style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink, margin: 0 }}>
-                      {t.name}
-                    </p>
-                    <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: "2px 0 0" }}>
-                      {t.role} • {t.company} ({t.gradYear})
+                    {/* Header with Name & Role (Clean Typography without Photo) */}
+                    <div style={{ marginBottom: "12px" }}>
+                      <h3 style={{ fontSize: "16px", fontWeight: 600, color: APPLE_COLORS.ink, margin: 0 }}>
+                        {t.name}
+                      </h3>
+                      <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: "2px 0 0" }}>
+                        {t.role}
+                      </p>
+                    </div>
+
+                    {/* 5-Star Rating */}
+                    <div style={{ display: "flex", gap: "4px", marginBottom: "14px" }}>
+                      {Array.from({ length: t.rating }).map((_, i) => (
+                        <Star key={i} size={15} fill="#f59e0b" color="#f59e0b" />
+                      ))}
+                    </div>
+
+                    {/* Quote */}
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        color: APPLE_COLORS.inkMuted80,
+                        lineHeight: 1.6,
+                        fontStyle: "italic",
+                        margin: 0,
+                      }}
+                    >
+                      &ldquo;{t.quote}&rdquo;
                     </p>
                   </div>
                 </div>

@@ -37,3 +37,26 @@ export function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function LinkedInVerifiedBadge({ size = 20, ...props }: { size?: number } & React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ flexShrink: 0, display: "inline-block", verticalAlign: "middle" }}
+      {...props}
+    >
+      <path
+        d="M12 2L14.4 3.7L17.2 3.1L18.4 5.7L21 6.8L20.8 9.7L22.7 12L20.8 14.3L21 17.2L18.4 18.3L17.2 20.9L14.4 20.3L12 22L9.6 20.3L6.8 20.9L5.6 18.3L3 17.2L3.2 14.3L1.3 12L3.2 9.7L3 6.8L5.6 5.7L6.8 3.1L9.6 3.7L12 2Z"
+        fill="#0A66C2"
+      />
+      <path
+        d="M9.5 15.2L6.3 12L7.7 10.6L9.5 12.4L16.3 5.6L17.7 7L9.5 15.2Z"
+        fill="white"
+      />
+    </svg>
+  );
+}

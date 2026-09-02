@@ -46,7 +46,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/directory", label: "Directory" },
     { href: "/pitches", label: "Pitches" },
-    { href: "/#about", label: "About" },
+    { href: "/about", label: "About" },
   ];
 
   return (
@@ -110,11 +110,10 @@ export default function Navbar() {
         {/* ── Center: Desktop Nav Links ── */}
         <nav
           style={{
-            display: "none",
             alignItems: "center",
             gap: "24px",
           }}
-          className="md:flex"
+          className="hidden md:flex"
         >
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
@@ -122,6 +121,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={true}
                 style={{
                   fontSize: "12px",
                   fontWeight: isActive ? 500 : 400,
@@ -160,22 +160,35 @@ export default function Navbar() {
                   borderRadius: APPLE_RADII.pill,
                 }}
               >
-                <span
-                  style={{
-                    width: "22px",
-                    height: "22px",
-                    borderRadius: "50%",
-                    backgroundColor: APPLE_COLORS.primary,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    color: "#ffffff",
-                  }}
-                >
-                  {initials}
-                </span>
+                {user.profile_image ? (
+                  <img
+                    src={user.profile_image}
+                    alt={user.username}
+                    style={{
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <span
+                    style={{
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      backgroundColor: APPLE_COLORS.primary,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: "#ffffff",
+                    }}
+                  >
+                    {initials}
+                  </span>
+                )}
                 <span
                   style={{
                     fontSize: "12px",
@@ -249,30 +262,30 @@ export default function Navbar() {
 
                     {(user.role === "member" || user.role === "alumni") && (
                       <>
-                        {profileId && (
-                          <Link
-                            href={`/profiles/${profileId}`}
-                            onClick={() => setMenuOpen(false)}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: APPLE_RADII.sm,
-                              fontSize: "13px",
-                              color: APPLE_COLORS.ink,
-                              textDecoration: "none",
-                              transition: "background-color 0.15s ease",
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <UserCheck size={14} color={APPLE_COLORS.primary} />
-                            <span>View Showcase</span>
-                          </Link>
-                        )}
+                        <Link
+                          href={profileId ? `/profiles/${profileId}` : "/portfolio"}
+                          prefetch={true}
+                          onClick={() => setMenuOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: APPLE_RADII.sm,
+                            fontSize: "13px",
+                            color: APPLE_COLORS.ink,
+                            textDecoration: "none",
+                            transition: "background-color 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <UserCheck size={14} color={APPLE_COLORS.primary} />
+                          <span>View Showcase</span>
+                        </Link>
                         <Link
                           href="/portfolio"
+                          prefetch={true}
                           onClick={() => setMenuOpen(false)}
                           style={{
                             display: "flex",
@@ -297,6 +310,7 @@ export default function Navbar() {
                     {user.role === "admin" && (
                       <Link
                         href="/admin"
+                        prefetch={true}
                         onClick={() => setMenuOpen(false)}
                         style={{
                           display: "flex",

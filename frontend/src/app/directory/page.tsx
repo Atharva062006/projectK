@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/Input";
 import { Badge, Chip } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { APPLE_COLORS, APPLE_RADII } from "@/lib/theme";
+import { LinkedInVerifiedBadge } from "@/components/ui/Icons";
 
 interface ProfileCard {
   profile_id: string;
   full_name: string;
+  profile_image?: string;
   tagline: string;
   availability: string;
   department: string;
@@ -59,7 +61,7 @@ function AvailabilityStatus({ av }: { av: string }) {
 }
 
 /**
- * MemberShowcaseCard — Apple Design System Card with preserved signature interactive hover physics
+ * MemberShowcaseCard — Clean Apple Design System Card with zero photo blur
  */
 function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -78,161 +80,122 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
-      whileHover={{ y: -5, scale: 1.01 }}
-      transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       style={{
         borderRadius: APPLE_RADII.lg,
         backgroundColor: "#ffffff",
         border: `1px solid ${isHovered ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
+        boxShadow: isHovered
+          ? "0 12px 28px rgba(0, 0, 0, 0.08)"
+          : "0 2px 8px rgba(0, 0, 0, 0.03)",
         overflow: "hidden",
         position: "relative",
         display: "flex",
         flexDirection: "column",
-        minHeight: "360px",
+        minHeight: "340px",
         boxSizing: "border-box",
-        transition: "border-color 0.25s ease",
+        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
       }}
     >
       <Link
         href={`/profiles/${profile.profile_id}`}
-        style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%", position: "relative", zIndex: 1 }}
+        prefetch={true}
+        style={{
+          textDecoration: "none",
+          color: "inherit",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          padding: "20px",
+        }}
       >
-        {/* ── Top Visual / Avatar Area ── */}
+        {/* Top Badges Bar */}
         <div
           style={{
-            position: "relative",
-            height: "160px",
-            width: "100%",
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "space-between",
             alignItems: "center",
-            justifyContent: "center",
-            padding: "16px 16px 0",
-            backgroundColor: isHovered ? "#fafafc" : "#ffffff",
-            transition: "background-color 0.25s ease",
+            marginBottom: "16px",
           }}
         >
-          {/* Top Badges Bar */}
-          <div
+          <span
             style={{
-              position: "absolute",
-              top: "14px",
-              left: "16px",
-              right: "16px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              zIndex: 2,
+              fontSize: "10px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              padding: "3px 8px",
+              borderRadius: "4px",
+              backgroundColor: "#f5f5f7",
+              color: APPLE_COLORS.inkMuted80,
+              border: "1px solid rgba(0, 0, 0, 0.06)",
             }}
           >
-            <span
-              style={{
-                fontSize: "10px",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                padding: "3px 8px",
-                borderRadius: "4px",
-                backgroundColor: "#f5f5f7",
-                color: APPLE_COLORS.inkMuted80,
-                border: "1px solid rgba(0, 0, 0, 0.06)",
-              }}
-            >
-              {profile.role_category}
-            </span>
+            {profile.role_category}
+          </span>
 
-            <AvailabilityStatus av={profile.availability} />
-          </div>
+          <AvailabilityStatus av={profile.availability} />
+        </div>
 
-          {/* Center Avatar */}
-          <motion.div
-            animate={{ scale: isHovered ? 1.06 : 1 }}
-            transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
+        {/* Center Avatar — Crisp, Unblurred, High-Res */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "16px",
+          }}
+        >
+          <div
             style={{
-              width: "76px",
-              height: "76px",
+              width: "80px",
+              height: "80px",
               borderRadius: "50%",
               backgroundColor: "#f5f5f7",
               border: `2px solid ${isHovered ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              marginTop: "16px",
-              transition: "border-color 0.25s ease",
+              overflow: "hidden",
+              transition: "border-color 0.2s ease",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
             }}
           >
-            <span
-              style={{
-                fontSize: "22px",
-                fontWeight: 600,
-                color: APPLE_COLORS.ink,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {initials}
-            </span>
-          </motion.div>
+            {profile.profile_image ? (
+              <img
+                src={profile.profile_image}
+                alt={profile.full_name}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <span
+                style={{
+                  fontSize: "24px",
+                  fontWeight: 600,
+                  color: APPLE_COLORS.ink,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {initials}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* ── Solid Bottom Card Panel that SLIDES DOWN on hover ── */}
-        <motion.div
-          initial={false}
-          animate={{
-            y: isHovered ? "105%" : "0%",
-            opacity: isHovered ? 0 : 1,
-          }}
-          transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "56%",
-            backgroundColor: "#ffffff",
-            borderTop: `1px solid ${APPLE_COLORS.hairline}`,
-            pointerEvents: "none",
-            zIndex: 1,
-          }}
-        />
-
-        {/* ── Progressive Blur Layer revealed on hover ── */}
-        <motion.div
-          initial={false}
-          animate={{
-            opacity: isHovered ? 1 : 0,
-          }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "68%",
-            background: "linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.85) 60%, rgba(255, 255, 255, 0.1) 100%)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
-
-        {/* ── Text Content & Action CTA ── */}
+        {/* Text Content */}
         <div
           style={{
-            marginTop: "auto",
-            padding: "16px 20px 20px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
             gap: "8px",
-            position: "relative",
-            zIndex: 3,
+            flex: 1,
           }}
         >
-          {/* Full Name + Badge */}
+          {/* Full Name + LinkedIn Verified Badge */}
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <h3
               style={{
@@ -245,19 +208,7 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
             >
               {profile.full_name}
             </h3>
-            <span
-              style={{
-                fontSize: "9px",
-                fontWeight: 700,
-                padding: "2px 5px",
-                borderRadius: "3px",
-                backgroundColor: APPLE_COLORS.ink,
-                color: "#ffffff",
-                letterSpacing: "0.04em",
-              }}
-            >
-              OYSTER KODE
-            </span>
+            <LinkedInVerifiedBadge size={17} />
           </div>
 
           {/* Tagline */}
@@ -279,7 +230,15 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
           </p>
 
           {/* Skill Badges */}
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px", minHeight: "24px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: "6px",
+              marginTop: "4px",
+            }}
+          >
             {profile.skills?.slice(0, 3).map((sk) => (
               <span
                 key={sk.name}
@@ -298,26 +257,26 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
               </span>
             ))}
           </div>
+        </div>
 
-          {/* Action Button: View Profile (Full Width Action Blue Pill) */}
-          <div style={{ width: "100%", marginTop: "12px" }}>
-            <div
-              style={{
-                width: "100%",
-                height: "36px",
-                borderRadius: APPLE_RADII.pill,
-                backgroundColor: APPLE_COLORS.primary,
-                color: "#ffffff",
-                fontSize: "13px",
-                fontWeight: 500,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "background-color 0.18s ease",
-              }}
-            >
-              View Profile
-            </div>
+        {/* View Profile Action Pill */}
+        <div style={{ width: "100%", marginTop: "16px" }}>
+          <div
+            style={{
+              width: "100%",
+              height: "36px",
+              borderRadius: APPLE_RADII.pill,
+              backgroundColor: isHovered ? APPLE_COLORS.primary : "#f5f5f7",
+              color: isHovered ? "#ffffff" : APPLE_COLORS.ink,
+              fontSize: "13px",
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background-color 0.2s ease, color 0.2s ease",
+            }}
+          >
+            View Profile
           </div>
         </div>
       </Link>
@@ -334,17 +293,14 @@ function DirectoryContent() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [useMock, setUseMock] = useState(false);
-  const [pageLimit, setPageLimit] = useState(8);
+  const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>(MOCK_PROFILES);
+  const [pageLimit, setPageLimit] = useState(12);
 
   useEffect(() => {
     if (initialQuery) setSearchQuery(initialQuery);
   }, [initialQuery]);
 
   const fetchProfiles = async () => {
-    setIsLoading(true);
     try {
       const res = await api.directory.search({});
       if (res.ok && res.data) {
@@ -353,15 +309,12 @@ function DirectoryContent() {
         Object.values(grouped).forEach((list) => {
           if (Array.isArray(list)) flattened.push(...list);
         });
-        setDbProfiles(flattened);
-        setUseMock(flattened.length === 0);
-      } else {
-        setUseMock(true);
+        if (flattened.length > 0) {
+          setDbProfiles(flattened);
+        }
       }
-    } catch {
-      setUseMock(true);
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error("Directory fetch notice", err);
     }
   };
 
@@ -369,7 +322,7 @@ function DirectoryContent() {
     fetchProfiles();
   }, []);
 
-  const activeProfiles = useMock ? MOCK_PROFILES : dbProfiles;
+  const activeProfiles = dbProfiles;
   const categoriesList = ["Core Team", "Technical Team", "Other Members", "Alumni"];
   const availabilityOptions = ["Available", "Busy", "Open to work"];
   const commonSkills = ["TypeScript", "Next.js", "Python", "Docker", "Figma", "C++", "PyTorch", "Go"];
@@ -694,11 +647,7 @@ function DirectoryContent() {
 
         {/* ── Right Content: Results ── */}
         <div>
-          {isLoading ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
-              <Spinner size={32} />
-            </div>
-          ) : filteredProfiles.length === 0 ? (
+          {filteredProfiles.length === 0 ? (
             <div
               style={{
                 backgroundColor: "#ffffff",

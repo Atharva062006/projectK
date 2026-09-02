@@ -15,6 +15,7 @@ import { APPLE_COLORS, APPLE_RADII } from "@/lib/theme";
 interface PitchMember {
   profile_id: string;
   full_name: string;
+  profile_image?: string;
   tagline?: string;
   department?: string;
   availability?: string;
@@ -199,9 +200,18 @@ function PitchViewerContent() {
                               fontWeight: 600,
                               color: APPLE_COLORS.ink,
                               flexShrink: 0,
+                              overflow: "hidden",
                             }}
                           >
-                            {initials}
+                            {m.profile_image ? (
+                              <img
+                                src={m.profile_image}
+                                alt={m.full_name}
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              />
+                            ) : (
+                              initials
+                            )}
                           </div>
                           <div>
                             <h3 style={{ fontSize: "16px", fontWeight: 600, color: APPLE_COLORS.ink, margin: "0 0 2px" }}>

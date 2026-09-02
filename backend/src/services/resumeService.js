@@ -24,8 +24,12 @@ export const downloadResumeService = async (profileId, downloaderUserId) => {
         throw new Error("No resume found for this profile");
     }
 
-    // Log the download event in the database for analytics
-    await logResumeDownload(profileId, downloaderUserId);
+    // Log the download event in the database for analytics safely
+    try {
+        await logResumeDownload(profileId, downloaderUserId);
+    } catch (logErr) {
+        console.error("Failed to log resume download analytics:", logErr);
+    }
 
     // Return the file path of the latest uploaded resume
     return resumes[0].file_path;

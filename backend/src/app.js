@@ -12,6 +12,10 @@ const app = express();
 // Middleware
 const allowedOrigins = [
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
     process.env.FRONTEND_URL
 ].filter(Boolean).map(url => url.replace(/\/+$/, "")); // strip trailing slashes
 
@@ -19,7 +23,8 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (curl, health checks, server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin.replace(/\/+$/, ""))) {
+        const cleanOrigin = origin.replace(/\/+$/, "");
+        if (allowedOrigins.includes(cleanOrigin) || /^http:\/\/localhost:\d+$/.test(cleanOrigin)) {
             return callback(null, true);
         }
         console.log(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins}`);

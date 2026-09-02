@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { 
     createUser, 
     findUserByEmail, 
+    findUserByUsername,
     updateLastLogin,
     setResetToken,
     findUserByResetToken,
@@ -18,18 +19,23 @@ import { createApprovalRequest } from "../repositories/approvalRepository.js";
 
 // # Register user service
 export const registerUserService = async ({ name, user_name, email, password, role = "member" }) => {
-    // # 1. Check if user already exists in the database
+    const username = name || user_name;
+
+    // # 1. Check if email or username already exists in the database
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
         throw new Error("Email already in use");
     }
 
+    const existingUsername = await findUserByUsername(username);
+    if (existingUsername) {
+        throw new Error("Username already in use");
+    }
+    
     // # 2. Hash the user's plain-text password using bcrypt (salt rounds = 10)
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    const username = name || user_name;
-    
     // # 3. Guest, recruiter and admin roles are active immediately; members and alumni require admin approval.
     const isApproved = role === "guest" || role === "recruiter" || role === "admin";
 

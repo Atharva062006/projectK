@@ -12,7 +12,16 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Multer upload instance
+// File filter for images (avatar/profile photo)
+const avatarFileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+        cb(null, true);
+    } else {
+        cb(new Error("Only image files (JPG, PNG, WEBP, etc.) are allowed!"), false);
+    }
+};
+
+// Multer upload instance for resume
 export const uploadResumeMiddleware = multer({
     storage,
     fileFilter,
@@ -20,3 +29,15 @@ export const uploadResumeMiddleware = multer({
         fileSize: 5 * 1024 * 1024 // 5MB limit
     }
 });
+
+// Multer upload instance for profile photo
+export const uploadAvatarMiddleware = multer({
+    storage,
+    fileFilter: avatarFileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
+
+
+

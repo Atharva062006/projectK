@@ -8,6 +8,7 @@ interface User {
   email: string;
   role: string;
   is_approved: boolean;
+  profile_image?: string;
 }
 
 interface AuthContextType {
@@ -38,9 +39,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const res = await api.profile.getMe();
         if (res.ok && res.data) {
-          const profile = res.data as { profile_id: string };
+          const profile = res.data as { profile_id: string; profile_image?: string };
           localStorage.setItem("pk_profile_id", profile.profile_id);
           setProfileId(profile.profile_id);
+          if (profile.profile_image) {
+            setUser((prev) => (prev ? { ...prev, profile_image: profile.profile_image } : prev));
+          }
         }
       } catch (err) {
         console.error("Failed to load profile ID", err);

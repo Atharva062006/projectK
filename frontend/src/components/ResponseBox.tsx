@@ -35,3 +35,4 @@ export default function ResponseBox({ result }: ResponseBoxProps) {
     </div>
   );
 }
+

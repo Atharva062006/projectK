@@ -6,7 +6,7 @@ import { APPLE_COLORS, APPLE_RADII } from "@/lib/theme";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "secondary-pill" | "dark-utility" | "pearl" | "danger" | "dangerOutline" | "ghost" | "default";
-  size?: "xsmall" | "small" | "default" | "large";
+  size?: "xsmall" | "small" | "sm" | "default" | "large";
   isLoading?: boolean;
   loadingText?: string;
   leftGlyph?: React.ReactNode;
@@ -21,6 +21,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 const SIZE_STYLES = {
   xsmall: { height: "26px", fontSize: "11px", padding: "0 10px", gap: "4px" },
   small: { height: "32px", fontSize: "13px", padding: "0 14px", gap: "6px" },
+  sm: { height: "32px", fontSize: "13px", padding: "0 14px", gap: "6px" },
   default: { height: "40px", fontSize: "15px", padding: "0 18px", gap: "8px" },
   large: { height: "48px", fontSize: "17px", padding: "0 24px", gap: "10px" },
 };
@@ -154,13 +155,14 @@ export const Button = React.forwardRef<HTMLElement, ButtonProps>(
           <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
             <span
               style={{
-                width: "12px",
-                height: "12px",
+                width: "14px",
+                height: "14px",
                 borderRadius: "50%",
-                border: "2px solid rgba(0,0,0,0.15)",
-                borderTopColor: variant === "primary" || variant === "dark-utility" ? "#fff" : APPLE_COLORS.primary,
-                animation: "spin 0.7s linear infinite",
+                border: "2px solid currentColor",
+                borderTopColor: "transparent",
+                animation: "spin 0.5s linear infinite",
                 display: "inline-block",
+                flexShrink: 0,
               }}
             />
             <span>{loadingText || children}</span>

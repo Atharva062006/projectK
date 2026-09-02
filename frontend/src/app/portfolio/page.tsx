@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { User, FileText, Upload, Code, Laptop, Trash2, Save, Plus, ExternalLink, Lock } from "lucide-react";
+import { User, FileText, Upload, Code, Laptop, Trash2, Save, Plus, ExternalLink, Lock, Eye } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -33,6 +33,7 @@ interface Project {
 interface ProfileData {
   profile_id: string;
   full_name: string;
+  profile_image?: string;
   tagline?: string;
   bio?: string;
   availability?: string;
@@ -55,13 +56,24 @@ interface ProfileData {
 }
 
 export default function PortfolioPage() {
-  const { user, token, refreshProfileId } = useAuth();
+  const { user, token, profileId, refreshProfileId } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
   const [result, setResult] = useState<{ ok: boolean; message: string; data?: unknown } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLInputElement>(null);
   const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFileName(file.name);
+    }
+  };
 
   const [pf, setPf] = useState({
     full_name: "",
@@ -93,16 +105,17 @@ export default function PortfolioPage() {
   const [selectedSkillLevel, setSelectedSkillLevel] = useState("Intermediate");
 
   const loadData = async () => {
+    setIsDataLoading(true);
     try {
       const res = await api.profile.getMe();
       if (res.ok && res.data) {
         const d = res.data as ProfileData;
         setProfile(d);
         setPf({
-          full_name: d.full_name || "",
+          full_name: d.full_name || user?.username || "",
           tagline: d.tagline || "",
           bio: d.bio || "",
-          availability: d.availability || "",
+          availability: d.availability || "Available",
           department: d.department || "",
           college: d.college || "",
           location: d.location || "",
@@ -119,11 +132,13 @@ export default function PortfolioPage() {
       if (skillsRes.ok && skillsRes.data) setAllSkills(skillsRes.data as Skill[]);
     } catch (err) {
       console.error("Failed to load portfolio data", err);
+    } finally {
+      setIsDataLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) loadData();
+    loadData();
   }, [token]);
 
   if (!token) {
@@ -234,9 +249,25 @@ export default function PortfolioPage() {
     setResult(res);
     if (res.ok) {
       if (fileRef.current) fileRef.current.value = "";
+      setSelectedFileName(null);
       await loadData();
     }
     setLoading(false);
+  };
+
+  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("avatar", file);
+    setAvatarLoading(true);
+    setResult(null);
+    const res = await api.profile.uploadAvatar(fd);
+    setResult(res);
+    if (res.ok) {
+      await loadData();
+    }
+    setAvatarLoading(false);
   };
 
   return (
@@ -298,6 +329,44 @@ export default function PortfolioPage() {
             padding: "32px",
           }}
         >
+          {/* Profile Photo (Cloudinary Avatar) */}
+          <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "24px", paddingBottom: "24px", borderBottom: `1px solid ${APPLE_COLORS.hairline}` }}>
+            <div style={{ position: "relative", width: "72px", height: "72px", borderRadius: "50%", overflow: "hidden", backgroundColor: "rgba(0, 102, 204, 0.08)", border: `2px solid ${APPLE_COLORS.primary}`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {profile?.profile_image ? (
+                <img src={profile.profile_image} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <User size={32} color={APPLE_COLORS.primary} />
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <h3 style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink, margin: "0 0 4px" }}>
+                Profile Photo
+              </h3>
+              <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: "0 0 10px" }}>
+                Upload your picture (Cloudinary image storage, max 5MB)
+              </p>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  ref={avatarRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleUploadAvatar}
+                  style={{ display: "none" }}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="small"
+                  isLoading={avatarLoading}
+                  onClick={() => avatarRef.current?.click()}
+                  leftGlyph={<Upload size={14} />}
+                >
+                  {profile?.profile_image ? "Change Photo" : "Upload Photo"}
+                </Button>
+              </div>
+            </div>
+          </div>
+
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
             <User size={18} color={APPLE_COLORS.primary} />
             <h2 style={{ fontSize: "18px", fontWeight: 600, color: APPLE_COLORS.ink, margin: 0 }}>
@@ -361,27 +430,100 @@ export default function PortfolioPage() {
               </h2>
             </div>
 
+            {/* Persistent Display of Uploaded Resume or Selected File */}
+            {(selectedFileName || (profile?.resumes && profile.resumes.length > 0)) && (
+              <div
+                style={{
+                  backgroundColor: "rgba(0, 102, 204, 0.05)",
+                  border: `1px solid rgba(0, 102, 204, 0.2)`,
+                  borderRadius: APPLE_RADII.md,
+                  padding: "14px 16px",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
+                  <FileText size={20} color={APPLE_COLORS.primary} style={{ flexShrink: 0 }} />
+                  <div style={{ overflow: "hidden" }}>
+                    <span
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: APPLE_COLORS.ink,
+                        display: "block",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {selectedFileName || (profile?.resumes && profile.resumes[0]?.file_path?.split("/").pop()) || "Uploaded_CV.pdf"}
+                    </span>
+                    <span style={{ fontSize: "11px", color: APPLE_COLORS.inkMuted48, display: "block" }}>
+                      {selectedFileName
+                        ? "Ready to upload"
+                        : `Active CV • ${profile?.resumes?.[0]?.uploaded_at ? new Date(profile.resumes[0].uploaded_at).toLocaleDateString() : "Verified"}`}
+                    </span>
+                  </div>
+                </div>
+
+                {profile?.resumes && profile.resumes.length > 0 && !selectedFileName && (
+                  <a
+                    href={`${BASE}/profiles/${profile.profile_id}/resume`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: APPLE_COLORS.primary,
+                      textDecoration: "none",
+                      padding: "4px 8px",
+                      borderRadius: "6px",
+                      backgroundColor: "#ffffff",
+                      border: `1px solid ${APPLE_COLORS.hairline}`,
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Eye size={13} />
+                    <span>View</span>
+                  </a>
+                )}
+              </div>
+            )}
+
             <form onSubmit={handleUploadResume} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <div
                 style={{
                   border: `2px dashed ${APPLE_COLORS.hairline}`,
                   borderRadius: APPLE_RADII.md,
-                  padding: "28px 20px",
+                  padding: "20px 16px",
                   textAlign: "center",
                   backgroundColor: "#fafafc",
                   cursor: "pointer",
                   position: "relative",
                 }}
               >
-                <input type="file" accept=".pdf" ref={fileRef} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} required />
-                <Upload size={22} color={APPLE_COLORS.inkMuted48} style={{ margin: "0 auto 8px" }} />
+                <input
+                  type="file"
+                  accept=".pdf"
+                  ref={fileRef}
+                  onChange={handleFileSelect}
+                  style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
+                />
+                <Upload size={20} color={APPLE_COLORS.inkMuted48} style={{ margin: "0 auto 6px" }} />
                 <span style={{ fontSize: "13px", fontWeight: 500, color: APPLE_COLORS.ink, display: "block" }}>
-                  Select PDF Resume
+                  {selectedFileName ? "Change Selected PDF File" : "Select PDF Resume"}
                 </span>
                 <span style={{ fontSize: "11px", color: APPLE_COLORS.inkMuted48 }}>Max file size: 5MB</span>
               </div>
               <Button type="submit" variant="default" size="small" isLoading={loading}>
-                Upload Verified CV
+                {selectedFileName ? "Upload Selected CV" : "Update CV File"}
               </Button>
             </form>
           </div>
