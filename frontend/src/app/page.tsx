@@ -84,9 +84,9 @@ const EXPERTISE_AREAS = [
     href: "/directory?search=Python",
   },
   {
-    title: "Hardware & VLSI",
-    description: "Designing the physical foundations of tomorrow's computing.",
-    href: "/directory?search=VLSI",
+    title: "Cybersecurity",
+    description: "Protecting modern digital infrastructure, cryptographic protocols, and secure architectures.",
+    href: "/directory?search=Security",
   },
   {
     title: "Cloud & DevOps",
@@ -608,7 +608,7 @@ export default function LandingPage() {
                   <Link href="/directory" style={{ textDecoration: "none", color: "inherit" }}>All Members</Link>
                   <Link href="/directory?search=Next.js" style={{ textDecoration: "none", color: "inherit" }}>Full Stack</Link>
                   <Link href="/directory?search=Python" style={{ textDecoration: "none", color: "inherit" }}>AI / Machine Learning</Link>
-                  <Link href="/directory?search=VLSI" style={{ textDecoration: "none", color: "inherit" }}>Hardware & Systems</Link>
+                  <Link href="/directory?search=Security" style={{ textDecoration: "none", color: "inherit" }}>Cybersecurity</Link>
                 </div>
               </div>
 
@@ -617,7 +617,6 @@ export default function LandingPage() {
                   Portal
                 </span>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: APPLE_COLORS.inkMuted80 }}>
-                  <Link href="/pitches" style={{ textDecoration: "none", color: "inherit" }}>Pitch Showcase</Link>
                   <Link href="/auth" style={{ textDecoration: "none", color: "inherit" }}>Member Sign In</Link>
                   <Link href="/portfolio" style={{ textDecoration: "none", color: "inherit" }}>Workspace Dashboard</Link>
                   <Link href="/admin" style={{ textDecoration: "none", color: "inherit" }}>Administration</Link>

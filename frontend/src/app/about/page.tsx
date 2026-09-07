@@ -8,60 +8,50 @@ import {
   Users,
   Target,
   Award,
-  Sparkles,
   ArrowRight,
   GraduationCap,
-  Laptop,
-  Building2,
-  UserCheck,
+  Sparkles,
   ChevronRight,
+  UserCheck,
+  Laptop,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { APPLE_COLORS, APPLE_RADII, APPLE_SHADOW } from "@/lib/theme";
-import { fadeInUp, fadeInScale, staggerContainer } from "@/lib/animations";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 export default function AboutPage() {
-  const VISION_CARDS = [
+  const PILLARS = [
     {
       icon: Code,
       title: "Coding Excellence",
-      description: "Developing strong programming skills, algorithmic thinking, and modern software architecture expertise.",
-      accent: "#ff6b35",
-      bg: "rgba(255, 107, 53, 0.08)",
+      description: "Cultivating algorithmic depth, data structure fluency, and modern full-stack software architecture principles.",
     },
     {
       icon: Users,
-      title: "Community Building",
-      description: "Creating a supportive, collaborative environment for continuous peer learning, mentorship, and growth.",
-      accent: "#f72585",
-      bg: "rgba(247, 37, 133, 0.08)",
+      title: "Community & Mentorship",
+      description: "A collaborative student ecosystem where senior engineers guide juniors through code reviews, pairing, and peer learning.",
     },
     {
       icon: Target,
       title: "Placement Preparation",
-      description: "Preparing students for technical interviews, coding challenges, system design, and placement readiness.",
-      accent: "#0066cc",
-      bg: "rgba(0, 102, 204, 0.08)",
+      description: "Structured interview preparation, system design simulations, and competitive programming challenges for top-tier roles.",
     },
     {
       icon: Award,
-      title: "Skill Development",
-      description: "Enhancing both core engineering abilities and non-technical soft skills essential for successful tech careers.",
-      accent: "#7209b7",
-      bg: "rgba(114, 9, 183, 0.08)",
+      title: "Real-World Engineering",
+      description: "Designing, building, and deploying real production software and open-source systems that solve real campus problems.",
     },
   ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", margin: 0, padding: 0 }}>
-      {/* ── 1. Hero Section ── */}
+      {/* ── TILE 1: Dark Hero Tile (SF Pro Display, Strict Apple Aesthetic) ── */}
       <section
         style={{
           position: "relative",
           overflow: "hidden",
-          minHeight: "60vh",
-          padding: "100px 24px 80px",
+          minHeight: "72vh",
+          padding: "120px 24px 90px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -71,101 +61,66 @@ export default function AboutPage() {
           color: "#ffffff",
         }}
       >
-        {/* Animated Gradient Background Orbs */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-20%",
-            right: "-10%",
-            width: "600px",
-            height: "600px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(255,107,53,0.15) 0%, rgba(247,37,133,0.05) 50%, transparent 70%)",
-            filter: "blur(60px)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-20%",
-            left: "-10%",
-            width: "600px",
-            height: "600px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,102,204,0.15) 0%, rgba(114,9,183,0.05) 50%, transparent 70%)",
-            filter: "blur(60px)",
-            pointerEvents: "none",
-          }}
-        />
-
         <motion.div
           variants={staggerContainer(0.12, 0.05)}
           initial="initial"
           animate="animate"
-          style={{ maxWidth: "840px", margin: "0 auto", position: "relative", zIndex: 10 }}
+          style={{ maxWidth: "860px", margin: "0 auto", position: "relative", zIndex: 10 }}
         >
-          {/* Badge */}
-          <motion.div
-            variants={fadeInUp}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 14px",
-              borderRadius: APPLE_RADII.pill,
-              backgroundColor: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              backdropFilter: "blur(12px)",
-              fontSize: "12px",
-              fontWeight: 500,
-              color: "rgba(255, 255, 255, 0.9)",
-              marginBottom: "24px",
-            }}
-          >
-            <Sparkles size={14} color="#ff6b35" />
-            <span>Rajarambapu Institute of Technology</span>
-          </motion.div>
-
-          {/* Heading */}
-          <motion.h1
-            variants={fadeInUp}
-            style={{
-              fontSize: "clamp(36px, 5vw, 56px)",
-              fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: "-0.03em",
-              marginBottom: "20px",
-            }}
-          >
-            About{" "}
+          {/* Eyebrow */}
+          <motion.div variants={fadeInUp}>
             <span
               style={{
-                background: "linear-gradient(135deg, #ff6b35 0%, #f72585 60%, #0066cc 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                fontSize: "12px",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "rgba(255, 255, 255, 0.7)",
+                display: "block",
+                marginBottom: "20px",
               }}
             >
-              Oyster Kode Club
+              STUDENT-LED ENGINEERING EXCELLENCE &bull; RIT
             </span>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1
+            variants={fadeInUp}
+            className="apple-hero-display"
+            style={{
+              fontSize: "clamp(34px, 5.5vw, 56px)",
+              fontWeight: 600,
+              lineHeight: 1.08,
+              letterSpacing: "-0.03em",
+              color: "#ffffff",
+              marginBottom: "22px",
+            }}
+          >
+            About Oyster Kode Club
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             variants={fadeInUp}
             style={{
-              fontSize: "clamp(17px, 2.5vw, 21px)",
-              color: "rgba(255, 255, 255, 0.72)",
+              fontSize: "clamp(16px, 2vw, 20px)",
+              color: "rgba(255, 255, 255, 0.82)",
               fontWeight: 400,
-              lineHeight: 1.45,
+              lineHeight: 1.5,
               maxWidth: "680px",
-              margin: "0 auto 32px",
+              margin: "0 auto 36px",
+              letterSpacing: "-0.2px",
             }}
           >
-            Empowering students through code, collaboration, and innovation
+            Empowering students through rigorous code craftsmanship, peer mentorship, and real-world technology innovation at Rajarambapu Institute of Technology.
           </motion.p>
 
-          <motion.div variants={fadeInUp} style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
+          {/* CTAs */}
+          <motion.div
+            variants={fadeInUp}
+            style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}
+          >
             <Button
               as={Link}
               href="/directory"
@@ -177,24 +132,24 @@ export default function AboutPage() {
             </Button>
             <Button
               as={Link}
-              href="/pitches"
-              variant="secondary"
+              href="/auth"
+              variant="secondary-pill"
               size="default"
-              style={{ color: "#ffffff", borderColor: "rgba(255, 255, 255, 0.3)" }}
+              style={{ color: "#ffffff", borderColor: "rgba(255, 255, 255, 0.35)" }}
             >
-              View Member Pitches
+              Join Club
             </Button>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ── 2. Our Story Section ── */}
+      {/* ── TILE 2: Light Parchment Tile — "Our Story & Leadership" ── */}
       <section
         style={{
-          padding: "90px 24px",
-          backgroundColor: APPLE_COLORS.canvas,
+          padding: "96px 24px",
+          backgroundColor: APPLE_COLORS.canvasParchment,
           position: "relative",
-          overflow: "hidden",
+          width: "100%",
         }}
       >
         <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
@@ -202,49 +157,43 @@ export default function AboutPage() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "48px",
+              gap: "56px",
               alignItems: "center",
             }}
           >
-            {/* Left Column: Image with Hover Effect (using /OysterTeam5.jpg from landing page) */}
+            {/* Left Column: Team Photograph in Apple Utility Frame */}
             <motion.div
-              initial={{ opacity: 0, x: -24 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-              style={{ position: "relative" }}
             >
               <div
                 style={{
                   position: "relative",
-                  height: "420px",
+                  height: "440px",
                   borderRadius: APPLE_RADII.lg,
                   overflow: "hidden",
                   boxShadow: APPLE_SHADOW.productLight,
                   border: `1px solid ${APPLE_COLORS.hairline}`,
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: "#1c1c1e",
                 }}
-                className="group"
               >
                 <Image
                   src="/OysterTeam5.jpg"
-                  alt="Oyster Kode Club Story"
+                  alt="Oyster Kode Club Team"
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   style={{
                     objectFit: "cover",
                     objectPosition: "center 30%",
-                    transition: "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)",
                   }}
-                  className="group-hover:scale-105"
                 />
-                {/* Gradient Scrim Overlay */}
                 <div
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.75) 100%)",
-                    transition: "opacity 0.3s ease",
+                    background: "linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.72) 100%)",
                   }}
                 />
                 <div
@@ -268,21 +217,21 @@ export default function AboutPage() {
                       marginBottom: "4px",
                     }}
                   >
-                    Oyster Kode Club Team
+                    Oyster Kode Club Community
                   </span>
                   <p style={{ fontSize: "14px", color: "rgba(255, 255, 255, 0.95)", margin: 0, fontWeight: 500 }}>
-                    Building real-world engineering projects and empowering technical talent at RIT.
+                    Building real-world software foundations and nurturing future technology leaders.
                   </p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Right Column: Story Text & Statistics */}
+            {/* Right Column: Mission Text & Faculty Coordinator */}
             <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 1, 0.5, 1] }}
             >
               <span
                 style={{
@@ -295,19 +244,20 @@ export default function AboutPage() {
                   marginBottom: "8px",
                 }}
               >
-                About Our Journey
+                Our Journey
               </span>
               <h2
+                className="apple-display-md"
                 style={{
                   fontSize: "clamp(28px, 4vw, 36px)",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   color: APPLE_COLORS.ink,
                   lineHeight: 1.2,
                   marginBottom: "20px",
                   letterSpacing: "-0.02em",
                 }}
               >
-                Our Story
+                Engineering with Purpose
               </h2>
               <p
                 style={{
@@ -317,7 +267,7 @@ export default function AboutPage() {
                   marginBottom: "16px",
                 }}
               >
-                The Oyster Kode Club at RIT is dedicated to fostering a culture of coding excellence and technical innovation. Our club provides a platform for students to enhance their programming skills, participate in coding competitions, and develop real-world projects.
+                The Oyster Kode Club at Rajarambapu Institute of Technology is an engineering collective dedicated to fostering technical curiosity, disciplined coding practice, and collaborative project execution.
               </p>
               <p
                 style={{
@@ -327,10 +277,10 @@ export default function AboutPage() {
                   marginBottom: "28px",
                 }}
               >
-                Under the guidance of our faculty coordinator, Prof. Moshin Mulla (Training and placement coordinator) RIT, we organize various activities including coding competitions, workshops, and technical sessions to help students build a strong foundation in programming.
+                Through hackathons, structured workshops, competitive coding rounds, and community software releases, members develop the confidence and architectural maturity required for high-impact engineering careers.
               </p>
 
-              {/* Metrics Grid */}
+              {/* Quiet Monochrome Metric Counters */}
               <div
                 style={{
                   display: "grid",
@@ -341,8 +291,8 @@ export default function AboutPage() {
               >
                 <div
                   style={{
-                    backgroundColor: APPLE_COLORS.canvasParchment,
-                    padding: "18px 20px",
+                    backgroundColor: "#ffffff",
+                    padding: "20px 22px",
                     borderRadius: APPLE_RADII.md,
                     border: `1px solid ${APPLE_COLORS.hairline}`,
                   }}
@@ -350,12 +300,11 @@ export default function AboutPage() {
                   <div
                     style={{
                       fontSize: "32px",
-                      fontWeight: 700,
-                      background: "linear-gradient(135deg, #ff6b35 0%, #f72585 100%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
+                      fontWeight: 600,
+                      color: APPLE_COLORS.primary,
                       lineHeight: 1,
                       marginBottom: "6px",
+                      letterSpacing: "-0.02em",
                     }}
                   >
                     70+
@@ -367,8 +316,8 @@ export default function AboutPage() {
 
                 <div
                   style={{
-                    backgroundColor: APPLE_COLORS.canvasParchment,
-                    padding: "18px 20px",
+                    backgroundColor: "#ffffff",
+                    padding: "20px 22px",
                     borderRadius: APPLE_RADII.md,
                     border: `1px solid ${APPLE_COLORS.hairline}`,
                   }}
@@ -376,18 +325,17 @@ export default function AboutPage() {
                   <div
                     style={{
                       fontSize: "32px",
-                      fontWeight: 700,
-                      background: "linear-gradient(135deg, #0066cc 0%, #7209b7 100%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
+                      fontWeight: 600,
+                      color: APPLE_COLORS.primary,
                       lineHeight: 1,
                       marginBottom: "6px",
+                      letterSpacing: "-0.02em",
                     }}
                   >
                     10+
                   </div>
                   <div style={{ fontSize: "13px", fontWeight: 500, color: APPLE_COLORS.inkMuted48 }}>
-                    Events Conducted
+                    Events &amp; Hackathons
                   </div>
                 </div>
               </div>
@@ -398,22 +346,22 @@ export default function AboutPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: "14px",
-                  padding: "14px 18px",
-                  backgroundColor: "rgba(0, 102, 204, 0.05)",
+                  padding: "16px 20px",
+                  backgroundColor: "#ffffff",
                   borderRadius: APPLE_RADII.md,
-                  border: `1px solid rgba(0, 102, 204, 0.15)`,
+                  border: `1px solid ${APPLE_COLORS.hairline}`,
                 }}
               >
                 <div
                   style={{
-                    width: "38px",
-                    height: "38px",
+                    width: "40px",
+                    height: "40px",
                     borderRadius: "50%",
-                    backgroundColor: APPLE_COLORS.primary,
+                    backgroundColor: "rgba(0, 102, 204, 0.08)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#ffffff",
+                    color: APPLE_COLORS.primary,
                     flexShrink: 0,
                   }}
                 >
@@ -423,8 +371,8 @@ export default function AboutPage() {
                   <div style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink }}>
                     Faculty Coordinator: Prof. Moshin Mulla
                   </div>
-                  <div style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48 }}>
-                    Training and Placement Coordinator, RIT
+                  <div style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, marginTop: "2px" }}>
+                    Training and Placement Coordinator, Rajarambapu Institute of Technology
                   </div>
                 </div>
               </div>
@@ -433,24 +381,16 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── 3. Our Vision Section ── */}
+      {/* ── TILE 3: Pure White Canvas Tile — "Core Pillars" ── */}
       <section
         style={{
-          padding: "90px 24px",
-          backgroundColor: APPLE_COLORS.canvasParchment,
-          borderTop: `1px solid ${APPLE_COLORS.hairline}`,
-          borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+          padding: "96px 24px",
+          backgroundColor: APPLE_COLORS.canvas,
+          width: "100%",
         }}
       >
         <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
-            style={{ textAlign: "center", maxWidth: "680px", margin: "0 auto 56px" }}
-          >
+          <div style={{ textAlign: "center", maxWidth: "680px", margin: "0 auto 56px" }}>
             <span
               style={{
                 fontSize: "12px",
@@ -462,33 +402,27 @@ export default function AboutPage() {
                 marginBottom: "8px",
               }}
             >
-              Driven by Purpose
+              Foundational Values
             </span>
             <h2
+              className="apple-display-md"
               style={{
                 fontSize: "clamp(28px, 4vw, 36px)",
-                fontWeight: 700,
+                fontWeight: 600,
                 color: APPLE_COLORS.ink,
                 lineHeight: 1.2,
-                marginBottom: "16px",
+                marginBottom: "14px",
                 letterSpacing: "-0.02em",
               }}
             >
-              Our Vision
+              Our Core Pillars
             </h2>
-            <p
-              style={{
-                fontSize: "16px",
-                color: APPLE_COLORS.inkMuted48,
-                lineHeight: 1.5,
-                margin: 0,
-              }}
-            >
-              To develop students&apos; interest in coding, enhance their technical and non-technical skills, and prepare them for successful careers in technology.
+            <p style={{ fontSize: "16px", color: APPLE_COLORS.inkMuted48, margin: 0, lineHeight: 1.5 }}>
+              The principles and disciplines that shape every project, mentorship session, and event we organize.
             </p>
-          </motion.div>
+          </div>
 
-          {/* 4 Cards Grid */}
+          {/* 4 Pillars Grid */}
           <div
             style={{
               display: "grid",
@@ -496,41 +430,43 @@ export default function AboutPage() {
               gap: "24px",
             }}
           >
-            {VISION_CARDS.map((card, idx) => {
-              const IconComp = card.icon;
+            {PILLARS.map((pillar, idx) => {
+              const IconComp = pillar.icon;
               return (
                 <motion.div
-                  key={card.title}
+                  key={pillar.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.25, 1, 0.5, 1] }}
                 >
-                  <Card
+                  <div
                     style={{
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
-                      padding: "28px 24px",
-                      backgroundColor: APPLE_COLORS.canvas,
+                      padding: "32px 26px",
+                      backgroundColor: APPLE_COLORS.canvasParchment,
                       borderRadius: APPLE_RADII.lg,
                       border: `1px solid ${APPLE_COLORS.hairline}`,
+                      boxSizing: "border-box",
                       transition: "transform 0.25s ease, box-shadow 0.25s ease",
                     }}
                   >
                     <div
                       style={{
-                        width: "48px",
-                        height: "48px",
-                        borderRadius: APPLE_RADII.md,
-                        backgroundColor: card.bg,
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: APPLE_RADII.sm,
+                        backgroundColor: "rgba(0, 102, 204, 0.08)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         marginBottom: "20px",
+                        color: APPLE_COLORS.primary,
                       }}
                     >
-                      <IconComp size={24} color={card.accent} />
+                      <IconComp size={22} />
                     </div>
                     <h3
                       style={{
@@ -538,9 +474,10 @@ export default function AboutPage() {
                         fontWeight: 600,
                         color: APPLE_COLORS.ink,
                         marginBottom: "10px",
+                        letterSpacing: "-0.2px",
                       }}
                     >
-                      {card.title}
+                      {pillar.title}
                     </h3>
                     <p
                       style={{
@@ -550,9 +487,9 @@ export default function AboutPage() {
                         margin: 0,
                       }}
                     >
-                      {card.description}
+                      {pillar.description}
                     </p>
-                  </Card>
+                  </div>
                 </motion.div>
               );
             })}
@@ -560,17 +497,18 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── 4. Call to Action Banner ── */}
+      {/* ── TILE 4: Dark Callout Tile ── */}
       <section
         style={{
           padding: "80px 24px",
-          backgroundColor: APPLE_COLORS.canvas,
+          backgroundColor: APPLE_COLORS.canvasParchment,
           textAlign: "center",
+          width: "100%",
         }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
           style={{
@@ -578,32 +516,44 @@ export default function AboutPage() {
             margin: "0 auto",
             backgroundColor: "#141416",
             borderRadius: APPLE_RADII.lg,
-            padding: "48px 32px",
+            padding: "56px 36px",
             color: "#ffffff",
-            position: "relative",
-            overflow: "hidden",
           }}
         >
-          <h2
+          <span
             style={{
-              fontSize: "clamp(24px, 3.5vw, 32px)",
-              fontWeight: 700,
-              marginBottom: "14px",
-              lineHeight: 1.25,
+              fontSize: "11px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "rgba(255, 255, 255, 0.6)",
+              display: "block",
+              marginBottom: "12px",
             }}
           >
-            Ready to explore verified engineering talent?
+            DISCOVER ENGINEERING TALENT
+          </span>
+          <h2
+            style={{
+              fontSize: "clamp(26px, 3.5vw, 36px)",
+              fontWeight: 600,
+              marginBottom: "16px",
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Ready to explore verified student engineers?
           </h2>
           <p
             style={{
-              fontSize: "15px",
-              color: "rgba(255, 255, 255, 0.72)",
-              maxWidth: "540px",
-              margin: "0 auto 28px",
+              fontSize: "16px",
+              color: "rgba(255, 255, 255, 0.75)",
+              maxWidth: "560px",
+              margin: "0 auto 32px",
               lineHeight: 1.5,
             }}
           >
-            Discover member profiles, inspect verified tech stacks, view live projects, and connect directly with talent.
+            Browse verified member profiles, inspect production code repositories, evaluate live demos, and connect directly with candidates.
           </p>
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
             <Button
@@ -618,8 +568,9 @@ export default function AboutPage() {
             <Button
               as={Link}
               href="/auth"
-              variant="default"
+              variant="secondary-pill"
               size="default"
+              style={{ color: "#ffffff", borderColor: "rgba(255, 255, 255, 0.35)" }}
             >
               Join Oyster Kode Club
             </Button>
@@ -627,7 +578,7 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* ── 5. Footer ── */}
+      {/* ── TILE 5: Clean Apple Footer (No Pitches Link) ── */}
       <footer
         style={{
           backgroundColor: APPLE_COLORS.canvasParchment,
@@ -651,11 +602,11 @@ export default function AboutPage() {
             <div>
               <span
                 style={{
-                  fontSize: "14px",
+                  fontSize: "13px",
                   fontWeight: 600,
                   color: APPLE_COLORS.ink,
                   textTransform: "uppercase",
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.05em",
                   display: "block",
                   marginBottom: "8px",
                 }}
@@ -676,7 +627,6 @@ export default function AboutPage() {
                   <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>Home</Link>
                   <Link href="/about" style={{ textDecoration: "none", color: "inherit" }}>About Us</Link>
                   <Link href="/directory" style={{ textDecoration: "none", color: "inherit" }}>Member Directory</Link>
-                  <Link href="/pitches" style={{ textDecoration: "none", color: "inherit" }}>Project Pitches</Link>
                 </div>
               </div>
 
@@ -706,7 +656,7 @@ export default function AboutPage() {
             }}
           >
             <div>
-              © {new Date().getFullYear()} Oyster Kode Club. All rights reserved.
+              &copy; {new Date().getFullYear()} Oyster Kode Club. All rights reserved.
             </div>
             <div>
               Rajarambapu Institute of Technology, Sangli
