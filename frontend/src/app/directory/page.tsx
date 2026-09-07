@@ -31,37 +31,107 @@ interface DirectoryGroups {
   Alumni: ProfileCard[];
 }
 
-const MOCK_PROFILES: ProfileCard[] = [
-  { profile_id: "demo-1", full_name: "Alex Mercer", tagline: "Full Stack Engineer & AI Enthusiast", availability: "Available", department: "Core Team", role_category: "Core Team", role: "member", skills: [{ name: "TypeScript", level: "Expert" }, { name: "Next.js", level: "Expert" }, { name: "PostgreSQL", level: "Intermediate" }] },
-  { profile_id: "demo-2", full_name: "Samira Jones", tagline: "AI / Machine Learning Researcher", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Python", level: "Expert" }, { name: "PyTorch", level: "Expert" }] },
-  { profile_id: "demo-3", full_name: "Vikram Malhotra", tagline: "DevOps & Cloud Systems Architect", availability: "Busy", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Docker", level: "Expert" }, { name: "Kubernetes", level: "Intermediate" }, { name: "AWS", level: "Expert" }] },
-  { profile_id: "demo-4", full_name: "Elena Rostova", tagline: "Senior UX Engineer & Generative Artist", availability: "Available", department: "Core Team", role_category: "Core Team", role: "member", skills: [{ name: "Figma", level: "Expert" }, { name: "Three.js", level: "Expert" }, { name: "React", level: "Expert" }] },
-  { profile_id: "demo-5", full_name: "Ananya Iyer", tagline: "Systems Engineer & VLSI Designer", availability: "Available", department: "Alumni", role_category: "Alumni", role: "alumni", skills: [{ name: "Verilog", level: "Expert" }, { name: "VLSI Design", level: "Intermediate" }] },
-  { profile_id: "demo-6", full_name: "Marcus Thorne", tagline: "Backend Developer & Distributed Systems", availability: "Open to work", department: "Technical Team", role_category: "Technical Team", role: "member", skills: [{ name: "Go", level: "Expert" }, { name: "gRPC", level: "Expert" }, { name: "Redis", level: "Intermediate" }] },
-];
-
 function AvailabilityStatus({ av }: { av: string }) {
+  const displayVal = av || "Available";
   let dotColor = "#1d8348"; // Green
   let textColor = "#1d8348";
 
-  if (av === "Busy") {
+  if (displayVal === "Busy") {
     dotColor = "#d70015";
     textColor = "#d70015";
-  } else if (av === "Open to work") {
+  } else if (displayVal === "Open to work") {
     dotColor = "#b76e00";
     textColor = "#b76e00";
   }
 
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: textColor }}>
-      <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: dotColor }} />
-      <span>{av}</span>
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        fontSize: "11px",
+        fontWeight: 600,
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+        color: textColor,
+        lineHeight: 1,
+      }}
+    >
+      <span
+        style={{
+          width: "6px",
+          height: "6px",
+          borderRadius: "50%",
+          backgroundColor: dotColor,
+          display: "inline-block",
+          flexShrink: 0,
+        }}
+      />
+      <span style={{ transform: "translateY(0.5px)" }}>{displayVal}</span>
+    </div>
+  );
+}
+
+function FallbackAvatar({ initials }: { initials: string }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "410px",
+        borderRadius: "18px",
+        background: "linear-gradient(135deg, #e8eaed 0%, #d2d2d7 100%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        paddingTop: "70px",
+        gap: "10px",
+      }}
+    >
+      <div
+        style={{
+          width: "60px",
+          height: "60px",
+          borderRadius: "50%",
+          backgroundColor: "rgba(255, 255, 255, 0.85)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "24px",
+            fontWeight: 600,
+            color: APPLE_COLORS.ink,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {initials}
+        </span>
+      </div>
+      <span
+        style={{
+          fontSize: "11px",
+          fontWeight: 600,
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          color: APPLE_COLORS.inkMuted48,
+        }}
+      >
+        OKC Member
+      </span>
     </div>
   );
 }
 
 /**
- * MemberShowcaseCard — Clean Apple Design System Card with zero photo blur
+ * MemberShowcaseCard — Apple Design System Card with Smooth Appear/Disappear Hover State
+ * Matches reference design in media_1788694242522.png & media_1788694261198.png
  */
 function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -76,28 +146,30 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
 
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
-      whileHover={{ y: -4, scale: 1.01 }}
+      whileHover={{ y: -2 }}
       transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       style={{
-        borderRadius: APPLE_RADII.lg,
+        borderRadius: "28px",
         backgroundColor: "#ffffff",
-        border: `1px solid ${isHovered ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
+        border: `1px solid ${isHovered ? "rgba(0, 0, 0, 0.12)" : "rgba(0, 0, 0, 0.07)"}`,
         boxShadow: isHovered
-          ? "0 12px 28px rgba(0, 0, 0, 0.08)"
-          : "0 2px 8px rgba(0, 0, 0, 0.03)",
+          ? "0 14px 32px rgba(0, 0, 0, 0.08)"
+          : "0 4px 16px rgba(0, 0, 0, 0.04)",
         overflow: "hidden",
         position: "relative",
         display: "flex",
         flexDirection: "column",
-        minHeight: "340px",
+        height: "430px",
+        minHeight: "430px",
         boxSizing: "border-box",
-        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+        isolation: "isolate",
+        WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+        transition: "border-color 0.35s ease, box-shadow 0.35s ease",
       }}
     >
       <Link
@@ -106,93 +178,146 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
         style={{
           textDecoration: "none",
           color: "inherit",
-          display: "flex",
-          flexDirection: "column",
+          display: "block",
+          width: "100%",
           height: "100%",
-          padding: "20px",
+          position: "relative",
         }}
       >
-        {/* Top Badges Bar */}
+        {/* ── Layer 1: Default Framed Photo (Stationary, height 236px, radius 18px concentric) ── */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "16px",
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            right: "10px",
+            height: "236px",
+            borderRadius: "18px",
+            overflow: "hidden",
+            backgroundColor: "#f0f0f2",
+            isolation: "isolate",
+            WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+            zIndex: 1,
           }}
         >
-          <span
-            style={{
-              fontSize: "10px",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              padding: "3px 8px",
-              borderRadius: "4px",
-              backgroundColor: "#f5f5f7",
-              color: APPLE_COLORS.inkMuted80,
-              border: "1px solid rgba(0, 0, 0, 0.06)",
-            }}
-          >
-            {profile.role_category}
-          </span>
-
-          <AvailabilityStatus av={profile.availability} />
+          {profile.profile_image ? (
+            <img
+              src={profile.profile_image}
+              alt={profile.full_name}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "410px",
+                borderRadius: "18px",
+                objectFit: "cover",
+                objectPosition: "center 16%",
+              }}
+            />
+          ) : (
+            <FallbackAvatar initials={initials} />
+          )}
         </div>
 
-        {/* Center Avatar — Crisp, Unblurred, High-Res */}
+        {/* ── Layer 2: Hover Full Photo & Frosted Mist (Concentric 18px radius, zero corner leak) ── */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "16px",
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            right: "10px",
+            height: "410px",
+            borderRadius: "18px",
+            overflow: "hidden",
+            backgroundColor: "#f0f0f2",
+            opacity: isHovered ? 1 : 0,
+            transition: "opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)",
+            zIndex: 3,
+            pointerEvents: "none",
+            isolation: "isolate",
+            WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+          }}
+        >
+          {profile.profile_image ? (
+            <img
+              src={profile.profile_image}
+              alt={profile.full_name}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "410px",
+                borderRadius: "18px",
+                objectFit: "cover",
+                objectPosition: "center 16%",
+              }}
+            />
+          ) : (
+            <FallbackAvatar initials={initials} />
+          )}
+
+          {/* Frosted Mist Overlay within the full photo frame */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "18px",
+              background:
+                "linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 28%, rgba(255, 255, 255, 0.2) 44%, rgba(255, 255, 255, 0.6) 60%, rgba(255, 255, 255, 0.88) 76%, rgba(255, 255, 255, 0.98) 100%)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              maskImage:
+                "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 28%, rgba(0, 0, 0, 0.25) 44%, rgba(0, 0, 0, 0.75) 60%, rgba(0, 0, 0, 1) 75%)",
+              WebkitMaskImage:
+                "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 28%, rgba(0, 0, 0, 0.25) 44%, rgba(0, 0, 0, 0.75) 60%, rgba(0, 0, 0, 1) 75%)",
+            }}
+          />
+        </div>
+
+        {/* ── Layer 3: Floating Availability Badge (Pinned to top-right) ── */}
+        <div
+          style={{
+            position: "absolute",
+            top: "18px",
+            right: "18px",
+            zIndex: 12,
+            pointerEvents: "none",
           }}
         >
           <div
             style={{
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              backgroundColor: "#f5f5f7",
-              border: `2px solid ${isHovered ? APPLE_COLORS.primary : APPLE_COLORS.hairline}`,
-              display: "flex",
+              padding: "4px 10px",
+              borderRadius: APPLE_RADII.pill,
+              backgroundColor: "rgba(255, 255, 255, 0.88)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255, 255, 255, 0.7)",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+              display: "inline-flex",
               alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-              transition: "border-color 0.2s ease",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
             }}
           >
-            {profile.profile_image ? (
-              <img
-                src={profile.profile_image}
-                alt={profile.full_name}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              <span
-                style={{
-                  fontSize: "24px",
-                  fontWeight: 600,
-                  color: APPLE_COLORS.ink,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {initials}
-              </span>
-            )}
+            <AvailabilityStatus av={profile.availability} />
           </div>
         </div>
 
-        {/* Text Content */}
+        {/* ── Layer 4: Transparent Content Container (Inside 10px card border) ── */}
         <div
           style={{
+            position: "absolute",
+            bottom: "10px",
+            left: "10px",
+            right: "10px",
+            height: "174px",
+            zIndex: 10,
+            backgroundColor: "transparent",
+            background: "none",
+            padding: "16px 14px 10px 14px",
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            gap: "8px",
-            flex: 1,
+            boxSizing: "border-box",
           }}
         >
           {/* Full Name + LinkedIn Verified Badge */}
@@ -204,19 +329,22 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
                 color: APPLE_COLORS.ink,
                 margin: 0,
                 letterSpacing: "-0.24px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             >
               {profile.full_name}
             </h3>
-            <LinkedInVerifiedBadge size={17} />
+            <LinkedInVerifiedBadge size={16} />
           </div>
 
-          {/* Tagline */}
+          {/* Tagline (2-line clamped) */}
           <p
             style={{
               fontSize: "13px",
               color: APPLE_COLORS.inkMuted48,
-              margin: 0,
+              margin: "4px 0 8px",
               lineHeight: 1.4,
               height: "36px",
               overflow: "hidden",
@@ -226,57 +354,76 @@ function MemberShowcaseCard({ profile }: { profile: ProfileCard }) {
               WebkitBoxOrient: "vertical",
             }}
           >
-            {profile.tagline || "Active Engineering Member"}
+            {profile.tagline || "Active Engineering Member at Oyster Kode Club"}
           </p>
 
-          {/* Skill Badges */}
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: "6px",
-              marginTop: "4px",
-            }}
-          >
-            {profile.skills?.slice(0, 3).map((sk) => (
-              <span
-                key={sk.name}
-                style={{
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.04em",
-                  padding: "2px 8px",
-                  borderRadius: APPLE_RADII.pill,
-                  backgroundColor: "#f5f5f7",
-                  color: APPLE_COLORS.inkMuted80,
-                }}
-              >
-                {sk.name}
-              </span>
-            ))}
-          </div>
-        </div>
+          {/* Skills Badges (if available) */}
+          {profile.skills && profile.skills.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "5px",
+                minHeight: "22px",
+              }}
+            >
+              {profile.skills.slice(0, 3).map((sk) => (
+                <span
+                  key={sk.name}
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                    padding: "3px 8px",
+                    borderRadius: APPLE_RADII.pill,
+                    backgroundColor: isHovered ? "rgba(255, 255, 255, 0.85)" : "#f5f5f7",
+                    color: isHovered ? APPLE_COLORS.ink : APPLE_COLORS.inkMuted80,
+                    border: isHovered ? "1px solid rgba(255, 255, 255, 0.9)" : "1px solid rgba(0, 0, 0, 0.04)",
+                    boxShadow: isHovered ? "0 1px 4px rgba(0, 0, 0, 0.04)" : "none",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  {sk.name}
+                </span>
+              ))}
+            </div>
+          )}
 
-        {/* View Profile Action Pill */}
-        <div style={{ width: "100%", marginTop: "16px" }}>
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Bottom Action Bar */}
           <div
             style={{
-              width: "100%",
-              height: "36px",
-              borderRadius: APPLE_RADII.pill,
-              backgroundColor: isHovered ? APPLE_COLORS.primary : "#f5f5f7",
-              color: isHovered ? "#ffffff" : APPLE_COLORS.ink,
-              fontSize: "13px",
-              fontWeight: 500,
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              transition: "background-color 0.2s ease, color 0.2s ease",
+              justifyContent: "space-between",
             }}
           >
-            View Profile
+            <span style={{ fontSize: "11px", color: APPLE_COLORS.inkMuted48, fontWeight: 500 }}>
+              {profile.skills?.length || 0} skills listed
+            </span>
+
+            <div
+              style={{
+                borderRadius: APPLE_RADII.pill,
+                backgroundColor: isHovered ? "#ffffff" : "#f5f5f7",
+                color: APPLE_COLORS.ink,
+                fontSize: "12px",
+                fontWeight: 500,
+                padding: "6px 14px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                border: "1px solid rgba(0, 0, 0, 0.06)",
+                boxShadow: isHovered ? "0 3px 10px rgba(0, 0, 0, 0.08)" : "none",
+                transition: "all 0.25s ease",
+              }}
+            >
+              <span>View Profile</span>
+              <span style={{ fontSize: "13px" }}>&rarr;</span>
+            </div>
           </div>
         </div>
       </Link>
@@ -293,7 +440,8 @@ function DirectoryContent() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>(MOCK_PROFILES);
+  const [dbProfiles, setDbProfiles] = useState<ProfileCard[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [pageLimit, setPageLimit] = useState(12);
 
   useEffect(() => {
@@ -301,6 +449,7 @@ function DirectoryContent() {
   }, [initialQuery]);
 
   const fetchProfiles = async () => {
+    setIsLoading(true);
     try {
       const res = await api.directory.search({});
       if (res.ok && res.data) {
@@ -309,12 +458,15 @@ function DirectoryContent() {
         Object.values(grouped).forEach((list) => {
           if (Array.isArray(list)) flattened.push(...list);
         });
-        if (flattened.length > 0) {
-          setDbProfiles(flattened);
-        }
+        setDbProfiles(flattened);
+      } else {
+        setDbProfiles([]);
       }
     } catch (err) {
       console.error("Directory fetch notice", err);
+      setDbProfiles([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -643,7 +795,46 @@ function DirectoryContent() {
 
         {/* ── Right Content: Results ── */}
         <div>
-          {filteredProfiles.length === 0 ? (
+          {isLoading ? (
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                borderRadius: APPLE_RADII.lg,
+                border: `1px solid ${APPLE_COLORS.hairline}`,
+                padding: "96px 24px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "16px",
+                minHeight: "400px",
+              }}
+            >
+              <Spinner size={36} color={APPLE_COLORS.primary} />
+              <div style={{ textAlign: "center" }}>
+                <p
+                  style={{
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    color: APPLE_COLORS.ink,
+                    margin: "0 0 4px",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Loading Directory
+                </p>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: APPLE_COLORS.inkMuted48,
+                    margin: 0,
+                  }}
+                >
+                  Fetching verified member profiles from server...
+                </p>
+              </div>
+            </div>
+          ) : filteredProfiles.length === 0 ? (
             <div
               style={{
                 backgroundColor: "#ffffff",

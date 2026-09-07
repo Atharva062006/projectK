@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { User, FileText, Upload, Code, Laptop, Trash2, Save, Plus, ExternalLink, Lock, Eye } from "lucide-react";
+import { User, FileText, Upload, Code, Laptop, Trash2, Save, Plus, ExternalLink, Lock, Eye, Clock, Building2, Compass, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -104,8 +104,10 @@ export default function PortfolioPage() {
   const [selectedSkillId, setSelectedSkillId] = useState("");
   const [selectedSkillLevel, setSelectedSkillLevel] = useState("Intermediate");
 
-  const loadData = async () => {
-    setIsDataLoading(true);
+  const loadData = async (showFullSpinner = false) => {
+    if (showFullSpinner) {
+      setIsDataLoading(true);
+    }
     try {
       const res = await api.profile.getMe();
       if (res.ok && res.data) {
@@ -133,13 +135,21 @@ export default function PortfolioPage() {
     } catch (err) {
       console.error("Failed to load portfolio data", err);
     } finally {
-      setIsDataLoading(false);
+      if (showFullSpinner) {
+        setIsDataLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    loadData();
-  }, [token]);
+    if (token) {
+      if (user?.role === "guest" || user?.role === "recruiter") {
+        setIsDataLoading(false);
+      } else {
+        loadData(true);
+      }
+    }
+  }, [token, user?.role]);
 
   if (!token) {
     return (
@@ -185,6 +195,232 @@ export default function PortfolioPage() {
       <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px" }}>
         <Spinner size={32} />
         <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48 }}>Loading your workspace data...</p>
+      </div>
+    );
+  }
+
+  // ── Guest Account Informational View ──
+  if (user?.role === "guest") {
+    return (
+      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "60px 24px 80px" }}>
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: APPLE_RADII.lg,
+            border: `1px solid ${APPLE_COLORS.hairline}`,
+            padding: "48px 40px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              backgroundColor: "rgba(0, 102, 204, 0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 20px",
+            }}
+          >
+            <Compass size={28} color={APPLE_COLORS.primary} />
+          </div>
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: APPLE_COLORS.primary,
+              display: "block",
+              marginBottom: "8px",
+            }}
+          >
+            Guest Account
+          </span>
+          <h1
+            className="apple-display-md"
+            style={{ fontSize: "28px", fontWeight: 700, color: APPLE_COLORS.ink, marginBottom: "14px" }}
+          >
+            Welcome to Project K
+          </h1>
+          <p
+            style={{
+              fontSize: "15px",
+              color: APPLE_COLORS.inkMuted48,
+              lineHeight: 1.6,
+              maxWidth: "540px",
+              margin: "0 auto 32px",
+            }}
+          >
+            You are signed in as a <strong>Guest</strong>. Guest access allows you to explore verified talent profiles, discover engineering projects, and inspect technical skillsets across Oyster Kode Club.
+          </p>
+          <div
+            style={{
+              backgroundColor: APPLE_COLORS.canvasParchment,
+              borderRadius: APPLE_RADII.md,
+              border: `1px solid ${APPLE_COLORS.hairline}`,
+              padding: "20px 24px",
+              textAlign: "left",
+              maxWidth: "540px",
+              margin: "0 auto 36px",
+            }}
+          >
+            <div style={{ fontSize: "13px", fontWeight: 600, color: APPLE_COLORS.ink, marginBottom: "8px" }}>
+              Your Access Privileges
+            </div>
+            <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "13px", color: APPLE_COLORS.inkMuted80, lineHeight: 1.6 }}>
+              <li>Browse all verified member portfolios and student showcases</li>
+              <li>Filter candidates by tech stack, availability, and graduation year</li>
+              <li>Inspect member GitHub repositories and live project demos</li>
+            </ul>
+            <div style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, marginTop: "12px" }}>
+              Note: Portfolio creation, resume uploads, and directory showcase pages are reserved for active Club Members and Alumni.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Button
+              as="a"
+              href="/directory"
+              variant="primary"
+              size="default"
+              rightGlyph={<ArrowRight size={15} />}
+            >
+              Explore Talent Directory
+            </Button>
+            <Button
+              as="a"
+              href="/about"
+              variant="secondary"
+              size="default"
+            >
+              About Oyster Kode Club
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Recruiter Portal View ──
+  if (user?.role === "recruiter") {
+    return (
+      <div style={{ maxWidth: "840px", margin: "0 auto", padding: "60px 24px 80px" }}>
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: APPLE_RADII.lg,
+            border: `1px solid ${APPLE_COLORS.hairline}`,
+            padding: "48px 40px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              backgroundColor: "rgba(0, 102, 204, 0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 20px",
+            }}
+          >
+            <Building2 size={28} color={APPLE_COLORS.primary} />
+          </div>
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: APPLE_COLORS.primary,
+              display: "block",
+              marginBottom: "8px",
+            }}
+          >
+            Recruiter Portal
+          </span>
+          <h1
+            className="apple-display-md"
+            style={{ fontSize: "28px", fontWeight: 700, color: APPLE_COLORS.ink, marginBottom: "14px" }}
+          >
+            Talent Discovery Workspace
+          </h1>
+          <p
+            style={{
+              fontSize: "15px",
+              color: APPLE_COLORS.inkMuted48,
+              lineHeight: 1.6,
+              maxWidth: "560px",
+              margin: "0 auto 32px",
+            }}
+          >
+            Welcome, <strong>{user.username}</strong>. You have verified recruiter access to discover emerging engineering talent, evaluate technical portfolios, and download candidate resumes directly.
+          </p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "16px",
+              textAlign: "left",
+              maxWidth: "680px",
+              margin: "0 auto 36px",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: APPLE_COLORS.canvasParchment,
+                borderRadius: APPLE_RADII.md,
+                border: `1px solid ${APPLE_COLORS.hairline}`,
+                padding: "18px 20px",
+              }}
+            >
+              <div style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink, marginBottom: "4px" }}>
+                Direct Resume Access
+              </div>
+              <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: 0, lineHeight: 1.4 }}>
+                Download verified candidate PDF resumes directly from any student profile in the directory.
+              </p>
+            </div>
+            <div
+              style={{
+                backgroundColor: APPLE_COLORS.canvasParchment,
+                borderRadius: APPLE_RADII.md,
+                border: `1px solid ${APPLE_COLORS.hairline}`,
+                padding: "18px 20px",
+              }}
+            >
+              <div style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink, marginBottom: "4px" }}>
+                Verified Projects
+              </div>
+              <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: 0, lineHeight: 1.4 }}>
+                Inspect live demos, GitHub repositories, and full tech stacks evaluated by the club.
+              </p>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Button
+              as="a"
+              href="/directory"
+              variant="primary"
+              size="default"
+              rightGlyph={<ArrowRight size={15} />}
+            >
+              Browse Talent Directory
+            </Button>
+            <Button
+              as="a"
+              href="/directory?search=Next.js"
+              variant="secondary"
+              size="default"
+            >
+              Filter by Skills
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -248,40 +484,105 @@ export default function PortfolioPage() {
     e.preventDefault();
     const file = fileRef.current?.files?.[0];
     if (!file) {
-      setResult({ ok: false, message: "Please select a PDF file first" });
+      setResult({ ok: false, message: "Please select a PDF file first." });
       return;
     }
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setResult({ ok: false, message: "Only PDF files (.pdf) are allowed for resume uploads." });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setResult({ ok: false, message: "Resume file size exceeds the 5MB limit. Please select a smaller PDF." });
+      return;
+    }
+
     const fd = new FormData();
     fd.append("resume", file);
     setLoading(true);
-    const res = await api.profile.uploadResume(fd);
-    setResult(res);
-    if (res.ok) {
-      if (fileRef.current) fileRef.current.value = "";
-      setSelectedFileName(null);
-      await loadData();
+    setResult(null);
+
+    try {
+      const res = await api.profile.uploadResume(fd);
+      setResult(res);
+      if (res.ok) {
+        if (fileRef.current) fileRef.current.value = "";
+        setSelectedFileName(null);
+        await loadData(false);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to upload resume.";
+      setResult({ ok: false, message: msg });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // Clear value immediately so re-selecting the exact same file fires onChange every time
+    e.target.value = "";
     if (!file) return;
+
+    if (!file.type.startsWith("image/") && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
+      setResult({ ok: false, message: "Please select a valid image file (JPG, PNG, WEBP, etc.)." });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setResult({ ok: false, message: "Profile photo exceeds the 5MB limit. Please select a smaller image." });
+      return;
+    }
+
     const fd = new FormData();
     fd.append("avatar", file);
     setAvatarLoading(true);
     setResult(null);
-    const res = await api.profile.uploadAvatar(fd);
-    setResult(res);
-    if (res.ok) {
-      await loadData();
-      await refreshProfileId();
+
+    try {
+      const res = await api.profile.uploadAvatar(fd);
+      setResult(res);
+      if (res.ok) {
+        await loadData(false);
+        await refreshProfileId();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to upload profile photo.";
+      setResult({ ok: false, message: msg });
+    } finally {
+      setAvatarLoading(false);
     }
-    setAvatarLoading(false);
   };
 
   return (
     <div style={{ maxWidth: "1080px", margin: "0 auto", padding: "40px 24px 80px" }}>
+      {/* ── Pending Admin Approval Notice ── */}
+      {!user?.is_approved && (user?.role === "member" || user?.role === "alumni") && (
+        <div
+          style={{
+            backgroundColor: "rgba(183, 110, 0, 0.06)",
+            border: "1px solid rgba(183, 110, 0, 0.22)",
+            borderRadius: APPLE_RADII.md,
+            padding: "16px 20px",
+            marginBottom: "24px",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "14px",
+          }}
+        >
+          <Clock size={20} color="#b76e00" style={{ marginTop: "2px", flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "#b76e00", marginBottom: "4px" }}>
+              Account Pending Administrator Verification
+            </div>
+            <div style={{ fontSize: "13px", color: APPLE_COLORS.inkMuted80, lineHeight: 1.5 }}>
+              Your account registration is currently awaiting verification by club administrators. Once approved, your showcase will appear in the public Talent Directory. In the meantime, you can complete and update your profile details, engineering projects, skills, and resume below.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <div
         style={{
@@ -365,8 +666,11 @@ export default function PortfolioPage() {
               <h3 style={{ fontSize: "14px", fontWeight: 600, color: APPLE_COLORS.ink, margin: "0 0 4px" }}>
                 Profile Photo
               </h3>
-              <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: "0 0 10px" }}>
-                Upload your picture (Cloudinary image storage, max 5MB)
+              <p style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, margin: "0 0 4px", lineHeight: 1.4 }}>
+                Upload your picture (Cloudinary image storage, max 5MB).
+              </p>
+              <p style={{ fontSize: "11px", color: APPLE_COLORS.primary, margin: "0 0 10px", lineHeight: 1.4, fontWeight: 500 }}>
+                Recommended: 4:5 portrait (min 600×750px, ideally 800×1000px). Face centered in upper 60% for crisp display on member cards &amp; hover animations.
               </p>
               <div style={{ display: "flex", gap: "10px" }}>
                 <input

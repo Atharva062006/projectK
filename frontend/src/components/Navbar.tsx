@@ -6,13 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-import { User, Menu, X, ChevronDown, UserCheck, Edit3, ShieldAlert, LogOut } from "lucide-react";
+import { User, ChevronDown, UserCheck, Edit3, ShieldAlert, LogOut } from "lucide-react";
 import { APPLE_COLORS, APPLE_RADII } from "@/lib/theme";
 
 export default function Navbar() {
   const { user, profileId, logout, refreshProfileId } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -57,10 +56,7 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
+
 
   const initials = user?.username
     ? user.username
@@ -72,7 +68,6 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/directory", label: "Directory" },
-    { href: "/pitches", label: "Pitches" },
     { href: "/about", label: "About" },
   ];
 
@@ -93,9 +88,9 @@ export default function Navbar() {
       <div
         style={{
           width: "100%",
-          maxWidth: "1024px",
+          maxWidth: "1120px",
           margin: "0 auto",
-          padding: "0 20px",
+          padding: "0 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -134,42 +129,42 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* ── Center: Desktop Nav Links ── */}
-        <nav
-          style={{
-            alignItems: "center",
-            gap: "24px",
-          }}
-          className="hidden md:flex"
-        >
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                prefetch={true}
-                style={{
-                  fontSize: "12px",
-                  fontWeight: isActive ? 500 : 400,
-                  color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.72)",
-                  textDecoration: "none",
-                  letterSpacing: "-0.12px",
-                  transition: "color 0.15s ease",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = isActive ? "#ffffff" : "rgba(255, 255, 255, 0.72)")
-                }
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* ── Right: Desktop Nav Links + Auth / Profile Dropdown ── */}
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <nav
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+            }}
+          >
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  prefetch={true}
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: isActive ? 500 : 400,
+                    color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.72)",
+                    textDecoration: "none",
+                    letterSpacing: "-0.12px",
+                    transition: "color 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = isActive ? "#ffffff" : "rgba(255, 255, 255, 0.72)")
+                  }
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* ── Right: Auth / Profile Dropdown ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ width: "1px", height: "14px", backgroundColor: "rgba(255, 255, 255, 0.16)" }} />
           {user ? (
             <div style={{ position: "relative" }} ref={menuRef}>
               <button
@@ -269,91 +264,168 @@ export default function Navbar() {
                       >
                         {user.username}
                       </p>
-                      <span
-                        style={{
-                          fontSize: "10px",
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                          backgroundColor: "rgba(0, 102, 204, 0.08)",
-                          color: APPLE_COLORS.primary,
-                          textTransform: "uppercase",
-                          fontWeight: 600,
-                          letterSpacing: "0.04em",
-                        }}
-                      >
-                        {user.role}
-                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            backgroundColor: "rgba(0, 102, 204, 0.08)",
+                            color: APPLE_COLORS.primary,
+                            textTransform: "uppercase",
+                            fontWeight: 600,
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          {user.role}
+                        </span>
+                        {!user.is_approved && (user.role === "member" || user.role === "alumni") && (
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              backgroundColor: "rgba(183, 110, 0, 0.12)",
+                              color: "#b76e00",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Pending Review
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div style={{ height: "1px", backgroundColor: APPLE_COLORS.hairline, margin: "4px 0" }} />
 
-                    <>
-                      <a
-                        href={profileId ? `/profiles/${profileId}` : "#"}
-                        onClick={handleViewShowcase}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          padding: "8px 12px",
-                          borderRadius: APPLE_RADII.sm,
-                          fontSize: "13px",
-                          color: APPLE_COLORS.ink,
-                          textDecoration: "none",
-                          cursor: "pointer",
-                          transition: "background-color 0.15s ease",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
-                        <UserCheck size={14} color={APPLE_COLORS.primary} />
-                        <span>View Showcase</span>
-                      </a>
-                      <Link
-                        href="/portfolio"
-                        prefetch={true}
-                        onClick={() => setMenuOpen(false)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          padding: "8px 12px",
-                          borderRadius: APPLE_RADII.sm,
-                          fontSize: "13px",
-                          color: APPLE_COLORS.ink,
-                          textDecoration: "none",
-                          transition: "background-color 0.15s ease",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
-                        <Edit3 size={14} color={APPLE_COLORS.primary} />
-                        <span>Edit Portfolio</span>
-                      </Link>
-                    </>
+                    {/* Member & Alumni Actions */}
+                    {(user.role === "member" || user.role === "alumni") && (
+                      <>
+                        <a
+                          href={profileId ? `/profiles/${profileId}` : "#"}
+                          onClick={handleViewShowcase}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: APPLE_RADII.sm,
+                            fontSize: "13px",
+                            color: APPLE_COLORS.ink,
+                            textDecoration: "none",
+                            cursor: "pointer",
+                            transition: "background-color 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <UserCheck size={14} color={APPLE_COLORS.primary} />
+                          <span>View Showcase</span>
+                        </a>
+                        <Link
+                          href="/portfolio"
+                          prefetch={true}
+                          onClick={() => setMenuOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: APPLE_RADII.sm,
+                            fontSize: "13px",
+                            color: APPLE_COLORS.ink,
+                            textDecoration: "none",
+                            transition: "background-color 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <Edit3 size={14} color={APPLE_COLORS.primary} />
+                          <span>Edit Portfolio</span>
+                        </Link>
+                      </>
+                    )}
 
+                    {/* Admin Actions */}
                     {user.role === "admin" && (
-                      <Link
-                        href="/admin"
-                        prefetch={true}
-                        onClick={() => setMenuOpen(false)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          padding: "8px 12px",
-                          borderRadius: APPLE_RADII.sm,
-                          fontSize: "13px",
-                          color: APPLE_COLORS.ink,
-                          textDecoration: "none",
-                          transition: "background-color 0.15s ease",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
-                        <ShieldAlert size={14} color={APPLE_COLORS.primary} />
-                        <span>Admin Dashboard</span>
-                      </Link>
+                      <>
+                        <Link
+                          href="/admin"
+                          prefetch={true}
+                          onClick={() => setMenuOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: APPLE_RADII.sm,
+                            fontSize: "13px",
+                            color: APPLE_COLORS.ink,
+                            textDecoration: "none",
+                            transition: "background-color 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <ShieldAlert size={14} color={APPLE_COLORS.primary} />
+                          <span>Admin Dashboard</span>
+                        </Link>
+                        <Link
+                          href="/portfolio"
+                          prefetch={true}
+                          onClick={() => setMenuOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: APPLE_RADII.sm,
+                            fontSize: "13px",
+                            color: APPLE_COLORS.ink,
+                            textDecoration: "none",
+                            transition: "background-color 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <Edit3 size={14} color={APPLE_COLORS.primary} />
+                          <span>Workspace</span>
+                        </Link>
+                      </>
+                    )}
+
+                    {/* Guest & Recruiter Informational Actions */}
+                    {(user.role === "guest" || user.role === "recruiter") && (
+                      <>
+                        <Link
+                          href="/directory"
+                          prefetch={true}
+                          onClick={() => setMenuOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: APPLE_RADII.sm,
+                            fontSize: "13px",
+                            color: APPLE_COLORS.ink,
+                            textDecoration: "none",
+                            transition: "background-color 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f7")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <UserCheck size={14} color={APPLE_COLORS.primary} />
+                          <span>Browse Directory</span>
+                        </Link>
+                        <div style={{ padding: "6px 12px 6px" }}>
+                          <p style={{ fontSize: "11px", color: APPLE_COLORS.inkMuted48, margin: 0, lineHeight: 1.4 }}>
+                            {user.role === "recruiter"
+                              ? "Recruiter Account: Access verified engineer profiles & PDF resumes."
+                              : "Guest Account: Explore talent showcases and engineering projects."}
+                          </p>
+                        </div>
+                      </>
                     )}
 
                     <div style={{ height: "1px", backgroundColor: APPLE_COLORS.hairline, margin: "4px 0" }} />
@@ -406,64 +478,8 @@ export default function Navbar() {
               <span>Sign In</span>
             </Link>
           )}
-
-          {/* Mobile hamburger button */}
-          <button
-            type="button"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "#ffffff",
-              display: "flex",
-              alignItems: "center",
-              padding: "4px",
-            }}
-          >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Menu Dropdown */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            style={{
-              position: "absolute",
-              top: "44px",
-              left: 0,
-              right: 0,
-              backgroundColor: APPLE_COLORS.surfaceBlack,
-              borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
-              padding: "16px 20px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "14px",
-              zIndex: 999,
-            }}
-          >
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                style={{
-                  fontSize: "14px",
-                  color: "#ffffff",
-                  textDecoration: "none",
-                }}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   );
 }
