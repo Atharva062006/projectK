@@ -4,11 +4,12 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { Download, ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap, CheckCircle, Eye, Edit3 } from "lucide-react";
+import { ArrowLeft, Globe, ArrowUpRight, Mail, MapPin, GraduationCap, CheckCircle, FileText, Edit3 } from "lucide-react";
 import { GithubIcon, LinkedinIcon, LinkedInVerifiedBadge } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
+import { ResumeViewerModal } from "@/components/ui/ResumeViewerModal";
 import { APPLE_COLORS, APPLE_RADII, APPLE_SHADOW } from "@/lib/theme";
 
 interface ContactInfo {
@@ -154,6 +155,7 @@ export default function ProfileDetailPage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
   const isOwnProfile = Boolean(
@@ -431,7 +433,7 @@ export default function ProfileDetailPage() {
                 </p>
               </div>
 
-              {/* Action Buttons: View Resume & Download Resume */}
+              {/* Action Buttons */}
               <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
                 {isOwnProfile && (
                   <Button
@@ -446,35 +448,12 @@ export default function ProfileDetailPage() {
                 )}
 
                 <Button
-                  as="a"
-                  href={
-                    profile.profile_id.startsWith("demo-")
-                      ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-                      : `${BASE}/profiles/${profile.profile_id}/resume`
-                  }
-                  target="_blank"
-                  rel="noreferrer"
                   variant={isOwnProfile ? "secondary" : "primary"}
                   size="default"
-                  leftGlyph={<Eye size={16} />}
+                  leftGlyph={<FileText size={16} />}
+                  onClick={() => setResumeModalOpen(true)}
                 >
-                  View Resume
-                </Button>
-
-                <Button
-                  as="a"
-                  href={
-                    profile.profile_id.startsWith("demo-")
-                      ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-                      : `${BASE}/profiles/${profile.profile_id}/resume?download=true`
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  variant="secondary"
-                  size="default"
-                  leftGlyph={<Download size={16} />}
-                >
-                  Download Resume
+                  Resume
                 </Button>
               </div>
 
@@ -770,6 +749,23 @@ export default function ProfileDetailPage() {
           </div>
         </div>
       </footer>
+
+      {/* ── Resume Viewer Modal ── */}
+      <ResumeViewerModal
+        open={resumeModalOpen}
+        onClose={() => setResumeModalOpen(false)}
+        pdfUrl={
+          profile.profile_id.startsWith("demo-")
+            ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+            : `${BASE}/profiles/${profile.profile_id}/resume`
+        }
+        downloadUrl={
+          profile.profile_id.startsWith("demo-")
+            ? "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+            : `${BASE}/profiles/${profile.profile_id}/resume?download=true`
+        }
+        candidateName={profile.full_name}
+      />
     </div>
   );
 }
