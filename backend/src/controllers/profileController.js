@@ -29,6 +29,10 @@ export const uploadAvatar = async (req, res) => {
             return handleResponse(res, 404, "Profile not found");
         }
 
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            return handleResponse(res, 500, "Cloudinary configuration is missing on the server. Please verify CLOUDINARY_* environment variables.");
+        }
+
         // Upload image buffer to Cloudinary in 'projectk/avatars' folder
         const cloudinaryUrl = await new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
@@ -36,14 +40,20 @@ export const uploadAvatar = async (req, res) => {
                     folder: "projectk/avatars",
                     resource_type: "image",
                     transformation: [
-                        { width: 500, height: 500, crop: "fill", gravity: "face" }
+                        { width: 800, height: 1000, crop: "fill", gravity: "face" }
                     ]
                 },
                 (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result.secure_url);
+                    if (error) {
+                        reject(error);
+                    } else if (!result || !result.secure_url) {
+                        reject(new Error("Cloudinary upload failed: no secure_url returned."));
+                    } else {
+                        resolve(result.secure_url);
+                    }
                 }
             );
+            stream.on("error", (streamErr) => reject(streamErr));
             stream.end(req.file.buffer);
         });
 
@@ -54,7 +64,8 @@ export const uploadAvatar = async (req, res) => {
             profile: updatedProfile
         });
     } catch (error) {
-        return handleResponse(res, 500, error.message);
+        const msg = error?.message || error?.error?.message || "Failed to upload profile photo to Cloudinary.";
+        return handleResponse(res, 500, msg);
     }
 };
 

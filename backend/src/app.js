@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import multer from "multer";
 
 import authRouter from "./routes/authRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
@@ -47,8 +48,32 @@ app.use("/api/v1/profiles", profileRouter);
 app.use("/api/v1/directory", directoryRouter);
 app.use("/api/v1/pitches", pitchRouter);
 
-// Error handling middleware
+// Error handling middleware for Multer and general errors
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+            return res.status(400).json({
+                ok: false,
+                status: 400,
+                message: "File size exceeds the 5MB limit. Please upload a smaller file."
+            });
+        }
+        return res.status(400).json({
+            ok: false,
+            status: 400,
+            message: `Upload error: ${err.message}`
+        });
+    }
 
+    if (err) {
+        return res.status(400).json({
+            ok: false,
+            status: 400,
+            message: err.message || "An error occurred during file upload."
+        });
+    }
 
+    next();
+});
 
 export default app;

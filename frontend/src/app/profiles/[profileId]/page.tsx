@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -156,6 +156,8 @@ export default function ProfileDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [bioExpanded, setBioExpanded] = useState(false);
+  const [skillsExpanded, setSkillsExpanded] = useState(false);
   const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
   const isOwnProfile = Boolean(
@@ -230,6 +232,34 @@ export default function ProfileDetailPage() {
         .join("")
         .toUpperCase()
     : "?";
+
+  // Bio truncation — 100 words visible, then "Read more"
+  const BIO_WORD_LIMIT = 100;
+  const bioWords = profile.bio ? profile.bio.split(/\s+/) : [];
+  const isBioLong = bioWords.length > BIO_WORD_LIMIT;
+  const bioDisplayText = isBioLong && !bioExpanded
+    ? bioWords.slice(0, BIO_WORD_LIMIT).join(" ") + "\u2026"
+    : (profile.bio ?? "");
+
+  // Skills overflow — show 10, then +N expand
+  const SKILLS_LIMIT = 10;
+  const allSkills = profile.skills ?? [];
+  const visibleSkills = skillsExpanded ? allSkills : allSkills.slice(0, SKILLS_LIMIT);
+  const skillsOverflow = allSkills.length - SKILLS_LIMIT;
+
+  // Shared inline-link style for bio / skills controls
+  const readMoreStyle: React.CSSProperties = {
+    background: "none",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: 500,
+    color: APPLE_COLORS.primary,
+    marginLeft: "4px",
+    display: "inline",
+    letterSpacing: "-0.1px",
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", margin: 0, padding: 0 }}>
@@ -512,12 +542,13 @@ export default function ProfileDetailPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2: Biography & Core Disciplines (2 columns) (Screenshot 2 Reference) ── */}
+      {/* ── UNIFIED CONTENT SECTION: About · Skills · Projects ─────────────────
+           To revert: git checkout a8daa7a -- frontend/src/app/profiles/\[profileId\]/page.tsx
+      ── */}
       <section
         style={{
           backgroundColor: APPLE_COLORS.canvasParchment,
-          padding: "72px 24px",
-          borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+          padding: "48px 24px 56px",
           width: "100%",
         }}
       >
@@ -525,194 +556,349 @@ export default function ProfileDetailPage() {
           style={{
             maxWidth: "1024px",
             margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "56px",
-            alignItems: "start",
+            display: "flex",
+            flexDirection: "column",
+            gap: "32px",
           }}
         >
-          {/* Left Column: Biography */}
-          <div>
+
+          {/* ── About ── */}
+          <div style={{ maxWidth: "680px" }}>
             <h2
-              className="apple-display-md"
-              style={{ color: APPLE_COLORS.ink, marginBottom: "20px", fontSize: "28px" }}
-            >
-              Biography
-            </h2>
-            <div
               style={{
-                fontSize: "16px",
-                lineHeight: 1.65,
-                color: APPLE_COLORS.inkMuted80,
-                display: "flex",
-                flexDirection: "column",
-                gap: "16px",
-                whiteSpace: "pre-line",
+                fontSize: "20px",
+                fontWeight: 600,
+                color: APPLE_COLORS.ink,
+                margin: "0 0 12px",
+                letterSpacing: "-0.28px",
               }}
             >
-              {profile.bio || "No biography provided for this profile yet."}
-            </div>
+              About
+            </h2>
+            {profile.bio ? (
+              <p
+                style={{
+                  fontSize: "16px",
+                  lineHeight: 1.65,
+                  color: APPLE_COLORS.inkMuted80,
+                  margin: 0,
+                  whiteSpace: "pre-line",
+                }}
+              >
+                {bioDisplayText}
+                {isBioLong && (
+                  <button type="button" onClick={() => setBioExpanded(!bioExpanded)} style={readMoreStyle}>
+                    {bioExpanded ? "Read less" : "Read more"}
+                  </button>
+                )}
+              </p>
+            ) : (
+              <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
+                No summary provided yet.
+              </p>
+            )}
           </div>
 
-          {/* Right Column: Core Disciplines */}
-          <div>
-            <h2
-              className="apple-display-md"
-              style={{ color: APPLE_COLORS.ink, marginBottom: "20px", fontSize: "28px" }}
-            >
-              Core Disciplines
-            </h2>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {profile.skills && profile.skills.length > 0 ? (
-                profile.skills.map((sk) => (
+          {/* ── Skills ── */}
+          {allSkills.length > 0 && (
+            <div>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: APPLE_COLORS.inkMuted48,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  display: "block",
+                  marginBottom: "10px",
+                }}
+              >
+                Skills
+              </span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
+                {visibleSkills.map((sk) => (
                   <span
-                    key={sk.name}
+                    key={sk.skill_id}
                     style={{
-                      padding: "8px 16px",
+                      padding: "7px 15px",
                       borderRadius: APPLE_RADII.pill,
-                      backgroundColor: "#ffffff",
+                      backgroundColor: APPLE_COLORS.canvas,
                       border: `1px solid ${APPLE_COLORS.hairline}`,
                       color: APPLE_COLORS.ink,
-                      fontSize: "14px",
+                      fontSize: "13px",
                       fontWeight: 500,
                       letterSpacing: "-0.1px",
-                      boxShadow: "0 1px 4px rgba(0, 0, 0, 0.02)",
                     }}
                   >
                     {sk.name}
                   </span>
-                ))
-              ) : (
-                <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48 }}>No disciplines linked.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 3: Selected Works / Projects (Screenshot 2 Reference) ── */}
-      <section
-        style={{
-          backgroundColor: "#ffffff",
-          padding: "72px 24px",
-          width: "100%",
-        }}
-      >
-        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
-          <div style={{ marginBottom: "36px" }}>
-            <h2
-              className="apple-display-md"
-              style={{ color: APPLE_COLORS.ink, margin: "0 0 6px", fontSize: "28px" }}
-            >
-              Selected Works
-            </h2>
-            <p style={{ fontSize: "15px", color: APPLE_COLORS.inkMuted48, margin: 0 }}>
-              Curated engineering projects and production systems
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "28px",
-            }}
-          >
-            {profile.projects && profile.projects.length > 0 ? (
-              profile.projects.map((proj) => (
-                <div
-                  key={proj.project_id}
-                  style={{
-                    backgroundColor: APPLE_COLORS.canvasParchment,
-                    borderRadius: APPLE_RADII.lg,
-                    border: `1px solid ${APPLE_COLORS.hairline}`,
-                    overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  {/* Visual Preview Frame */}
-                  <div
+                ))}
+                {!skillsExpanded && skillsOverflow > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSkillsExpanded(true)}
                     style={{
-                      height: "180px",
-                      width: "100%",
-                      backgroundColor: "#ffffff",
-                      borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "20px",
+                      padding: "7px 15px",
+                      borderRadius: APPLE_RADII.pill,
+                      backgroundColor: "transparent",
+                      border: `1px solid ${APPLE_COLORS.primary}`,
+                      color: APPLE_COLORS.primary,
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      letterSpacing: "-0.1px",
                     }}
                   >
-                    <span style={{ fontSize: "16px", fontWeight: 600, color: APPLE_COLORS.inkMuted80 }}>
+                    +{skillsOverflow} more
+                  </button>
+                )}
+                {skillsExpanded && skillsOverflow > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSkillsExpanded(false)}
+                    style={readMoreStyle}
+                  >
+                    Show less
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Achievements ── */}
+          {profile.achievements && profile.achievements.length > 0 && (
+            <div>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: APPLE_COLORS.inkMuted48,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  display: "block",
+                  marginBottom: "10px",
+                }}
+              >
+                Achievements
+              </span>
+              <ul style={{ margin: 0, padding: "0 0 0 16px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                {profile.achievements.map((a, i) => (
+                  <li key={i} style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted80, lineHeight: 1.55 }}>
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ── Certifications ── */}
+          {profile.certifications && profile.certifications.length > 0 && (
+            <div>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: APPLE_COLORS.inkMuted48,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  display: "block",
+                  marginBottom: "10px",
+                }}
+              >
+                Certifications
+              </span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {profile.certifications.map((c, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: APPLE_RADII.pill,
+                      backgroundColor: APPLE_COLORS.canvas,
+                      border: `1px solid ${APPLE_COLORS.hairline}`,
+                      color: APPLE_COLORS.inkMuted80,
+                      fontSize: "13px",
+                      fontWeight: 400,
+                      letterSpacing: "-0.1px",
+                    }}
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Hairline divider ── */}
+          <div style={{ height: "1px", backgroundColor: APPLE_COLORS.hairline }} />
+
+          {/* ── Selected Works ── */}
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: "space-between",
+                marginBottom: "20px",
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 600,
+                  color: APPLE_COLORS.ink,
+                  margin: 0,
+                  letterSpacing: "-0.28px",
+                }}
+              >
+                Selected Works
+              </h2>
+              {profile.projects && profile.projects.length > 0 && (
+                <span style={{ fontSize: "13px", color: APPLE_COLORS.inkMuted48 }}>
+                  {profile.projects.length} {profile.projects.length === 1 ? "project" : "projects"}
+                </span>
+              )}
+            </div>
+
+            {profile.projects && profile.projects.length > 0 ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 340px))",
+                  gap: "16px",
+                }}
+              >
+                {profile.projects.map((proj) => (
+                  <div
+                    key={proj.project_id}
+                    style={{
+                      backgroundColor: APPLE_COLORS.canvas,
+                      borderRadius: APPLE_RADII.lg,
+                      borderTop: `1px solid ${APPLE_COLORS.hairline}`,
+                      borderRight: `1px solid ${APPLE_COLORS.hairline}`,
+                      borderBottom: `1px solid ${APPLE_COLORS.hairline}`,
+                      borderLeft: `4px solid ${APPLE_COLORS.primary}`,
+                      padding: "20px 22px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    {/* Title */}
+                    <h3
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: APPLE_COLORS.ink,
+                        margin: 0,
+                        letterSpacing: "-0.2px",
+                      }}
+                    >
                       {proj.title}
-                    </span>
-                    <span style={{ fontSize: "12px", color: APPLE_COLORS.inkMuted48, marginTop: "4px" }}>
-                      {proj.tech_stack || "Full Stack Application"}
-                    </span>
-                  </div>
+                    </h3>
 
-                  {/* Project Details */}
-                  <div style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1 }}>
-                    <div>
-                      <h3 style={{ fontSize: "17px", fontWeight: 600, color: APPLE_COLORS.ink, margin: "0 0 8px" }}>
-                        {proj.title}
-                      </h3>
-                      <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48, lineHeight: 1.5, margin: 0 }}>
-                        {proj.description || "Production engineering project repository."}
-                      </p>
-                    </div>
+                    {/* Tech stack pills */}
+                    {proj.tech_stack && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+                        {proj.tech_stack
+                          .split(",")
+                          .map((t) => t.trim())
+                          .filter(Boolean)
+                          .map((tech) => (
+                            <span
+                              key={tech}
+                              style={{
+                                padding: "3px 9px",
+                                borderRadius: APPLE_RADII.pill,
+                                backgroundColor: APPLE_COLORS.canvasParchment,
+                                border: `1px solid ${APPLE_COLORS.hairline}`,
+                                fontSize: "11px",
+                                fontWeight: 500,
+                                color: APPLE_COLORS.inkMuted48,
+                                letterSpacing: "-0.08px",
+                              }}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                      </div>
+                    )}
 
-                    <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
-                      {proj.demo_link && (
-                        <a
-                          href={proj.demo_link}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            fontSize: "13px",
-                            color: APPLE_COLORS.primary,
-                            fontWeight: 500,
-                            textDecoration: "none",
-                          }}
-                        >
-                          <span>View Pitch</span>
-                          <ArrowUpRight size={14} />
-                        </a>
-                      )}
-                      {proj.github_link && (
-                        <a
-                          href={proj.github_link}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            fontSize: "13px",
-                            color: APPLE_COLORS.primary,
-                            fontWeight: 500,
-                            textDecoration: "none",
-                          }}
-                        >
-                          <span>GitHub Repository</span>
-                          <span>&lt;/&gt;</span>
-                        </a>
-                      )}
-                    </div>
+                    {/* Description */}
+                    <p
+                      style={{
+                        fontSize: "13px",
+                        color: APPLE_COLORS.inkMuted48,
+                        lineHeight: 1.55,
+                        margin: 0,
+                        flex: 1,
+                      }}
+                    >
+                      {proj.description || "Production engineering project repository."}
+                    </p>
+
+                    {/* Links */}
+                    {(proj.demo_link || proj.github_link) && (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "16px",
+                          paddingTop: "10px",
+                          borderTop: `1px solid ${APPLE_COLORS.hairline}`,
+                        }}
+                      >
+                        {proj.demo_link && (
+                          <a
+                            href={proj.demo_link}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "3px",
+                              fontSize: "13px",
+                              color: APPLE_COLORS.primary,
+                              fontWeight: 500,
+                              textDecoration: "none",
+                              letterSpacing: "-0.1px",
+                            }}
+                          >
+                            <span>View Pitch</span>
+                            <ArrowUpRight size={13} />
+                          </a>
+                        )}
+                        {proj.github_link && (
+                          <a
+                            href={proj.github_link}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "3px",
+                              fontSize: "13px",
+                              color: APPLE_COLORS.primary,
+                              fontWeight: 500,
+                              textDecoration: "none",
+                              letterSpacing: "-0.1px",
+                            }}
+                          >
+                            <span>GitHub</span>
+                            <span style={{ fontSize: "11px", opacity: 0.7 }}>&lt;/&gt;</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
               <p style={{ fontSize: "14px", color: APPLE_COLORS.inkMuted48 }}>
                 No projects showcased yet.
               </p>
             )}
           </div>
+
         </div>
       </section>
 

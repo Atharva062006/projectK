@@ -8,13 +8,13 @@ const fileFilter = (req, file, cb) => {
     if (file.mimetype === "application/pdf" || file.originalname.toLowerCase().endsWith(".pdf")) {
         cb(null, true);
     } else {
-        cb(new Error("Only PDF files are allowed!"), false);
+        cb(new Error("Only PDF files are allowed for resume upload!"), false);
     }
 };
 
 // File filter for images (avatar/profile photo)
 const avatarFileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
+    if (file.mimetype.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.originalname)) {
         cb(null, true);
     } else {
         cb(new Error("Only image files (JPG, PNG, WEBP, etc.) are allowed!"), false);

@@ -16,6 +16,10 @@ export const uploadResume = async (req, res) => {
     }
 
     try {
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            return handleResponse(res, 500, "Cloudinary configuration is missing on the server. Please verify CLOUDINARY_* environment variables.");
+        }
+
         const publicId = `projectk/resumes/resume_${Date.now()}.pdf`;
 
         const cloudinaryUrl = await new Promise((resolve, reject) => {
@@ -25,10 +29,16 @@ export const uploadResume = async (req, res) => {
                     resource_type: "raw"
                 },
                 (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result.secure_url);
+                    if (error) {
+                        reject(error);
+                    } else if (!result || !result.secure_url) {
+                        reject(new Error("Cloudinary upload failed: no secure_url returned."));
+                    } else {
+                        resolve(result.secure_url);
+                    }
                 }
             );
+            stream.on("error", (streamErr) => reject(streamErr));
             stream.end(req.file.buffer);
         });
 
@@ -36,7 +46,8 @@ export const uploadResume = async (req, res) => {
         return handleResponse(res, 201, "Resume uploaded successfully", result);
     } catch (error) {
         const statusCode = error.message === "Profile not found" ? 404 : 500;
-        return handleResponse(res, statusCode, error.message);
+        const msg = error?.message || error?.error?.message || "Failed to upload resume to Cloudinary.";
+        return handleResponse(res, statusCode, msg);
     }
 };
 
